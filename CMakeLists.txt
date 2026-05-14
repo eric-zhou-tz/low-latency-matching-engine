@@ -49,3 +49,32 @@ gtest_discover_tests(order_book_test)
 add_executable(parser_tests tests/parser_tests.cpp)
 target_link_libraries(parser_tests PRIVATE engine GTest::gtest_main)
 gtest_discover_tests(parser_tests)
+
+if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
+    FetchContent_Declare(
+        googlebenchmark
+        URL https://github.com/google/benchmark/archive/refs/tags/v1.8.3.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+
+    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+    set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
+    set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googlebenchmark)
+
+    add_executable(insert_benchmark benchmark/insert_benchmark.cpp)
+    target_link_libraries(insert_benchmark
+        PRIVATE
+            engine
+            benchmark::benchmark
+            benchmark::benchmark_main
+    )
+
+    add_executable(match_benchmark benchmark/match_benchmark.cpp)
+    target_link_libraries(match_benchmark
+        PRIVATE
+            engine
+            benchmark::benchmark
+            benchmark::benchmark_main
+    )
+endif()
