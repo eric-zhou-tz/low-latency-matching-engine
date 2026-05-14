@@ -12,8 +12,8 @@ namespace matching_engine {
 /**
  * @brief Event emitted when two orders trade.
  *
- * Matching is intentionally not implemented yet, but the event exists so the
- * exchange boundary is shaped around observable facts rather than direct IO.
+ * Trade events describe observable executions without coupling the matching
+ * engine core to terminal output or any other presentation layer.
  */
 struct TradeEvent {
     std::uint64_t resting_order_id{};

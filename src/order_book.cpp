@@ -6,9 +6,11 @@
 namespace matching_engine {
 
 /**
- * @brief Adds an order to the book without performing matching yet.
+ * @brief Adds an order to the book, matching any immediately executable volume.
  *
- * TODO: Add price-time priority queues and crossing logic here.
+ * Limit orders trade against the best opposite-side prices while they cross the
+ * incoming limit. Any unfilled quantity is appended to the relevant resting
+ * queue, preserving FIFO priority at that price level.
  */
 std::vector<Event> OrderBook::submit(Order order) {
     if (orders_by_id_.contains(order.id)) {
@@ -16,9 +18,19 @@ std::vector<Event> OrderBook::submit(Order order) {
     }
 
     const auto order_id = order.id;
-    add_resting_order(order);
+    std::vector<Event> events{AcceptedEvent{"accepted order " + std::to_string(order_id)}};
 
-    return {AcceptedEvent{"accepted order " + std::to_string(order_id)}};
+    if (order.side == Side::Buy) {
+        match_buy_order(order, events);
+    } else {
+        match_sell_order(order, events);
+    }
+
+    if (order.quantity > 0) {
+        add_resting_order(order);
+    }
+
+    return events;
 }
 
 /**
@@ -92,8 +104,6 @@ std::string OrderBook::snapshot() const {
 
 /**
  * @brief Appends an order to the appropriate price level.
- *
- * TODO: Call this only for the unfilled remainder once matching is implemented.
  */
 void OrderBook::add_resting_order(const Order& order) {
     if (order.side == Side::Buy) {
@@ -103,6 +113,77 @@ void OrderBook::add_resting_order(const Order& order) {
     }
 
     orders_by_id_.emplace(order.id, OrderLocation{.side = order.side, .price = order.price});
+}
+
+/**
+ * @brief Consumes resting asks while their price is at or below the buy limit.
+ *
+ * The front of each deque is the oldest order at that price, so matching from
+ * front to back preserves FIFO price-time priority.
+ */
+void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& events) {
+    while (incoming.quantity > 0 && !asks_.empty()) {
+        auto best_ask = asks_.begin();
+        if (best_ask->first > incoming.price) {
+            break;
+        }
+
+        auto& resting_orders = best_ask->second;
+        auto& resting = resting_orders.front();
+        const auto trade_quantity = std::min(incoming.quantity, resting.quantity);
+
+        events.emplace_back(TradeEvent{.resting_order_id = resting.id,
+                                       .incoming_order_id = incoming.id,
+                                       .price = resting.price,
+                                       .quantity = trade_quantity});
+
+        incoming.quantity -= trade_quantity;
+        resting.quantity -= trade_quantity;
+
+        if (resting.quantity == 0) {
+            orders_by_id_.erase(resting.id);
+            resting_orders.pop_front();
+        }
+
+        if (resting_orders.empty()) {
+            asks_.erase(best_ask);
+        }
+    }
+}
+
+/**
+ * @brief Consumes resting bids while their price is at or above the sell limit.
+ *
+ * Bids are sorted descending, so begin() is always the highest-priced bid.
+ */
+void OrderBook::match_sell_order(Order& incoming, std::vector<Event>& events) {
+    while (incoming.quantity > 0 && !bids_.empty()) {
+        auto best_bid = bids_.begin();
+        if (best_bid->first < incoming.price) {
+            break;
+        }
+
+        auto& resting_orders = best_bid->second;
+        auto& resting = resting_orders.front();
+        const auto trade_quantity = std::min(incoming.quantity, resting.quantity);
+
+        events.emplace_back(TradeEvent{.resting_order_id = resting.id,
+                                       .incoming_order_id = incoming.id,
+                                       .price = resting.price,
+                                       .quantity = trade_quantity});
+
+        incoming.quantity -= trade_quantity;
+        resting.quantity -= trade_quantity;
+
+        if (resting.quantity == 0) {
+            orders_by_id_.erase(resting.id);
+            resting_orders.pop_front();
+        }
+
+        if (resting_orders.empty()) {
+            bids_.erase(best_bid);
+        }
+    }
 }
 
 } // namespace matching_engine
