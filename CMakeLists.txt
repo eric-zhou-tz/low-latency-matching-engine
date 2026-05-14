@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
     matching_engine
-    VERSION 0.1.0
+    VERSION 0.2.3
     DESCRIPTION "Modern C++20 matching engine scaffold"
     LANGUAGES CXX
 )
@@ -47,5 +47,5 @@ include(GoogleTest)
 gtest_discover_tests(order_book_test)
 
 add_executable(parser_tests tests/parser_tests.cpp)
-target_link_libraries(parser_tests PRIVATE engine)
-add_test(NAME parser_tests COMMAND parser_tests)
+target_link_libraries(parser_tests PRIVATE engine GTest::gtest_main)
+gtest_discover_tests(parser_tests)
