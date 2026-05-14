@@ -1,5 +1,7 @@
 # Matching Engine
 
+[![CI](https://github.com/eric-zhou-tz/low-latency-matching-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/eric-zhou-tz/low-latency-matching-engine/actions/workflows/ci.yml)
+
 A small modern C++20 matching engine scaffold built with CMake.
 
 The project is intentionally small: it wires commands from `stdin` through a

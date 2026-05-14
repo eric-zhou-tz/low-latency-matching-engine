@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.2.3 - GitHub Actions CI
+
+- Added GitHub Actions CI for Ubuntu CMake/Ninja builds with GCC.
+- Added sanitizer CI coverage with Clang, AddressSanitizer, and UndefinedBehaviorSanitizer.
+- Registered GoogleTest-based tests with CTest discovery.
+- Added a README badge for the primary CI workflow.
+
 ## v0.2.2 - Docker Linux Test Environment
 
 - Added a multi-stage Dockerfile for Ubuntu-based build, development, and runtime images.
