@@ -35,6 +35,7 @@ struct Order {
  * @return "BUY" for bids and "SELL" for asks.
  */
 [[nodiscard]] constexpr const char* to_string(Side side) noexcept {
+    // Keep formatting stable for snapshots, events, and tests.
     return side == Side::Buy ? "BUY" : "SELL";
 }
 

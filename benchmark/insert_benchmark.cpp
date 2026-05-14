@@ -19,9 +19,11 @@ constexpr std::int64_t kBestPassiveAsk = 101;
 constexpr std::uint64_t kQuantity = 1;
 
 [[nodiscard]] std::vector<Order> make_passive_orders(std::int64_t count) {
+    // Preallocate so vector growth does not add noise to benchmark setup.
     std::vector<Order> orders;
     orders.reserve(static_cast<std::size_t>(count));
 
+    // Alternate sides at non-crossing prices so every order rests.
     for (std::int64_t index = 0; index < count; ++index) {
         const bool is_buy = index % 2 == 0;
         const auto price_offset = index % 5;
@@ -33,6 +35,7 @@ constexpr std::uint64_t kQuantity = 1;
                                .quantity = kQuantity});
     }
 
+    // Return the prepared passive workload.
     return orders;
 }
 
@@ -44,28 +47,35 @@ constexpr std::uint64_t kQuantity = 1;
  * price levels without parser, file, stdin, or logging overhead.
  */
 void BM_RestingLimitOrderInsert(benchmark::State& state) {
+    // Use the benchmark argument as the number of orders inserted per iteration.
     const auto order_count = state.range(0);
     const auto orders = make_passive_orders(order_count);
     std::optional<OrderBook> book;
 
+    // Google Benchmark controls the number of repetitions.
     for (auto _ : state) {
+        // Create a fresh book outside the timed insert section.
         state.PauseTiming();
         book.emplace();
         state.ResumeTiming();
 
+        // Measure only non-crossing submit and append behavior.
         for (const auto& order : orders) {
             auto events = book->submit(order);
             benchmark::DoNotOptimize(events);
         }
 
+        // Keep the compiler from optimizing away book mutations.
         benchmark::ClobberMemory();
         benchmark::DoNotOptimize(*book);
 
+        // Destroy the populated book outside the measured section.
         state.PauseTiming();
         book.reset();
         state.ResumeTiming();
     }
 
+    // Report throughput in accepted resting orders.
     state.SetItemsProcessed(state.iterations() * order_count);
 }
 

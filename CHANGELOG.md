@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.2.5 - Cancel Order Support
+
+- Added a first-class `CanceledEvent` for successful cancel operations.
+- Maintained the order-id index as a live resting-order index keyed by order id with side and price location data.
+- Implemented deterministic cancel behavior that removes the order from its FIFO price-level queue, clears empty price levels, and rejects unknown, filled, or already-canceled orders.
+- Expanded unit coverage for buy and sell cancels, unknown cancels, FIFO preservation after cancel, price-level cleanup, partial-fill cancel behavior, and fully filled orders.
+
 ## v0.2.4 - Linux VM Google Benchmark Baseline
 
 - Added baseline Google Benchmark throughput artifacts from the Ubuntu EC2 benchmarking host.
