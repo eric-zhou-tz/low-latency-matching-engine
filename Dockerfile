@@ -21,6 +21,7 @@ COPY include ./include
 COPY src ./src
 COPY tests ./tests
 COPY examples ./examples
+COPY benchmark ./benchmark
 
 RUN cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 RUN cmake --build build

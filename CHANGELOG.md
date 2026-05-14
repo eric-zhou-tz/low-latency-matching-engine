@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v0.2.5 - Cancel Order Support
+## v0.3.0 - Cancel Order Support
 
 - Added a first-class `CanceledEvent` for successful cancel operations.
 - Maintained the order-id index as a live resting-order index keyed by order id with side and price location data.

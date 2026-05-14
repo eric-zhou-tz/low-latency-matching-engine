@@ -158,6 +158,48 @@ TEST(OrderBookTest, PartialFillLeavesRemainingQuantityCorrectly) {
     EXPECT_NE(book.snapshot().find("[41 AAPL BUY 101x3]"), std::string::npos);
 }
 
+TEST(OrderBookTest, AggressiveBuyWalksAskLevelsAndRestsRemainder) {
+    // Seed two ask levels so the incoming order must preserve price priority.
+    OrderBook book;
+    submit_accepted(book, make_order(42, Side::Sell, 100, 4));
+    submit_accepted(book, make_order(43, Side::Sell, 101, 3));
+
+    const auto events = book.submit(make_order(44, Side::Buy, 102, 10));
+
+    // The buy consumes cheaper asks first and only rests its unfilled quantity.
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 42, 44, 100, 4);
+    expect_trade(events[2], 43, 44, 101, 3);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_EQ(snapshot.find("[42 AAPL SELL 100x4]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[43 AAPL SELL 101x3]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[44 AAPL BUY 102x3]"), std::string::npos);
+    EXPECT_NE(snapshot.find("orders=1"), std::string::npos);
+}
+
+TEST(OrderBookTest, AggressiveSellWalksBidLevelsAndRestsRemainder) {
+    // Seed two bid levels so the incoming order must preserve price priority.
+    OrderBook book;
+    submit_accepted(book, make_order(45, Side::Buy, 102, 4));
+    submit_accepted(book, make_order(46, Side::Buy, 101, 3));
+
+    const auto events = book.submit(make_order(47, Side::Sell, 100, 10));
+
+    // The sell consumes higher bids first and only rests its unfilled quantity.
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 45, 47, 102, 4);
+    expect_trade(events[2], 46, 47, 101, 3);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_EQ(snapshot.find("[45 AAPL BUY 102x4]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[46 AAPL BUY 101x3]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[47 AAPL SELL 100x3]"), std::string::npos);
+    EXPECT_NE(snapshot.find("orders=1"), std::string::npos);
+}
+
 TEST(OrderBookTest, CancelRestingBuyOrderSucceeds) {
     // Submit a buy that can be canceled.
     OrderBook book;
