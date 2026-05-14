@@ -77,4 +77,12 @@ if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
             benchmark::benchmark
             benchmark::benchmark_main
     )
+
+    add_executable(cancel_benchmark benchmark/cancel_benchmark.cpp)
+    target_link_libraries(cancel_benchmark
+        PRIVATE
+            engine
+            benchmark::benchmark
+            benchmark::benchmark_main
+    )
 endif()

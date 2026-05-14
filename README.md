@@ -40,6 +40,7 @@ For more detail on failures:
 ctest --test-dir build --output-on-failure
 ```
 
+
 ## Benchmarks
 
 Benchmark sources live under `benchmark/`:
@@ -48,6 +49,8 @@ Benchmark sources live under `benchmark/`:
   cross and therefore rest on the book.
 - `match_benchmark.cpp` preloads resting liquidity, then measures aggressive
   crossing limit orders that consume that liquidity.
+- `cancel_benchmark.cpp` measures front, back, random, and unknown-order
+  cancels, plus a mixed submit/cancel/match stream.
 
 The benchmarks exercise the order-book hot path directly. They avoid parser,
 stdin, file I/O, and logging overhead, and they do not include fabricated
@@ -76,11 +79,22 @@ mkdir -p benchmarks
   --benchmark_out=benchmarks/match_results.json \
   --benchmark_out_format=json \
   > benchmarks/match_results.txt
+
+./build/cancel_benchmark \
+  --benchmark_out=benchmarks/cancel_results.json \
+  --benchmark_out_format=json \
+  > benchmarks/cancel_results.txt
 ```
 
 The `.txt` files contain human-readable benchmark summaries. The `.json` files
 preserve machine-readable results for future tooling, CI integration, and
 regression tracking.
+
+The cancel benchmarks matter because exchange workloads constantly remove live
+orders before they trade. Front, back, and randomized cancels show how FIFO
+queue position affects scalability, while unknown cancels isolate rejected
+lookup behavior. The mixed workload keeps cancel measurements grounded in a
+more realistic stream of resting inserts, live cancels, and crossing orders.
 
 See [BENCHMARKS.md](BENCHMARKS.md) for the current Linux VM Google Benchmark
 baseline summary.

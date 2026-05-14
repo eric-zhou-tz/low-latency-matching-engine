@@ -1,0 +1,18 @@
+--------------------------------------------------------------------------------------
+Benchmark                            Time             CPU   Iterations UserCounters...
+--------------------------------------------------------------------------------------
+BM_CancelFront/1000              81002 ns        80996 ns         8637 items_per_second=12.3462M/s
+BM_CancelFront/10000            788616 ns       788499 ns          889 items_per_second=12.6823M/s
+BM_CancelFront/100000          8278359 ns      8277653 ns           85 items_per_second=12.0807M/s
+BM_CancelBack/1000              603877 ns       603849 ns         1159 items_per_second=1.65604M/s
+BM_CancelBack/10000           56373385 ns     56368146 ns           12 items_per_second=177.405k/s
+BM_CancelBack/100000        1.4238e+10 ns   1.4237e+10 ns            1 items_per_second=7.02396k/s
+BM_CancelRandom/1000           1173053 ns      1172999 ns          596 items_per_second=852.516k/s
+BM_CancelRandom/10000        107381809 ns    107371953 ns            7 items_per_second=93.1342k/s
+BM_CancelRandom/100000      1.4840e+10 ns   1.4839e+10 ns            1 items_per_second=6.73904k/s
+BM_CancelUnknown/1000            84672 ns        84651 ns         8260 items_per_second=11.8133M/s
+BM_CancelUnknown/10000          843310 ns       843077 ns          832 items_per_second=11.8613M/s
+BM_CancelUnknown/100000        7948291 ns      7945855 ns           88 items_per_second=12.5852M/s
+BM_MixedSubmitCancel/1000       136837 ns       136836 ns         5117 items_per_second=7.308M/s
+BM_MixedSubmitCancel/10000     1295897 ns      1295960 ns          540 items_per_second=7.71629M/s
+BM_MixedSubmitCancel/100000   13352956 ns     13352105 ns           52 items_per_second=7.48946M/s
