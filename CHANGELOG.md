@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.2.1 - GoogleTest Test Infrastructure
+
+- Added GoogleTest via CMake `FetchContent` so tests do not require a global install.
+- Built production code as an `engine` library target for reuse by test binaries.
+- Added `tests/order_book_test.cpp` with unit coverage for order resting, duplicate IDs, aggressive matching, FIFO price-time priority, partial fills, and cancellation behavior.
+- Registered GoogleTest cases with CTest using `gtest_discover_tests`.
+- Updated README build and test instructions.
+
 ## v0.2.0 - Limit Order Matching
 
 - Added limit order matching with price-time priority.
