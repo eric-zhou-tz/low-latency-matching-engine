@@ -4,6 +4,9 @@
 #include "order.hpp"
 
 #include <cstdint>
+#include <deque>
+#include <functional>
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -13,8 +16,9 @@ namespace matching_engine {
 /**
  * @brief Stores orders for a single symbol and emits domain events.
  *
- * This scaffold keeps only an id-indexed collection. Price-time queues and real
- * crossing logic belong here once matching is implemented.
+ * The book is organized as side-specific price levels. Bids and asks are stored
+ * separately because they have opposite best-price rules, while each price level
+ * preserves FIFO order for future price-time priority matching.
  */
 class OrderBook {
 public:
@@ -42,7 +46,35 @@ public:
     [[nodiscard]] std::string snapshot() const;
 
 private:
-    std::unordered_map<std::uint64_t, Order> orders_by_id_;
+    using Price = std::int64_t;
+
+    /**
+     * @brief Minimal location record used to cancel without scanning the book.
+     */
+    struct OrderLocation {
+        Side side;
+        Price price;
+    };
+
+    /**
+     * @brief Adds an unmatched order to its side-specific price level.
+     *
+     * @param order Order that should rest on the book.
+     */
+    void add_resting_order(const Order& order);
+
+    // Bids and asks live in separate maps because each side has a different
+    // notion of "best": highest buy price versus lowest sell price.
+    //
+    // Bids use std::greater<> so begin() points at the highest price. Asks keep
+    // the default ascending order so begin() points at the lowest price.
+    //
+    // Each price level stores a deque so new resting orders append at the back
+    // and later matching can consume from the front for FIFO price-time priority.
+    std::map<Price, std::deque<Order>, std::greater<Price>> bids_;
+    std::map<Price, std::deque<Order>> asks_;
+
+    std::unordered_map<std::uint64_t, OrderLocation> orders_by_id_;
 };
 
 } // namespace matching_engine
