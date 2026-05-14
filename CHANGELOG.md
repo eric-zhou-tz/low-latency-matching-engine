@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.2.2 - Docker Linux Test Environment
+
+- Added a multi-stage Dockerfile for Ubuntu-based build, development, and runtime images.
+- Added a Docker build target that configures, builds, and runs the CTest suite on Linux.
+- Added an interactive Docker development shell for testing the project in a Linux environment.
+- Added a lightweight runtime image for running the matching engine CLI with sample order input.
+- Documented Docker build, test, development shell, and runtime commands in the README.
+
 ## v0.2.1 - GoogleTest Test Infrastructure
 
 - Added GoogleTest via CMake `FetchContent` so tests do not require a global install.
