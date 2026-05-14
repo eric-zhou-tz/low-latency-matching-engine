@@ -14,3 +14,5 @@ compile_commands.json
 .DS_Store
 .idea/
 .vscode/
+
+AGENTS.md

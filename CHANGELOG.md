@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.2.4 - Linux VM Google Benchmark Baseline
+
+- Added baseline Google Benchmark throughput artifacts from the Ubuntu EC2 benchmarking host.
+- Recorded resting limit order insert and crossing limit order match throughput.
+- Added `BENCHMARKS.md` to summarize environment details, benchmark workloads, results, artifacts, and initial performance read.
+- Documented saving both human-readable benchmark logs and machine-readable JSON outputs for future regression tracking.
+
 ## v0.2.3 - GitHub Actions CI
 
 - Added GitHub Actions CI for Ubuntu CMake/Ninja builds with GCC.

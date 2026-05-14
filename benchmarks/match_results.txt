@@ -1,0 +1,6 @@
+--------------------------------------------------------------------------------------------
+Benchmark                                  Time             CPU   Iterations UserCounters...
+--------------------------------------------------------------------------------------------
+BM_CrossingLimitOrderMatch/1000       172198 ns       172129 ns         4154 items_per_second=5.80959M/s
+BM_CrossingLimitOrderMatch/10000     1894539 ns      1894272 ns          387 items_per_second=5.27907M/s
+BM_CrossingLimitOrderMatch/100000   18652292 ns     18652535 ns           40 items_per_second=5.3612M/s

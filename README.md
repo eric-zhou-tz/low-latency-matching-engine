@@ -54,22 +54,65 @@ stdin, file I/O, and logging overhead, and they do not include fabricated
 performance numbers.
 
 Configure a Release build to fetch Google Benchmark and build the benchmark
-executables automatically:
+executables. This builds the benchmarks only; it does not run them:
 
 ```sh
-cmake -S . -B build-bench -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native"
-cmake --build build-bench
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native"
+cmake --build build
 ```
 
-Run them later on the Linux benchmark host:
+Run benchmarks manually on the Linux EC2 benchmark host and save both readable
+and structured output. Create the output directory first:
 
 ```sh
-./build-bench/insert_benchmark
-./build-bench/match_benchmark
+mkdir -p benchmarks
+
+./build/insert_benchmark \
+  --benchmark_out=benchmarks/insert_results.json \
+  --benchmark_out_format=json \
+  > benchmarks/insert_results.txt
+
+./build/match_benchmark \
+  --benchmark_out=benchmarks/match_results.json \
+  --benchmark_out_format=json \
+  > benchmarks/match_results.txt
+```
+
+The `.txt` files contain human-readable benchmark summaries. The `.json` files
+preserve machine-readable results for future tooling, CI integration, and
+regression tracking.
+
+See [BENCHMARKS.md](BENCHMARKS.md) for the current Linux VM Google Benchmark
+baseline summary.
+
+Example EC2 execution command:
+
+```sh
+ssh -i ~/.ssh/matching-engine-key.pem ubuntu@<EC2_IP> \
+'cd ~/matching-engine && \
+mkdir -p benchmarks && \
+./build/insert_benchmark \
+--benchmark_out=benchmarks/insert_results.json \
+--benchmark_out_format=json \
+> benchmarks/insert_results.txt'
+```
+
+For the matching benchmark:
+
+```sh
+ssh -i ~/.ssh/matching-engine-key.pem ubuntu@<EC2_IP> \
+'cd ~/matching-engine && \
+mkdir -p benchmarks && \
+./build/match_benchmark \
+--benchmark_out=benchmarks/match_results.json \
+--benchmark_out_format=json \
+> benchmarks/match_results.txt'
 ```
 
 Use Ubuntu/Linux and Release mode for final measurements. The recommended
 release flags are `-O3 -march=native` when the target machine supports them.
+Do not run benchmarks automatically from CMake or CI until that workflow is
+added intentionally.
 
 ## Linux Testing With Docker
 
