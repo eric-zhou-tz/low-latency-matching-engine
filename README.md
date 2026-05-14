@@ -37,6 +37,36 @@ For more detail on failures:
 ctest --test-dir build --output-on-failure
 ```
 
+## Linux Testing With Docker
+
+Build and test inside an Ubuntu Linux container:
+
+```sh
+docker build --target build -t matching-engine-test .
+```
+
+Open an interactive Linux development shell:
+
+```sh
+docker build --target dev -t matching-engine-dev .
+docker run --rm -it -v "$PWD":/workspace -w /workspace matching-engine-dev
+```
+
+From inside the container:
+
+```sh
+cmake -S . -B build-linux -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-linux
+ctest --test-dir build-linux --output-on-failure
+```
+
+Build a small runtime image and run the demo:
+
+```sh
+docker build --target runtime -t matching-engine .
+docker run --rm -i matching-engine < examples/demo.orders
+```
+
 ## Run
 
 ```sh
