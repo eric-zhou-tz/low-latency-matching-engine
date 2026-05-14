@@ -158,3 +158,4 @@ This project emphasizes:
 - Formalize the print book action and output contract.
 - Implement trade reports.
 - Perform hot path analysis across matching, canceling, and symbol routing.
+- Add latency benchmarks.
