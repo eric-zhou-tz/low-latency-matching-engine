@@ -150,3 +150,11 @@ This project emphasizes:
 - Testability and reproducibility
 - Clean modern C++ design
 - Linux-based benchmarking workflows
+
+## Future Steps
+
+- Investigate why random cancels are significantly slower than other cancel paths.
+- Implement market order support.
+- Formalize the print book action and output contract.
+- Implement trade reports.
+- Perform hot path analysis across matching, canceling, and symbol routing.
