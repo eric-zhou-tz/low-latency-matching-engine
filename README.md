@@ -11,16 +11,30 @@ against resting liquidity using price-time priority.
 ```text
 include/   Public headers and domain interfaces
 src/       Implementations and CLI entry point
-tests/     Dependency-free smoke tests
+tests/     GoogleTest unit tests
 examples/  Example order command streams
 ```
 
 ## Build
 
+GoogleTest is fetched by CMake with `FetchContent`; it does not need to be
+installed globally.
+
 ```sh
 cmake -S . -B build
 cmake --build build
+```
+
+## Test
+
+```sh
 ctest --test-dir build
+```
+
+For more detail on failures:
+
+```sh
+ctest --test-dir build --output-on-failure
 ```
 
 ## Run
@@ -48,4 +62,4 @@ PRINT
 
 - Introduce a global order-id index for faster cancellation.
 - Add market orders and time-in-force handling.
-- Replace smoke tests with a richer test framework when behavior grows.
+- Broaden unit coverage around parser and exchange behavior.
