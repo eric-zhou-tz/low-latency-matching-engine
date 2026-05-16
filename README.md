@@ -44,10 +44,13 @@ Matching Engine
 Trade / Accept / Reject Events
 ```
 
-Additional architecture details:
+Additional documentation:
 
-- See [ARCHITECTURE.md](ARCHITECTURE.md) for architecture and design notes.
-- See [BENCHMARKS.md](BENCHMARKS.md) for Linux benchmark results.
+- [Architecture](docs/ARCHITECTURE.md)
+- [Benchmarks](BENCHMARKS.md)
+- [Benchmark History](docs/benchmark_history.md)
+- [Hot Path Analysis](docs/HOTPATH.md)
+- [Changelog](docs/CHANGELOG.md)
 
 ## Repository Structure
 
@@ -57,6 +60,7 @@ src/       Core engine implementation
 tests/     GoogleTest unit tests
 benchmark/ Google Benchmark microbenchmarks
 examples/  Example order streams
+docs/      Architecture, changelog, benchmark history, and hot-path notes
 ```
 
 ## Quick Start

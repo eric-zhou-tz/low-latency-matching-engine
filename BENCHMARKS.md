@@ -34,7 +34,7 @@ is excluded from the measured loop where appropriate.
 Human-readable output is saved in `benchmarks/*.txt`. Machine-readable Google
 Benchmark JSON output is saved in `benchmarks/*.json` for future tooling,
 regression tracking, and CI integration. Longitudinal benchmark rows are tracked
-in `benchmark_history.md`.
+in `docs/benchmark_history.md`.
 
 ### Resting Limit Order Inserts
 
