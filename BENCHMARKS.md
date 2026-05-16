@@ -11,7 +11,7 @@ automatically by CMake or CI until that workflow is added intentionally.
 - Kernel: `7.0.0-1004-aws`
 - CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
 - Compiler: GCC/G++ 15.2.0
-- Commit: `2cba3e5` plus local `ankerl::unordered_dense` order lookup changes
+- Commit: `a857109` plus local order-id load factor tuning changes
 - Build type: `Release`
 - Release flags: `-O3 -DNDEBUG`
 - Correctness tests: 20/20 passed before benchmark execution
@@ -132,6 +132,36 @@ measurement window than the full artifact run above.
 | `BM_CancelRandom/100000` | 2.71735M items/s | 5.23192M items/s | +92.5% | -48.1% |
 | `BM_CancelUnknown/100000` | 12.8103M items/s | 12.9185M items/s | +0.8% | -0.8% |
 | `BM_MixedSubmitCancel/100000` | 6.1451M items/s | 7.01731M items/s | +14.2% | -12.4% |
+
+Order-id load factor tuning run:
+
+This focused run used only the 100,000-operation random cancel, unknown cancel,
+and mixed submit/cancel benchmarks. Each load factor used the same Release
+binary, `--benchmark_min_time=3s`, and 5 repetitions. Values below are Google
+Benchmark mean aggregate rows, with deltas relative to the `0.80` baseline.
+
+| Load Factor | Benchmark | CPU Time | Throughput | Throughput Delta vs 0.80 | CPU Time Delta vs 0.80 |
+| ---: | --- | ---: | ---: | ---: | ---: |
+| 0.50 | `BM_CancelRandom/100000` | 21599970 ns | 4.63827M items/s | -12.8% | +14.6% |
+| 0.60 | `BM_CancelRandom/100000` | 21116797 ns | 4.75425M items/s | -10.7% | +12.0% |
+| 0.70 | `BM_CancelRandom/100000` | 21477911 ns | 4.68257M items/s | -12.0% | +13.9% |
+| 0.80 | `BM_CancelRandom/100000` | 18851725 ns | 5.32119M items/s | 0.0% | 0.0% |
+| 0.50 | `BM_CancelUnknown/100000` | 10327630 ns | 9.78933M items/s | -24.3% | +33.3% |
+| 0.60 | `BM_CancelUnknown/100000` | 9917648 ns | 10.1306M items/s | -21.6% | +28.0% |
+| 0.70 | `BM_CancelUnknown/100000` | 9779039 ns | 10.2806M items/s | -20.5% | +26.2% |
+| 0.80 | `BM_CancelUnknown/100000` | 7747137 ns | 12.925M items/s | 0.0% | 0.0% |
+| 0.50 | `BM_MixedSubmitCancel/100000` | 16114586 ns | 6.22999M items/s | -16.0% | +19.4% |
+| 0.60 | `BM_MixedSubmitCancel/100000` | 15833793 ns | 6.31734M items/s | -14.8% | +17.4% |
+| 0.70 | `BM_MixedSubmitCancel/100000` | 16157134 ns | 6.19291M items/s | -16.5% | +19.7% |
+| 0.80 | `BM_MixedSubmitCancel/100000` | 13492604 ns | 7.41336M items/s | 0.0% | 0.0% |
+
+Recommendation: keep `orders_by_id_` at `0.80` for production. Lower load
+factors shorten expected probe chains, but they spread the flat table over more
+memory. On these deep EC2 workloads, the extra memory footprint appears to hurt
+cache locality more than the shorter probes help. The `0.60` setting was the
+best lower-density candidate, but it still trailed `0.80` by 10.7% on random
+cancel throughput, 21.6% on unknown cancel throughput, and 14.8% on the mixed
+workload.
 
 Deepest cancel cases across the deque baseline, iterator refactor, intrusive
 refactor, and dense lookup refactor:

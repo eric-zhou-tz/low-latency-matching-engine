@@ -38,6 +38,14 @@ public:
     explicit OrderBook(std::size_t expected_order_capacity);
 
     /**
+     * @brief Creates an empty order book with tuned order-id lookup density.
+     *
+     * @param expected_order_capacity Expected number of live resting orders.
+     * @param order_id_max_load_factor Maximum load factor for the order-id map.
+     */
+    OrderBook(std::size_t expected_order_capacity, float order_id_max_load_factor);
+
+    /**
      * @brief Copies a book and rebuilds intrusive order links.
      *
      * @param other Book to copy.
@@ -101,6 +109,13 @@ public:
      * @param expected_order_capacity Expected number of live resting orders.
      */
     void reserve_order_capacity(std::size_t expected_order_capacity);
+
+    /**
+     * @brief Sets the order-id lookup load factor for future reservations.
+     *
+     * @param order_id_max_load_factor Maximum load factor for the order-id map.
+     */
+    void set_order_id_max_load_factor(float order_id_max_load_factor);
 
 private:
     using Price = std::int64_t;

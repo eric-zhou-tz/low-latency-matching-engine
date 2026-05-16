@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <deque>
 #include <optional>
 #include <random>
@@ -23,6 +24,7 @@ constexpr std::uint64_t kQuantity = 1;
 constexpr std::uint64_t kUnknownOrderIdBase = 1'000'000'000;
 constexpr std::uint64_t kMixedCrossingIdBase = 2'000'000'000;
 constexpr std::uint32_t kCancelShuffleSeed = 0xC0FFEE;
+constexpr float kDefaultOrderIdMaxLoadFactor = 0.80F;
 
 enum class MixedOperationKind {
     RestingInsert,
@@ -35,6 +37,28 @@ struct MixedOperation {
     Order order{};
     std::uint64_t cancel_id{};
 };
+
+/**
+ * @brief Reads the benchmark order-id load factor tuning knob.
+ *
+ * @return Requested max load factor, or the benchmark baseline when unset.
+ */
+[[nodiscard]] float benchmark_order_id_max_load_factor() {
+    // Keep the default aligned with the current dense-map baseline.
+    const char* value = std::getenv("MATCHING_ENGINE_ORDER_ID_MAX_LOAD_FACTOR");
+    if (value == nullptr) {
+        return kDefaultOrderIdMaxLoadFactor;
+    }
+
+    // Parse once per benchmark setup path so measured operations stay unchanged.
+    const float load_factor = std::strtof(value, nullptr);
+    if (load_factor <= 0.0F) {
+        return kDefaultOrderIdMaxLoadFactor;
+    }
+
+    // Return the requested density for the order-id index.
+    return load_factor;
+}
 
 /**
  * @brief Builds one same-price FIFO queue of resting buy orders.
@@ -162,6 +186,7 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
     // Prepare the resting queue once; per-iteration loading is outside timing.
     const auto order_count = state.range(0);
     const auto expected_order_capacity = static_cast<std::size_t>(order_count);
+    const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
     const auto resting_orders = make_same_price_resting_buys(order_count);
     std::optional<OrderBook> book;
 
@@ -169,7 +194,7 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
     for (auto _ : state) {
         // Rebuild the same starting book without charging setup to cancel time.
         state.PauseTiming();
-        book.emplace(expected_order_capacity);
+        book.emplace(expected_order_capacity, order_id_max_load_factor);
         preload_book(*book, resting_orders);
         state.ResumeTiming();
 
@@ -191,6 +216,7 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
 
     // Report throughput in cancel attempts.
     state.SetItemsProcessed(state.iterations() * order_count);
+    state.counters["order_id_max_load_factor"] = order_id_max_load_factor;
 }
 
 /**
@@ -322,6 +348,7 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
     // Build the deterministic exchange-style operation stream outside timing.
     const auto operation_count = state.range(0);
     const auto expected_order_capacity = static_cast<std::size_t>(operation_count);
+    const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
     const auto operations = make_mixed_operations(operation_count);
     std::optional<OrderBook> book;
 
@@ -329,7 +356,7 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
     for (auto _ : state) {
         // Start each trial from an empty book without timing construction.
         state.PauseTiming();
-        book.emplace(expected_order_capacity);
+        book.emplace(expected_order_capacity, order_id_max_load_factor);
         state.ResumeTiming();
 
         // Measure the mixed order-book workload as one exchange-style stream.
@@ -355,6 +382,7 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
 
     // Report throughput in total exchange operations.
     state.SetItemsProcessed(state.iterations() * operation_count);
+    state.counters["order_id_max_load_factor"] = order_id_max_load_factor;
 }
 
 BENCHMARK(BM_CancelFront)->Arg(1'000)->Arg(10'000)->Arg(100'000);

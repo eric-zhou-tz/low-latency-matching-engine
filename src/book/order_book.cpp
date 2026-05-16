@@ -15,6 +15,15 @@ OrderBook::OrderBook(std::size_t expected_order_capacity) {
 }
 
 /**
+ * @brief Creates an empty book with tuned order lookup density.
+ */
+OrderBook::OrderBook(std::size_t expected_order_capacity, float order_id_max_load_factor) {
+    // Apply the requested density before reserve so bucket sizing uses it.
+    set_order_id_max_load_factor(order_id_max_load_factor);
+    reserve_order_capacity(expected_order_capacity);
+}
+
+/**
  * @brief Copies price levels and rebuilds intrusive links for the new book.
  */
 OrderBook::OrderBook(const OrderBook& other) {
@@ -199,6 +208,14 @@ void OrderBook::reserve_order_capacity(std::size_t expected_order_capacity) {
 }
 
 /**
+ * @brief Updates the max load factor used by the order-id map.
+ */
+void OrderBook::set_order_id_max_load_factor(float order_id_max_load_factor) {
+    // Forward the tuning knob to the dense hash map before future reservations.
+    orders_by_id_.max_load_factor(order_id_max_load_factor);
+}
+
+/**
  * @brief Appends an order to the appropriate price level.
  */
 void OrderBook::add_resting_order(const Order& order) {
@@ -235,6 +252,9 @@ void OrderBook::clear() noexcept {
  * @brief Copies live resting orders from another book.
  */
 void OrderBook::copy_from(const OrderBook& other) {
+    // Preserve the source lookup density before sizing this book's id index.
+    set_order_id_max_load_factor(other.orders_by_id_.max_load_factor());
+
     // Reserve the same live-id count so cloning does not rehash mid-copy.
     orders_by_id_.reserve(other.orders_by_id_.size());
 
