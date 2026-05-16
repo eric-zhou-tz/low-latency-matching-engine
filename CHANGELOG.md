@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.3.2 - OrderPool Storage Arena
+
+- Added `OrderPool` to own stable resting-order storage in contiguous blocks.
+- Reused canceled and filled order slots through an internal free list to avoid hot-path deallocation.
+- Moved order ownership out of price levels so `OrderQueue` and `orders_by_id_` store raw non-owning `Order*` pointers.
+- Refreshed EC2 Release benchmarks after the intrusive queue and order pool refactor.
+
+## v0.3.1 - Intrusive OrderQueue Cancel Path
+
+- Replaced node-based FIFO queues with an intrusive `OrderQueue` that stores `head`, `tail`, and `total_volume`.
+- Embedded `prev` and `next` links directly in `Order` for O(1) cancel unlink by order ID.
+- Updated `orders_by_id_` to store direct `Order*` cancel locations.
+- Preserved strict FIFO price-time priority for matching and cancellation.
+
 ## v0.3.0 - Cancel Order Support
 
 - Added a first-class `CanceledEvent` for successful cancel operations.

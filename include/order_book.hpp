@@ -2,9 +2,10 @@
 
 #include "event.hpp"
 #include "order.hpp"
+#include "order_pool.hpp"
+#include "order_queue.hpp"
 
 #include <cstdint>
-#include <deque>
 #include <functional>
 #include <map>
 #include <string>
@@ -22,6 +23,46 @@ namespace matching_engine {
  */
 class OrderBook {
 public:
+    /**
+     * @brief Creates an empty order book.
+     */
+    OrderBook() = default;
+
+    /**
+     * @brief Copies a book and rebuilds intrusive order links.
+     *
+     * @param other Book to copy.
+     */
+    OrderBook(const OrderBook& other);
+
+    /**
+     * @brief Copies a book and rebuilds intrusive order links.
+     *
+     * @param other Book to copy.
+     * @return This book.
+     */
+    OrderBook& operator=(const OrderBook& other);
+
+    /**
+     * @brief Moves a book while preserving raw order pointers into owned blocks.
+     *
+     * @param other Book to move.
+     */
+    OrderBook(OrderBook&& other) noexcept;
+
+    /**
+     * @brief Moves a book while preserving raw order pointers into owned blocks.
+     *
+     * @param other Book to move.
+     * @return This book.
+     */
+    OrderBook& operator=(OrderBook&& other) noexcept;
+
+    /**
+     * @brief Destroys the order book.
+     */
+    ~OrderBook();
+
     /**
      * @brief Adds an order to the book.
      *
@@ -49,12 +90,16 @@ private:
     using Price = std::int64_t;
 
     /**
-     * @brief Minimal location record used to cancel without scanning the book.
+     * @brief Clears all book state and owned order storage.
      */
-    struct OrderLocation {
-        Side side;
-        Price price;
-    };
+    void clear() noexcept;
+
+    /**
+     * @brief Copies live resting orders from another book.
+     *
+     * @param other Book to copy from.
+     */
+    void copy_from(const OrderBook& other);
 
     /**
      * @brief Adds an unmatched order to its side-specific price level.
@@ -85,12 +130,14 @@ private:
     // Bids use std::greater<> so begin() points at the highest price. Asks keep
     // the default ascending order so begin() points at the lowest price.
     //
-    // Each price level stores a deque so new resting orders append at the back
-    // and later matching can consume from the front for FIFO price-time priority.
-    std::map<Price, std::deque<Order>, std::greater<Price>> bids_;
-    std::map<Price, std::deque<Order>> asks_;
+    // Each price level is an intrusive FIFO queue. Orders are stored in an
+    // OrderPool and linked by raw pointers, avoiding std::list node allocation
+    // while preserving stable FIFO order and O(1) cancel unlink by order id.
+    std::map<Price, OrderQueue, std::greater<Price>> bids_;
+    std::map<Price, OrderQueue> asks_;
 
-    std::unordered_map<std::uint64_t, OrderLocation> orders_by_id_;
+    std::unordered_map<std::uint64_t, Order*> orders_by_id_;
+    OrderPool order_pool_;
 };
 
 } // namespace matching_engine

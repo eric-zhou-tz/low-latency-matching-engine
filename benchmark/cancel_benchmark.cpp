@@ -300,7 +300,7 @@ void BM_CancelBack(benchmark::State& state) {
  * @brief Measures cancellation through a deterministic random id order.
  */
 void BM_CancelRandom(benchmark::State& state) {
-    // A fixed shuffle shows average queue scan behavior reproducibly.
+    // A fixed shuffle exposes random-cancel locality costs reproducibly.
     const auto cancel_ids = make_random_cancel_ids(state.range(0));
     run_cancel_workload(state, cancel_ids);
 }

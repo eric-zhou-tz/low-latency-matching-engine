@@ -1,8 +1,8 @@
 {
   "context": {
-    "date": "2026-05-14T05:45:40+00:00",
+    "date": "2026-05-16T07:13:30+00:00",
     "host_name": "ip-172-31-44-213",
-    "executable": "./build/insert_benchmark",
+    "executable": "./build-ec2-intrusive/insert_benchmark",
     "num_cpus": 2,
     "mhz_per_cpu": 2500,
     "cpu_scaling_enabled": false,
@@ -32,7 +32,7 @@
         "num_sharing": 2
       }
     ],
-    "load_avg": [1.40771,0.575684,0.264648],
+    "load_avg": [1.0498,0.431641,0.158691],
     "library_build_type": "release"
   },
   "benchmarks": [
@@ -45,11 +45,11 @@
       "repetitions": 1,
       "repetition_index": 0,
       "threads": 1,
-      "iterations": 3703,
-      "real_time": 1.9758861760171218e+05,
-      "cpu_time": 1.9775951417769361e+05,
+      "iterations": 3997,
+      "real_time": 1.7388745144862155e+05,
+      "cpu_time": 1.7387851613710105e+05,
       "time_unit": "ns",
-      "items_per_second": 5.0566467264956273e+06
+      "items_per_second": 5.7511417868985757e+06
     },
     {
       "name": "BM_RestingLimitOrderInsert/10000",
@@ -60,11 +60,11 @@
       "repetitions": 1,
       "repetition_index": 0,
       "threads": 1,
-      "iterations": 350,
-      "real_time": 1.8658191828477096e+06,
-      "cpu_time": 1.8665537800000007e+06,
+      "iterations": 406,
+      "real_time": 1.7067865046197686e+06,
+      "cpu_time": 1.7068204064039527e+06,
       "time_unit": "ns",
-      "items_per_second": 5.3574668499506060e+06
+      "items_per_second": 5.8588472240431504e+06
     },
     {
       "name": "BM_RestingLimitOrderInsert/100000",
@@ -75,11 +75,11 @@
       "repetitions": 1,
       "repetition_index": 0,
       "threads": 1,
-      "iterations": 33,
-      "real_time": 2.0996079969680782e+07,
-      "cpu_time": 2.0993583393939428e+07,
+      "iterations": 38,
+      "real_time": 1.8433237705673825e+07,
+      "cpu_time": 1.8432261131579008e+07,
       "time_unit": "ns",
-      "items_per_second": 4.7633602193358140e+06
+      "items_per_second": 5.4252703608172815e+06
     }
   ]
 }

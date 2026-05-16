@@ -299,6 +299,23 @@ TEST(OrderBookTest, CancelAfterPartialFillRemovesOnlyRemainingQuantity) {
     EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
 }
 
+TEST(OrderBookTest, CopiedBookRebuildsCancelLocations) {
+    // Seed a book with multiple same-price orders so copied pointers matter.
+    OrderBook original;
+    submit_accepted(original, make_order(92, Side::Buy, 100, 5));
+    submit_accepted(original, make_order(93, Side::Buy, 100, 5));
+
+    // Copying should rebuild the id index to point at the copy's order nodes.
+    OrderBook copy = original;
+    const auto copy_cancel = copy.cancel(93);
+
+    // Canceling in the copy should succeed without touching the original book.
+    ASSERT_EQ(copy_cancel.size(), 1U);
+    expect_canceled(copy_cancel.front(), 93);
+    EXPECT_EQ(copy.snapshot().find("[93 AAPL BUY 100x5]"), std::string::npos);
+    EXPECT_NE(original.snapshot().find("[93 AAPL BUY 100x5]"), std::string::npos);
+}
+
 TEST(OrderBookTest, FullyFilledOrdersCannotBeCanceled) {
     // Submit two orders that fully trade and leave no resting quantity.
     OrderBook book;

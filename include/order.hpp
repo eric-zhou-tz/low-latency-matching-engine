@@ -26,6 +26,8 @@ struct Order {
     Side side{Side::Buy};
     std::int64_t price{};
     std::uint64_t quantity{};
+    Order* prev{};
+    Order* next{};
 };
 
 /**

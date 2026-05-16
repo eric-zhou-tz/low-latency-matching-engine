@@ -6,7 +6,7 @@ This repository implements a low-latency C++ matching engine for exchange-style 
 
 Orders are processed synchronously through an event-driven command flow. A parsed action is applied to the exchange, routed to an order book, and converted into domain events that describe the observable result of the operation.
 
-The current implementation is intentionally focused on correctness, deterministic behavior, and clean systems design before advanced optimization. It uses simple standard-library data structures with explicit control flow so the matching rules, cancellation path, and emitted events are easy to inspect and test.
+The current implementation is intentionally focused on correctness, deterministic behavior, and clean systems design with targeted hot-path optimizations where they make the matching rules clearer. It uses ordered standard-library maps for price levels, intrusive FIFO queues for per-price order priority, and pooled order storage so cancellation and matching remain easy to inspect while avoiding avoidable node allocation.
 
 ## Core Components
 
@@ -51,34 +51,47 @@ Events describe the observable results of applying an action. The matching core 
 The book is split into independent bid and ask trees:
 
 ```cpp
-std::map<std::int64_t, std::deque<Order>, std::greater<>> bids_;
-std::map<std::int64_t, std::deque<Order>> asks_;
+std::map<std::int64_t, OrderQueue, std::greater<>> bids_;
+std::map<std::int64_t, OrderQueue> asks_;
 ```
 
 The bid side uses descending price order, so `bids_.begin()` is the highest bid. The ask side uses ascending price order, so `asks_.begin()` is the lowest ask. This makes best-price access direct and keeps crossing logic simple.
 
-Each price level stores a FIFO queue:
+Each price level stores an intrusive FIFO queue:
 
 ```cpp
-std::deque<Order>
+class OrderQueue {
+public:
+    Order* head;
+    Order* tail;
+    std::uint64_t total_volume;
+};
 ```
 
-New resting orders are appended to the back of the deque. Matching consumes from the front. This preserves time priority for all orders resting at the same price level.
+New resting orders are appended at `tail`. Matching consumes from `head`. This preserves time priority for all orders resting at the same price level.
 
 The book also maintains a live order lookup:
 
 ```cpp
-std::unordered_map<std::uint64_t, OrderLocation> orders_by_id_;
+std::unordered_map<std::uint64_t, Order*> orders_by_id_;
 ```
 
-`OrderLocation` records the side and price for a live order. This lets cancellation jump directly to the relevant price level instead of scanning every price level in the book.
+`orders_by_id_` stores a raw pointer to the live `Order`. The order embeds its own `prev` and `next` links, so cancellation can unlink the exact resting node without scanning the same-price FIFO queue or allocating a separate `std::list` node.
 
-Balanced trees are used because they provide deterministic ordered price levels, efficient insertion/removal, and direct access to the current best price. FIFO queues are used because the exchange priority rule within a price level is arrival order, not order ID or quantity.
+Live orders are owned by `OrderPool`:
+
+```cpp
+OrderPool order_pool_;
+```
+
+`OrderPool` allocates contiguous blocks of order slots and reuses canceled or filled slots through an internal free list. `OrderBook` owns the pool, while `OrderQueue` and `orders_by_id_` only hold raw non-owning pointers into that pool.
+
+Balanced trees are used because they provide deterministic ordered price levels, efficient insertion/removal, and direct access to the current best price. Intrusive FIFO queues are used because the exchange priority rule within a price level is arrival order, not order ID or quantity, while embedded links keep cancel removal O(1) with lower allocator overhead than node-based standard containers.
 
 Together, these structures implement price-time priority:
 
 1. The tree selects the best available price.
-2. The deque selects the oldest order at that price.
+2. The price-level head pointer selects the oldest order at that price.
 3. Matching removes or reduces resting orders in that exact priority order.
 
 ## Matching Flow
@@ -104,22 +117,26 @@ If an aggressive order is larger than the first resting order, the resting order
 
 A passive order does not cross the opposite side. A buy order is passive when the best ask is above its limit price or no asks exist. A sell order is passive when the best bid is below its limit price or no bids exist.
 
-Passive orders are inserted into the price tree for their side and appended to the back of the deque at their price level. This gives older resting orders at the same price priority over newer orders.
+Passive orders are inserted into the price tree for their side and appended to the tail of the intrusive queue at their price level. The stored `Order*` is added to `orders_by_id_`, which gives older resting orders at the same price priority over newer orders while preserving direct cancel access.
+
+`OrderPool` creates the resting order slot before queue insertion. The order book then links that pointer into the price-level queue and records the same pointer in `orders_by_id_`.
 
 ## Cancel Flow
 
-Cancellation starts with an order ID lookup. Inside an `OrderBook`, the `orders_by_id_` index identifies the side and price level where the order should be resting.
+Cancellation starts with an order ID lookup. Inside an `OrderBook`, the `orders_by_id_` index returns the exact live `Order*`, whose side, price, and embedded links identify where the order is resting.
 
 The book then:
 
 1. Finds the relevant bid or ask price level.
-2. Searches that level's FIFO queue for the target order ID.
-3. Erases the order from the queue when found.
-4. Removes the price level if the queue becomes empty.
-5. Erases the order ID from the live order lookup.
+2. Uses the embedded `prev`/`next` pointers to unlink the order from the FIFO queue.
+3. Removes the price level if the queue becomes empty.
+4. Erases the order ID from the live order lookup.
+5. Returns the order slot to `OrderPool`.
 6. Emits a cancel event for a successful cancellation.
 
 Unknown IDs are rejected with a `RejectedEvent`. At the exchange layer, cancellation currently searches across symbol books because there is not yet a global order ID to symbol index.
+
+The previous same-price cancellation path was `O(log P + Q)`: find the price level, then scan the queue. The current intrusive design keeps the ordered price-level lookup and makes queue removal `O(1)`, so `OrderBook` cancellation is `O(log P)` after the average `O(1)` order-ID hash lookup.
 
 ## Event System
 
@@ -142,19 +159,20 @@ Event-driven design is useful because it keeps mutation and observation separate
 
 ## Complexity Analysis
 
-| Operation            | Complexity                   | Notes                           |
-| -------------------- | ---------------------------- | ------------------------------- |
-| Insert resting order | O(log P)                     | Tree insertion                  |
-| Best bid/ask lookup  | O(1)                         | Front tree access via `begin()` |
-| Match execution      | O(K)                         | K = fills generated             |
-| Cancel by ID         | O(1) average + queue removal | Depends on queue erase strategy |
+| Operation            | Complexity                      | Notes                           |
+| -------------------- | ------------------------------- | ------------------------------- |
+| Insert resting order | O(log P) amortized              | Pool slot creation, tree insertion, intrusive tail append |
+| Best bid/ask lookup  | O(1)                            | Front tree access via `begin()` |
+| Match execution      | O(K)                            | K = fills generated             |
+| Cancel by ID         | O(1) average + O(log P) + O(1)  | Hash lookup, price-level lookup, intrusive unlink, pool release |
 
 Definitions:
 
 - `P` = number of price levels on a side of the book.
 - `K` = number of matched resting orders that generate fills.
+- `Q` = number of resting orders at one price level.
 
-The current cancel path uses an average O(1) hash lookup to find the price level, then searches and erases within the deque at that level. A future iterator-based design can remove the queue scan.
+The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. Pool allocation is amortized by fixed-size blocks, and cancel/match release paths do not call the general-purpose allocator.
 
 At the exchange layer, cancel routing currently scans symbol books until the order is found. A global order ID index would remove that cross-book search.
 
@@ -175,8 +193,7 @@ Determinism matters in trading systems because order matching must be auditable,
 
 Future work should remain separate from the current correctness-focused implementation. Potential improvements include:
 
-- Intrusive linked-list storage for resting orders.
-- Iterator-based O(1) cancellation within price levels.
+- Further tuning of the order pool block size after broader Linux benchmark validation.
 - An exchange-level order ID index for direct symbol routing.
 - Lock-free or concurrent designs for higher-throughput deployments.
 - Network ingress and session management.
