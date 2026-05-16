@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.3.3 - Hot Path Analysis and Docs Reorganization
+
+- Added perf-based hot path analysis for `BM_CancelRandom/100000`.
+- Captured FlameGraph notes showing random cancel is now dominated by hash lookup, event vector work, and cache locality rather than FIFO queue removal.
+- Added `HOTPATH.md` to document perf commands, FlameGraph interpretation, and follow-up optimization ideas.
+- Moved architecture, changelog, benchmark history, and hot-path notes into `docs/`.
+- Updated `README.md` to link the documentation set while keeping `README.md` and `BENCHMARKS.md` at the repository root.
+
 ## v0.3.2 - OrderPool Storage Arena
 
 - Added `OrderPool` to own stable resting-order storage in contiguous blocks.
