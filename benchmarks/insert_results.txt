@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------------------
 Benchmark                                  Time             CPU   Iterations UserCounters...
 --------------------------------------------------------------------------------------------
-BM_RestingLimitOrderInsert/1000       173887 ns       173879 ns         3997 items_per_second=5.75114M/s
-BM_RestingLimitOrderInsert/10000     1706787 ns      1706820 ns          406 items_per_second=5.85885M/s
-BM_RestingLimitOrderInsert/100000   18433238 ns     18432261 ns           38 items_per_second=5.42527M/s
+BM_RestingLimitOrderInsert/1000       111096 ns       111114 ns         6427 items_per_second=8.99976M/s
+BM_RestingLimitOrderInsert/10000     1073632 ns      1073777 ns          646 items_per_second=9.31292M/s
+BM_RestingLimitOrderInsert/100000   14928336 ns     14928181 ns           46 items_per_second=6.69874M/s

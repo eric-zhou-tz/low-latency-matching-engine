@@ -1,8 +1,8 @@
 #pragma once
 
-#include "action.hpp"
-#include "event.hpp"
-#include "order_book.hpp"
+#include "book/order_book.hpp"
+#include "core/action.hpp"
+#include "core/event.hpp"
 
 #include <string>
 #include <unordered_map>

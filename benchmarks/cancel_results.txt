@@ -1,18 +1,18 @@
 --------------------------------------------------------------------------------------
 Benchmark                            Time             CPU   Iterations UserCounters...
 --------------------------------------------------------------------------------------
-BM_CancelFront/1000              66592 ns        66562 ns        10463 items_per_second=15.0237M/s
-BM_CancelFront/10000            649391 ns       649222 ns         1073 items_per_second=15.4031M/s
-BM_CancelFront/100000          6888846 ns      6887367 ns          102 items_per_second=14.5193M/s
-BM_CancelBack/1000               67790 ns        67762 ns        10287 items_per_second=14.7576M/s
-BM_CancelBack/10000             664521 ns       664354 ns         1055 items_per_second=15.0522M/s
-BM_CancelBack/100000           6799379 ns      6798211 ns          103 items_per_second=14.7098M/s
-BM_CancelRandom/1000             77391 ns        77359 ns         9062 items_per_second=12.9267M/s
-BM_CancelRandom/10000           976161 ns       975962 ns          707 items_per_second=10.2463M/s
-BM_CancelRandom/100000        39521747 ns     39511151 ns           19 items_per_second=2.53093M/s
-BM_CancelUnknown/1000           105901 ns       105877 ns         8418 items_per_second=9.44488M/s
-BM_CancelUnknown/10000          836528 ns       836130 ns          838 items_per_second=11.9599M/s
-BM_CancelUnknown/100000        7856655 ns      7854059 ns           89 items_per_second=12.7323M/s
-BM_MixedSubmitCancel/1000       137653 ns       137654 ns         5089 items_per_second=7.26457M/s
-BM_MixedSubmitCancel/10000     1339010 ns      1339162 ns          524 items_per_second=7.46735M/s
-BM_MixedSubmitCancel/100000   14213821 ns     14213347 ns           49 items_per_second=7.03564M/s
+BM_CancelFront/1000              33293 ns        33270 ns        21015 items_per_second=30.0573M/s
+BM_CancelFront/10000            320260 ns       319987 ns         2174 items_per_second=31.2513M/s
+BM_CancelFront/100000          6860168 ns      6858158 ns          102 items_per_second=14.5812M/s
+BM_CancelBack/1000               32191 ns        32164 ns        21796 items_per_second=31.0909M/s
+BM_CancelBack/10000             403530 ns       402979 ns         2239 items_per_second=24.8152M/s
+BM_CancelBack/100000           6171145 ns      6169345 ns          116 items_per_second=16.2092M/s
+BM_CancelRandom/1000             34159 ns        34145 ns        20585 items_per_second=29.2865M/s
+BM_CancelRandom/10000           453172 ns       452879 ns         1516 items_per_second=22.0809M/s
+BM_CancelRandom/100000        19173941 ns     19170720 ns           35 items_per_second=5.21629M/s
+BM_CancelUnknown/1000            73920 ns        73857 ns         9417 items_per_second=13.5398M/s
+BM_CancelUnknown/10000          722762 ns       722294 ns          974 items_per_second=13.8448M/s
+BM_CancelUnknown/100000        7773306 ns      7770355 ns           89 items_per_second=12.8694M/s
+BM_MixedSubmitCancel/1000        89742 ns        89751 ns         7900 items_per_second=11.1419M/s
+BM_MixedSubmitCancel/10000      895765 ns       896010 ns          775 items_per_second=11.1606M/s
+BM_MixedSubmitCancel/100000   15904291 ns     15904599 ns           42 items_per_second=6.28749M/s

@@ -1,10 +1,18 @@
-#include "order_book.hpp"
+#include "book/order_book.hpp"
 
 #include <algorithm>
 #include <sstream>
 #include <utility>
 
 namespace matching_engine {
+
+/**
+ * @brief Creates an empty book and reserves order lookup capacity.
+ */
+OrderBook::OrderBook(std::size_t expected_order_capacity) {
+    // Size the flat id index up front to avoid rehashing during known-depth setup.
+    reserve_order_capacity(expected_order_capacity);
+}
 
 /**
  * @brief Copies price levels and rebuilds intrusive links for the new book.
@@ -183,6 +191,14 @@ std::string OrderBook::snapshot() const {
 }
 
 /**
+ * @brief Reserves live order-id lookup capacity.
+ */
+void OrderBook::reserve_order_capacity(std::size_t expected_order_capacity) {
+    // Keep the requested capacity with the id index because cancels start here.
+    orders_by_id_.reserve(expected_order_capacity);
+}
+
+/**
  * @brief Appends an order to the appropriate price level.
  */
 void OrderBook::add_resting_order(const Order& order) {
@@ -219,6 +235,9 @@ void OrderBook::clear() noexcept {
  * @brief Copies live resting orders from another book.
  */
 void OrderBook::copy_from(const OrderBook& other) {
+    // Reserve the same live-id count so cloning does not rehash mid-copy.
+    orders_by_id_.reserve(other.orders_by_id_.size());
+
     // Copy bids in price-priority order and preserve FIFO links within levels.
     for (const auto& [price, source_level] : other.bids_) {
         auto& target_level = bids_[price];

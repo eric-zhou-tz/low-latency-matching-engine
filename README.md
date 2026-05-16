@@ -55,8 +55,13 @@ Additional documentation:
 ## Repository Structure
 
 ```text
-include/   Public headers and domain interfaces
-src/       Core engine implementation
+include/   Public headers
+  core/    Action, event, and order value types
+  book/    Order book, order pool, and price-level queue types
+  io/      Text command parser interface
+src/       Engine implementation
+  book/    Order book matching and cancel logic
+  io/      Parser implementation
 tests/     GoogleTest unit tests
 benchmark/ Google Benchmark microbenchmarks
 examples/  Example order streams

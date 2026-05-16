@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.3.4 - Dense Order Lookup
+
+- Replaced the live order-id index with `ankerl::unordered_dense::map` to reduce node chasing on cancel-heavy workloads.
+- Reserved expected order lookup capacity during benchmark setup so known-depth runs avoid rehashing during preload or timed submit loops.
+- Improved EC2 random cancel throughput in the paired 100,000-order comparison from 2.71735M items/s to 5.23192M items/s.
+- Documented the flat hash-map tradeoff: better cache locality and lookup throughput in exchange for weaker iterator/reference stability than node-based maps.
+
 ## v0.3.3 - Hot Path Analysis and Docs Reorganization
 
 - Added perf-based hot path analysis for `BM_CancelRandom/100000`.

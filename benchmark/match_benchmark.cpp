@@ -1,4 +1,4 @@
-#include "order_book.hpp"
+#include "book/order_book.hpp"
 
 #include <benchmark/benchmark.h>
 
@@ -76,6 +76,7 @@ void preload_book(OrderBook& book, const std::vector<Order>& resting_orders) {
 void BM_CrossingLimitOrderMatch(benchmark::State& state) {
     // Use the benchmark argument as both resting depth and incoming order count.
     const auto order_count = state.range(0);
+    const auto expected_order_capacity = static_cast<std::size_t>(order_count);
     const auto resting_orders = make_resting_asks(order_count);
     const auto crossing_orders = make_crossing_buys(order_count);
     std::optional<OrderBook> book;
@@ -84,7 +85,7 @@ void BM_CrossingLimitOrderMatch(benchmark::State& state) {
     for (auto _ : state) {
         // Reset and preload the book outside the measured hot path.
         state.PauseTiming();
-        book.emplace();
+        book.emplace(expected_order_capacity);
         preload_book(*book, resting_orders);
         state.ResumeTiming();
 

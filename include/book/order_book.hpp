@@ -1,15 +1,17 @@
 #pragma once
 
-#include "event.hpp"
-#include "order.hpp"
-#include "order_pool.hpp"
-#include "order_queue.hpp"
+#include "book/order_pool.hpp"
+#include "book/order_queue.hpp"
+#include "core/event.hpp"
+#include "core/order.hpp"
 
+#include <ankerl/unordered_dense.h>
+
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <map>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace matching_engine {
@@ -27,6 +29,13 @@ public:
      * @brief Creates an empty order book.
      */
     OrderBook() = default;
+
+    /**
+     * @brief Creates an empty order book with reserved order-id capacity.
+     *
+     * @param expected_order_capacity Expected number of live resting orders.
+     */
+    explicit OrderBook(std::size_t expected_order_capacity);
 
     /**
      * @brief Copies a book and rebuilds intrusive order links.
@@ -86,6 +95,13 @@ public:
      */
     [[nodiscard]] std::string snapshot() const;
 
+    /**
+     * @brief Reserves live order-id lookup capacity for expected book depth.
+     *
+     * @param expected_order_capacity Expected number of live resting orders.
+     */
+    void reserve_order_capacity(std::size_t expected_order_capacity);
+
 private:
     using Price = std::int64_t;
 
@@ -136,7 +152,7 @@ private:
     std::map<Price, OrderQueue, std::greater<Price>> bids_;
     std::map<Price, OrderQueue> asks_;
 
-    std::unordered_map<std::uint64_t, Order*> orders_by_id_;
+    ankerl::unordered_dense::map<std::uint64_t, Order*> orders_by_id_;
     OrderPool order_pool_;
 };
 

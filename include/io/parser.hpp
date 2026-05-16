@@ -1,6 +1,6 @@
 #pragma once
 
-#include "action.hpp"
+#include "core/action.hpp"
 
 #include <optional>
 #include <string>

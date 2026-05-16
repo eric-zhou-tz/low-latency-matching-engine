@@ -1,4 +1,4 @@
-#include "order_book.hpp"
+#include "book/order_book.hpp"
 
 #include <benchmark/benchmark.h>
 
@@ -49,6 +49,7 @@ constexpr std::uint64_t kQuantity = 1;
 void BM_RestingLimitOrderInsert(benchmark::State& state) {
     // Use the benchmark argument as the number of orders inserted per iteration.
     const auto order_count = state.range(0);
+    const auto expected_order_capacity = static_cast<std::size_t>(order_count);
     const auto orders = make_passive_orders(order_count);
     std::optional<OrderBook> book;
 
@@ -56,7 +57,7 @@ void BM_RestingLimitOrderInsert(benchmark::State& state) {
     for (auto _ : state) {
         // Create a fresh book outside the timed insert section.
         state.PauseTiming();
-        book.emplace();
+        book.emplace(expected_order_capacity);
         state.ResumeTiming();
 
         // Measure only non-crossing submit and append behavior.

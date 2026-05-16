@@ -1,4 +1,4 @@
-#include "order_book.hpp"
+#include "book/order_book.hpp"
 
 #include <benchmark/benchmark.h>
 
@@ -161,6 +161,7 @@ void preload_book(OrderBook& book, const std::vector<Order>& resting_orders) {
 void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_t>& cancel_ids) {
     // Prepare the resting queue once; per-iteration loading is outside timing.
     const auto order_count = state.range(0);
+    const auto expected_order_capacity = static_cast<std::size_t>(order_count);
     const auto resting_orders = make_same_price_resting_buys(order_count);
     std::optional<OrderBook> book;
 
@@ -168,7 +169,7 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
     for (auto _ : state) {
         // Rebuild the same starting book without charging setup to cancel time.
         state.PauseTiming();
-        book.emplace();
+        book.emplace(expected_order_capacity);
         preload_book(*book, resting_orders);
         state.ResumeTiming();
 
@@ -320,6 +321,7 @@ void BM_CancelUnknown(benchmark::State& state) {
 void BM_MixedSubmitCancel(benchmark::State& state) {
     // Build the deterministic exchange-style operation stream outside timing.
     const auto operation_count = state.range(0);
+    const auto expected_order_capacity = static_cast<std::size_t>(operation_count);
     const auto operations = make_mixed_operations(operation_count);
     std::optional<OrderBook> book;
 
@@ -327,7 +329,7 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
     for (auto _ : state) {
         // Start each trial from an empty book without timing construction.
         state.PauseTiming();
-        book.emplace();
+        book.emplace(expected_order_capacity);
         state.ResumeTiming();
 
         // Measure the mixed order-book workload as one exchange-style stream.

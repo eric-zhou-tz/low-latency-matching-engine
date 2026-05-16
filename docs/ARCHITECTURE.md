@@ -73,10 +73,21 @@ New resting orders are appended at `tail`. Matching consumes from `head`. This p
 The book also maintains a live order lookup:
 
 ```cpp
-std::unordered_map<std::uint64_t, Order*> orders_by_id_;
+ankerl::unordered_dense::map<std::uint64_t, Order*> orders_by_id_;
 ```
 
 `orders_by_id_` stores a raw pointer to the live `Order`. The order embeds its own `prev` and `next` links, so cancellation can unlink the exact resting node without scanning the same-price FIFO queue or allocating a separate `std::list` node.
+
+The order-id lookup uses a flat open-addressing hash map because cancel-heavy
+matching-engine workloads tend to be sensitive to cache misses. A node-based
+hash map such as `std::unordered_map` stores each element in a separately
+allocated node, so a lookup can bounce from the bucket array to unrelated heap
+locations before reaching the `Order*`. Flat maps keep control metadata and
+key/value storage in contiguous arrays, which is why they are commonly preferred
+for hot low-latency indexes when the workload can tolerate their tradeoffs. The
+main tradeoff is weaker iterator and reference stability around insert/erase and
+rehash operations; this book only stores `Order*` values in the map, so order
+object lifetime remains owned by `OrderPool`.
 
 Live orders are owned by `OrderPool`:
 

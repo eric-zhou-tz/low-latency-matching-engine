@@ -7,9 +7,19 @@ project(
     LANGUAGES CXX
 )
 
+include(FetchContent)
+
+FetchContent_Declare(
+    unordered_dense
+    URL https://github.com/martinus/unordered_dense/archive/refs/tags/v4.8.1.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+
+FetchContent_MakeAvailable(unordered_dense)
+
 add_library(engine
-    src/parser.cpp
-    src/order_book.cpp
+    src/io/parser.cpp
+    src/book/order_book.cpp
     src/exchange.cpp
 )
 
@@ -20,6 +30,11 @@ target_include_directories(engine
         ${PROJECT_SOURCE_DIR}/include
 )
 
+target_link_libraries(engine
+    PUBLIC
+        unordered_dense::unordered_dense
+)
+
 set_target_properties(engine PROPERTIES
     CXX_EXTENSIONS OFF
 )
@@ -28,8 +43,6 @@ add_executable(matching_engine src/main.cpp)
 target_link_libraries(matching_engine PRIVATE engine)
 
 enable_testing()
-
-include(FetchContent)
 
 FetchContent_Declare(
     googletest
