@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
-
 namespace matching_engine {
+
+using OrderId = std::uint64_t;
 
 /**
  * @brief Side of an order.
@@ -14,15 +14,14 @@ enum class Side {
 };
 
 /**
- * @brief Minimal order representation used by the first scaffold.
+ * @brief Hot-path order representation stored by a single-symbol book.
  *
  * Price and quantity use integer fields to keep the core deterministic and avoid
- * floating-point surprises. A production engine would usually define explicit
- * tick-size and lot-size types around these primitives.
+ * floating-point surprises. The symbol is intentionally kept outside this
+ * struct because OrderBook already owns orders for exactly one symbol.
  */
 struct Order {
     std::uint64_t id{};
-    std::string symbol;
     Side side{Side::Buy};
     std::int64_t price{};
     std::uint64_t quantity{};

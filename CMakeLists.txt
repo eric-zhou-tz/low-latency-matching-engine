@@ -59,6 +59,10 @@ target_link_libraries(order_book_test PRIVATE engine GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(order_book_test)
 
+add_executable(exchange_test tests/exchange_test.cpp)
+target_link_libraries(exchange_test PRIVATE engine GTest::gtest_main)
+gtest_discover_tests(exchange_test)
+
 add_executable(parser_tests tests/parser_tests.cpp)
 target_link_libraries(parser_tests PRIVATE engine GTest::gtest_main)
 gtest_discover_tests(parser_tests)

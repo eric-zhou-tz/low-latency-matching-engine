@@ -28,7 +28,6 @@ constexpr std::uint64_t kQuantity = 1;
         const bool is_buy = index % 2 == 0;
         const auto price_offset = index % 5;
         orders.push_back(Order{.id = static_cast<std::uint64_t>(index + 1),
-                               .symbol = "AAPL",
                                .side = is_buy ? Side::Buy : Side::Sell,
                                .price = is_buy ? kBestPassiveBid - price_offset
                                                : kBestPassiveAsk + price_offset,

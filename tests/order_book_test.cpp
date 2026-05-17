@@ -21,8 +21,8 @@ using matching_engine::TradeEvent;
                                Side side,
                                std::int64_t price,
                                std::uint64_t quantity) {
-    // Use one symbol so each test focuses on order-book behavior.
-    return {.id = id, .symbol = "AAPL", .side = side, .price = price, .quantity = quantity};
+    // Keep order construction compact so each test focuses on book behavior.
+    return {.id = id, .side = side, .price = price, .quantity = quantity};
 }
 
 void expect_accepted(const Event& event) {
@@ -82,7 +82,7 @@ TEST(OrderBookTest, AcceptedOrderRestsOnBookWhenNotCrossing) {
     // The order should be accepted and visible in the snapshot.
     ASSERT_EQ(events.size(), 1U);
     expect_accepted(events.front());
-    EXPECT_NE(book.snapshot().find("[1 AAPL BUY 100x10]"), std::string::npos);
+    EXPECT_NE(book.snapshot().find("[1 BUY 100x10]"), std::string::npos);
 }
 
 TEST(OrderBookTest, DuplicateOrderIdIsRejected) {
@@ -108,8 +108,8 @@ TEST(OrderBookTest, AggressiveBuyMatchesRestingSell) {
     ASSERT_EQ(events.size(), 2U);
     expect_accepted(events.front());
     expect_trade(events[1], 10, 11, 100, 4);
-    EXPECT_NE(book.snapshot().find("[10 AAPL SELL 100x6]"), std::string::npos);
-    EXPECT_EQ(book.snapshot().find("[11 AAPL BUY 105x4]"), std::string::npos);
+    EXPECT_NE(book.snapshot().find("[10 SELL 100x6]"), std::string::npos);
+    EXPECT_EQ(book.snapshot().find("[11 BUY 105x4]"), std::string::npos);
 }
 
 TEST(OrderBookTest, AggressiveSellMatchesRestingBuy) {
@@ -123,8 +123,8 @@ TEST(OrderBookTest, AggressiveSellMatchesRestingBuy) {
     ASSERT_EQ(events.size(), 2U);
     expect_accepted(events.front());
     expect_trade(events[1], 30, 31, 101, 5);
-    EXPECT_EQ(book.snapshot().find("[30 AAPL BUY 101x5]"), std::string::npos);
-    EXPECT_NE(book.snapshot().find("[31 AAPL SELL 100x3]"), std::string::npos);
+    EXPECT_EQ(book.snapshot().find("[30 BUY 101x5]"), std::string::npos);
+    EXPECT_NE(book.snapshot().find("[31 SELL 100x3]"), std::string::npos);
 }
 
 TEST(OrderBookTest, PriceTimePriorityOlderRestingOrderAtSamePriceFillsFirst) {
@@ -140,8 +140,8 @@ TEST(OrderBookTest, PriceTimePriorityOlderRestingOrderAtSamePriceFillsFirst) {
     expect_accepted(events.front());
     expect_trade(events[1], 20, 22, 100, 5);
     expect_trade(events[2], 21, 22, 100, 2);
-    EXPECT_EQ(book.snapshot().find("[20 AAPL SELL 100x5]"), std::string::npos);
-    EXPECT_NE(book.snapshot().find("[21 AAPL SELL 100x3]"), std::string::npos);
+    EXPECT_EQ(book.snapshot().find("[20 SELL 100x5]"), std::string::npos);
+    EXPECT_NE(book.snapshot().find("[21 SELL 100x3]"), std::string::npos);
 }
 
 TEST(OrderBookTest, PartialFillLeavesRemainingQuantityCorrectly) {
@@ -154,8 +154,8 @@ TEST(OrderBookTest, PartialFillLeavesRemainingQuantityCorrectly) {
     // The resting ask disappears and the remaining buy quantity becomes visible.
     ASSERT_EQ(events.size(), 2U);
     expect_trade(events[1], 40, 41, 100, 5);
-    EXPECT_EQ(book.snapshot().find("[40 AAPL SELL 100x5]"), std::string::npos);
-    EXPECT_NE(book.snapshot().find("[41 AAPL BUY 101x3]"), std::string::npos);
+    EXPECT_EQ(book.snapshot().find("[40 SELL 100x5]"), std::string::npos);
+    EXPECT_NE(book.snapshot().find("[41 BUY 101x3]"), std::string::npos);
 }
 
 TEST(OrderBookTest, AggressiveBuyWalksAskLevelsAndRestsRemainder) {
@@ -173,9 +173,9 @@ TEST(OrderBookTest, AggressiveBuyWalksAskLevelsAndRestsRemainder) {
     expect_trade(events[2], 43, 44, 101, 3);
 
     const auto snapshot = book.snapshot();
-    EXPECT_EQ(snapshot.find("[42 AAPL SELL 100x4]"), std::string::npos);
-    EXPECT_EQ(snapshot.find("[43 AAPL SELL 101x3]"), std::string::npos);
-    EXPECT_NE(snapshot.find("[44 AAPL BUY 102x3]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[42 SELL 100x4]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[43 SELL 101x3]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[44 BUY 102x3]"), std::string::npos);
     EXPECT_NE(snapshot.find("orders=1"), std::string::npos);
 }
 
@@ -194,9 +194,9 @@ TEST(OrderBookTest, AggressiveSellWalksBidLevelsAndRestsRemainder) {
     expect_trade(events[2], 46, 47, 101, 3);
 
     const auto snapshot = book.snapshot();
-    EXPECT_EQ(snapshot.find("[45 AAPL BUY 102x4]"), std::string::npos);
-    EXPECT_EQ(snapshot.find("[46 AAPL BUY 101x3]"), std::string::npos);
-    EXPECT_NE(snapshot.find("[47 AAPL SELL 100x3]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[45 BUY 102x4]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[46 BUY 101x3]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[47 SELL 100x3]"), std::string::npos);
     EXPECT_NE(snapshot.find("orders=1"), std::string::npos);
 }
 
@@ -210,7 +210,7 @@ TEST(OrderBookTest, CancelRestingBuyOrderSucceeds) {
     // The cancel event should reference the id and remove it from the snapshot.
     ASSERT_EQ(events.size(), 1U);
     expect_canceled(events.front(), 50);
-    EXPECT_EQ(book.snapshot().find("[50 AAPL BUY 100x10]"), std::string::npos);
+    EXPECT_EQ(book.snapshot().find("[50 BUY 100x10]"), std::string::npos);
 }
 
 TEST(OrderBookTest, CancelRestingSellOrderSucceeds) {
@@ -223,7 +223,7 @@ TEST(OrderBookTest, CancelRestingSellOrderSucceeds) {
     // The cancel event should reference the id and remove it from the snapshot.
     ASSERT_EQ(events.size(), 1U);
     expect_canceled(events.front(), 51);
-    EXPECT_EQ(book.snapshot().find("[51 AAPL SELL 102x7]"), std::string::npos);
+    EXPECT_EQ(book.snapshot().find("[51 SELL 102x7]"), std::string::npos);
 }
 
 TEST(OrderBookTest, CancelUnknownOrderIsRejected) {
@@ -249,8 +249,8 @@ TEST(OrderBookTest, CancelRemovesEmptyPriceLevel) {
     expect_canceled(events.front(), 70);
 
     const auto snapshot = book.snapshot();
-    EXPECT_EQ(snapshot.find("[70 AAPL BUY 100x10]"), std::string::npos);
-    EXPECT_NE(snapshot.find("[71 AAPL BUY 99x5]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[70 BUY 100x10]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[71 BUY 99x5]"), std::string::npos);
     EXPECT_NE(snapshot.find("orders=1"), std::string::npos);
 }
 
@@ -274,9 +274,9 @@ TEST(OrderBookTest, CancelPreservesFifoPriorityOfRemainingOrders) {
     expect_trade(match_events[2], 82, 83, 100, 3);
 
     const auto snapshot = book.snapshot();
-    EXPECT_EQ(snapshot.find("[80 AAPL BUY 100x5]"), std::string::npos);
-    EXPECT_EQ(snapshot.find("[81 AAPL BUY 100x5]"), std::string::npos);
-    EXPECT_NE(snapshot.find("[82 AAPL BUY 100x2]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[80 BUY 100x5]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[81 BUY 100x5]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[82 BUY 100x2]"), std::string::npos);
 }
 
 TEST(OrderBookTest, CancelAfterPartialFillRemovesOnlyRemainingQuantity) {
@@ -288,14 +288,14 @@ TEST(OrderBookTest, CancelAfterPartialFillRemovesOnlyRemainingQuantity) {
     ASSERT_EQ(submit_events.size(), 2U);
     expect_accepted(submit_events.front());
     expect_trade(submit_events[1], 90, 91, 100, 5);
-    EXPECT_NE(book.snapshot().find("[91 AAPL BUY 101x3]"), std::string::npos);
+    EXPECT_NE(book.snapshot().find("[91 BUY 101x3]"), std::string::npos);
 
     // Canceling the incoming order should remove only its remaining quantity.
     const auto cancel_events = book.cancel(91);
 
     ASSERT_EQ(cancel_events.size(), 1U);
     expect_canceled(cancel_events.front(), 91);
-    EXPECT_EQ(book.snapshot().find("[91 AAPL BUY 101x3]"), std::string::npos);
+    EXPECT_EQ(book.snapshot().find("[91 BUY 101x3]"), std::string::npos);
     EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
 }
 
@@ -312,8 +312,8 @@ TEST(OrderBookTest, CopiedBookRebuildsCancelLocations) {
     // Canceling in the copy should succeed without touching the original book.
     ASSERT_EQ(copy_cancel.size(), 1U);
     expect_canceled(copy_cancel.front(), 93);
-    EXPECT_EQ(copy.snapshot().find("[93 AAPL BUY 100x5]"), std::string::npos);
-    EXPECT_NE(original.snapshot().find("[93 AAPL BUY 100x5]"), std::string::npos);
+    EXPECT_EQ(copy.snapshot().find("[93 BUY 100x5]"), std::string::npos);
+    EXPECT_NE(original.snapshot().find("[93 BUY 100x5]"), std::string::npos);
 }
 
 TEST(OrderBookTest, FullyFilledOrdersCannotBeCanceled) {
@@ -348,10 +348,10 @@ TEST(OrderBookTest, SnapshotPreservesBookOrdering) {
     const auto snapshot = book.snapshot();
 
     // Snapshot order should follow price priority, then FIFO within each level.
-    EXPECT_LT(position_of(snapshot, "[2 AAPL BUY 105x10]"),
-              position_of(snapshot, "[3 AAPL BUY 105x5]"));
-    EXPECT_LT(position_of(snapshot, "[2 AAPL BUY 105x10]"),
-              position_of(snapshot, "[1 AAPL BUY 100x10]"));
-    EXPECT_LT(position_of(snapshot, "[4 AAPL SELL 106x7]"),
-              position_of(snapshot, "[5 AAPL SELL 110x8]"));
+    EXPECT_LT(position_of(snapshot, "[2 BUY 105x10]"),
+              position_of(snapshot, "[3 BUY 105x5]"));
+    EXPECT_LT(position_of(snapshot, "[2 BUY 105x10]"),
+              position_of(snapshot, "[1 BUY 100x10]"));
+    EXPECT_LT(position_of(snapshot, "[4 SELL 106x7]"),
+              position_of(snapshot, "[5 SELL 110x8]"));
 }

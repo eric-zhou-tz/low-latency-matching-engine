@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.3.5 - Symbol-Free Resting Orders + Struct Padding Optimizations
+
+- Removed `symbol` from the hot-path `Order` stored in `OrderBook`; symbol routing now lives in `SubmitOrderAction` and `Exchange`.
+- Reduced Linux `Order` size from 80 bytes to 48 bytes while keeping one book per symbol.
+- Updated parser, exchange routing, snapshots, tests, and benchmarks for the split between transient submit commands and resting book orders.
+- Refreshed EC2 Release benchmarks after the layout change; 100,000-order insert improved from 6.69874M to 8.37928M items/s, random cancel improved from 5.21629M to 5.71876M items/s, and mixed submit/cancel/match improved to 8.03819M items/s.
+- Noted the benchmark tradeoff: unknown cancel regressed from 12.8694M to 11.0453M items/s, so the result is a meaningful locality improvement but not an across-the-board win.
+
 ## v0.3.4 - Dense Order Lookup
 
 - Replaced the live order-id index with `ankerl::unordered_dense::map` to reduce node chasing on cancel-heavy workloads.

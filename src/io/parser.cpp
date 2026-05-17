@@ -40,19 +40,19 @@ std::optional<Action> Parser::parse_line(const std::string& line) const {
 
     if (command == "SUBMIT") {
         // Read the order fields in the protocol order.
-        Order order;
+        SubmitOrderAction action;
         std::string side_token;
-        input >> order.id >> order.symbol >> side_token >> order.price >> order.quantity;
+        input >> action.id >> action.symbol >> side_token >> action.price >> action.quantity;
 
         // Validate the fields that cannot be trusted from text input.
         const auto side = parse_side(side_token);
-        if (!input || !side || order.symbol.empty() || order.quantity == 0) {
+        if (!input || !side || action.symbol.empty() || action.quantity == 0) {
             return std::nullopt;
         }
 
         // Store the parsed enum and return a typed submit action.
-        order.side = *side;
-        return SubmitOrderAction{order};
+        action.side = *side;
+        return action;
     }
 
     if (command == "CANCEL") {

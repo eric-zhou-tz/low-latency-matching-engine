@@ -176,8 +176,9 @@ Not currently dominant:
 
 Likely next targets, in priority order:
 
-1. Store cancel-routing metadata in the order-id index.
+1. Store richer cancel metadata in the book-local order-id index.
    - Today `orders_by_id_` maps `order_id -> Order*`.
+   - Exchange-level routing now uses `order_to_book_` to avoid scanning symbol books before book-local cancel.
    - Cancel then dereferences a random `Order*` to read `side` and `price`.
    - Storing `{Order*, Side, Price}` or `{Order*, OrderQueue*}` in the hash entry
      may avoid one expensive random order dereference before queue lookup.

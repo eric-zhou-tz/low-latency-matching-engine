@@ -14,7 +14,13 @@ The current implementation is intentionally focused on correctness, deterministi
 
 `Exchange` is the command-processing boundary. It receives typed `Action` values, owns order books by symbol, routes submissions to the correct book, and returns emitted `Event` values to the caller.
 
-The current cancel path searches known symbol books until one recognizes the order ID. This keeps the interface simple while leaving room for a future exchange-level order ID index.
+The exchange also maintains a live order index:
+
+```cpp
+ankerl::unordered_dense::map<OrderId, OrderBook*> order_to_book_;
+```
+
+The index maps each live order ID to the single-symbol `OrderBook` that owns the resting order, so cancel routing can go directly to the correct book instead of scanning all symbols. Symbol books are heap-owned by `std::unique_ptr<OrderBook>`, which keeps the stored `OrderBook*` values stable even if the symbol map rehashes.
 
 ### OrderBook
 
@@ -145,7 +151,7 @@ The book then:
 5. Returns the order slot to `OrderPool`.
 6. Emits a cancel event for a successful cancellation.
 
-Unknown IDs are rejected with a `RejectedEvent`. At the exchange layer, cancellation currently searches across symbol books because there is not yet a global order ID to symbol index.
+Unknown IDs are rejected with a `RejectedEvent`. At the exchange layer, cancellation first probes the dense `order_to_book_` index and then calls `OrderBook::cancel` only on the owning symbol book.
 
 The previous same-price cancellation path was `O(log P + Q)`: find the price level, then scan the queue. The current intrusive design keeps the ordered price-level lookup and makes queue removal `O(1)`, so `OrderBook` cancellation is `O(log P)` after the average `O(1)` order-ID hash lookup.
 
@@ -183,9 +189,7 @@ Definitions:
 - `K` = number of matched resting orders that generate fills.
 - `Q` = number of resting orders at one price level.
 
-The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. Pool allocation is amortized by fixed-size blocks, and cancel/match release paths do not call the general-purpose allocator.
-
-At the exchange layer, cancel routing currently scans symbol books until the order is found. A global order ID index would remove that cross-book search.
+The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. The exchange-level `order_to_book_` index also removes the previous cross-symbol scan before entering the book. Pool allocation is amortized by fixed-size blocks, and cancel/match release paths do not call the general-purpose allocator.
 
 ## Determinism
 
@@ -205,7 +209,7 @@ Determinism matters in trading systems because order matching must be auditable,
 Future work should remain separate from the current correctness-focused implementation. Potential improvements include:
 
 - Further tuning of the order pool block size after broader Linux benchmark validation.
-- An exchange-level order ID index for direct symbol routing.
+- Further exchange-level cancel metadata tuning after measuring multi-symbol workloads.
 - Lock-free or concurrent designs for higher-throughput deployments.
 - Network ingress and session management.
 - Binary protocols for lower parsing overhead.

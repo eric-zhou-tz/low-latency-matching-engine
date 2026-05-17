@@ -1,14 +1,30 @@
 #include "exchange.hpp"
 
+#include <memory>
+#include <string>
 #include <variant>
 
 namespace matching_engine {
+namespace {
+
+/**
+ * @brief Builds the compact book order from a routed submit action.
+ */
+[[nodiscard]] Order make_book_order(const SubmitOrderAction& action) {
+    // Drop the symbol after routing because the destination book already implies it.
+    return {.id = action.id,
+            .side = action.side,
+            .price = action.price,
+            .quantity = action.quantity};
+}
+
+} // namespace
 
 /**
  * @brief Applies an action and returns the events produced by the exchange.
  *
- * The exchange currently supports one book per symbol. Cancel routing is a
- * placeholder search across books until a global order-id index is introduced.
+ * The exchange currently supports one book per symbol and keeps a live order
+ * index so cancels can route directly to the owning book.
  */
 std::vector<Event> Exchange::process(const Action& action) {
     // Dispatch the variant to the matching process_action overload.
@@ -22,32 +38,65 @@ std::vector<Event> Exchange::process(const Action& action) {
 
 /**
  * @brief Routes a submit action to the book for its symbol.
- *
- * TODO: Track a global order-id index when cancellation support becomes
- * symbol-aware and matching logic is implemented.
  */
 std::vector<Event> Exchange::process_action(const SubmitOrderAction& action) {
-    // Create the symbol book on first use, then submit to that book.
-    return books_by_symbol_[action.order.symbol].submit(action.order);
-}
+    // Enforce one live owner per order id so the exchange-level cancel index is unambiguous.
+    if (order_to_book_.contains(action.id)) {
+        return {RejectedEvent{"duplicate order id " + std::to_string(action.id)}};
+    }
 
-/**
- * @brief Searches all books for an order to cancel.
- *
- * This is intentionally simple scaffold logic. A production exchange would
- * maintain an id-to-symbol index to avoid scanning every book.
- */
-std::vector<Event> Exchange::process_action(const CancelOrderAction& action) {
-    // Search books until one recognizes and cancels the order id.
-    for (auto& [_, book] : books_by_symbol_) {
-        auto events = book.cancel(action.order_id);
-        if (!std::holds_alternative<RejectedEvent>(events.front())) {
-            return events;
+    // Create the symbol book on first use, then submit to that stable book pointer.
+    OrderBook* book = get_or_create_book(action.symbol);
+    auto events = book->submit(make_book_order(action));
+
+    // Trades may have removed previously resting orders from their owning books.
+    remove_filled_resting_orders_from_index(events);
+
+    // Rejections leave no live state and should not be added to the cancel index.
+    if (std::holds_alternative<RejectedEvent>(events.front())) {
+        return events;
+    }
+
+    // Work out whether the incoming order has remaining quantity after its trades.
+    std::uint64_t filled_quantity = 0;
+    for (const auto& event : events) {
+        if (const auto* trade = std::get_if<TradeEvent>(&event);
+            trade != nullptr && trade->incoming_order_id == action.id) {
+            filled_quantity += trade->quantity;
         }
     }
 
-    // No book owned the id, so report one exchange-level rejection.
-    return {RejectedEvent{"unknown order id " + std::to_string(action.order_id)}};
+    // Only resting remainders can be canceled later, so fully filled takers are not indexed.
+    if (filled_quantity < action.quantity) {
+        order_to_book_.emplace(action.id, book);
+    }
+
+    // Return the book's original event stream unchanged.
+    return events;
+}
+
+/**
+ * @brief Routes cancellation directly to the book that owns the order.
+ */
+std::vector<Event> Exchange::process_action(const CancelOrderAction& action) {
+    // Missing ids are rejected at the exchange boundary without probing symbol books.
+    const auto found = order_to_book_.find(action.order_id);
+    if (found == order_to_book_.end()) {
+        return {RejectedEvent{"unknown order id " + std::to_string(action.order_id)}};
+    }
+
+    // Route directly to the saved owning book.
+    auto events = found->second->cancel(action.order_id);
+
+    // A successful cancel removes the order from both the book and exchange indexes.
+    if (!std::holds_alternative<RejectedEvent>(events.front())) {
+        order_to_book_.erase(found);
+        return events;
+    }
+
+    // If the book rejects, the exchange index was stale; erase it to restore consistency.
+    order_to_book_.erase(found);
+    return events;
 }
 
 /**
@@ -64,11 +113,48 @@ std::vector<Event> Exchange::process_action(const PrintBookAction&) const {
 
     // Emit one compact snapshot per symbol book.
     for (const auto& [symbol, book] : books_by_symbol_) {
-        events.emplace_back(AcceptedEvent{"book " + symbol + ": " + book.snapshot()});
+        events.emplace_back(AcceptedEvent{"book " + symbol + ": " + book->snapshot()});
     }
 
-    // Return snapshots in the unordered_map iteration order for now.
+    // Return snapshots in the symbol map iteration order for now.
     return events;
+}
+
+/**
+ * @brief Returns the stable book pointer for a symbol.
+ */
+OrderBook* Exchange::get_or_create_book(const std::string& symbol) {
+    // Look for an existing symbol book before allocating a new one.
+    const auto found = books_by_symbol_.find(symbol);
+    if (found != books_by_symbol_.end()) {
+        return found->second.get();
+    }
+
+    // Allocate the book separately so stored OrderBook* values survive symbol-map rehashes.
+    auto book = std::make_unique<OrderBook>();
+    OrderBook* raw_book = book.get();
+    books_by_symbol_.emplace(symbol, std::move(book));
+    return raw_book;
+}
+
+/**
+ * @brief Removes resting order ids that a submit fully consumed.
+ */
+void Exchange::remove_filled_resting_orders_from_index(const std::vector<Event>& events) {
+    // Trade events identify the resting id that may have changed liveness.
+    for (const auto& event : events) {
+        const auto* trade = std::get_if<TradeEvent>(&event);
+        if (trade == nullptr) {
+            continue;
+        }
+
+        // The owning book remains the source of truth for partial versus full fills.
+        const auto found = order_to_book_.find(trade->resting_order_id);
+        if (found != order_to_book_.end() &&
+            !found->second->contains_order(trade->resting_order_id)) {
+            order_to_book_.erase(found);
+        }
+    }
 }
 
 } // namespace matching_engine

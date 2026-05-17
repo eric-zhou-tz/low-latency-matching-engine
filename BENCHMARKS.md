@@ -11,10 +11,10 @@ automatically by CMake or CI until that workflow is added intentionally.
 - Kernel: `7.0.0-1004-aws`
 - CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
 - Compiler: GCC/G++ 15.2.0
-- Commit: `a857109` plus local order-id load factor tuning changes
+- Commit: `37e63d0` plus local symbol-free `Order` changes
 - Build type: `Release`
 - Release flags: `-O3 -DNDEBUG`
-- Correctness tests: 20/20 passed before benchmark execution
+- Correctness tests: 26/26 passed before benchmark execution
 
 ## Workloads
 
@@ -40,9 +40,9 @@ in `docs/benchmark_history.md`.
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_RestingLimitOrderInsert/1000` | 111114 ns | 8.99976M items/s |
-| `BM_RestingLimitOrderInsert/10000` | 1073777 ns | 9.31292M items/s |
-| `BM_RestingLimitOrderInsert/100000` | 14928181 ns | 6.69874M items/s |
+| `BM_RestingLimitOrderInsert/1000` | 87019 ns | 11.4917M items/s |
+| `BM_RestingLimitOrderInsert/10000` | 1364006 ns | 7.85924M items/s |
+| `BM_RestingLimitOrderInsert/100000` | 11934481 ns | 8.37928M items/s |
 
 Artifact files:
 
@@ -53,9 +53,9 @@ Artifact files:
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_CrossingLimitOrderMatch/1000` | 119688 ns | 8.35508M items/s |
-| `BM_CrossingLimitOrderMatch/10000` | 1180758 ns | 8.46914M items/s |
-| `BM_CrossingLimitOrderMatch/100000` | 17861517 ns | 5.59863M items/s |
+| `BM_CrossingLimitOrderMatch/1000` | 118468 ns | 8.45705M items/s |
+| `BM_CrossingLimitOrderMatch/10000` | 1169432 ns | 8.55897M items/s |
+| `BM_CrossingLimitOrderMatch/100000` | 17586539 ns | 5.68622M items/s |
 
 Artifact files:
 
@@ -98,28 +98,29 @@ Run metadata:
 - Refactor commit base: `bcaa292` plus local iterator-based cancel changes
 - Intrusive refactor commit base: `e66c0d9` plus local intrusive `OrderQueue`/`OrderPool` changes
 - Dense lookup refactor base: `2cba3e5` plus local `ankerl::unordered_dense` changes
+- Symbol-free order base: `37e63d0` plus local symbol-free `Order` changes
 - Refactor host: AWS EC2 `t3.small`
-- Correctness tests: 20/20 passed before benchmark execution
+- Correctness tests: 26/26 passed before benchmark execution
 
 Latest full cancel artifact run:
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_CancelFront/1000` | 33270 ns | 30.0573M items/s |
-| `BM_CancelFront/10000` | 319987 ns | 31.2513M items/s |
-| `BM_CancelFront/100000` | 6858158 ns | 14.5812M items/s |
-| `BM_CancelBack/1000` | 32164 ns | 31.0909M items/s |
-| `BM_CancelBack/10000` | 402979 ns | 24.8152M items/s |
-| `BM_CancelBack/100000` | 6169345 ns | 16.2092M items/s |
-| `BM_CancelRandom/1000` | 34145 ns | 29.2865M items/s |
-| `BM_CancelRandom/10000` | 452879 ns | 22.0809M items/s |
-| `BM_CancelRandom/100000` | 19170720 ns | 5.21629M items/s |
-| `BM_CancelUnknown/1000` | 73857 ns | 13.5398M items/s |
-| `BM_CancelUnknown/10000` | 722294 ns | 13.8448M items/s |
-| `BM_CancelUnknown/100000` | 7770355 ns | 12.8694M items/s |
-| `BM_MixedSubmitCancel/1000` | 89751 ns | 11.1419M items/s |
-| `BM_MixedSubmitCancel/10000` | 896010 ns | 11.1606M items/s |
-| `BM_MixedSubmitCancel/100000` | 15904599 ns | 6.28749M items/s |
+| `BM_CancelFront/1000` | 32704 ns | 30.5808M items/s |
+| `BM_CancelFront/10000` | 315696 ns | 31.6824M items/s |
+| `BM_CancelFront/100000` | 4755103 ns | 21.0711M items/s |
+| `BM_CancelBack/1000` | 33389 ns | 29.9646M items/s |
+| `BM_CancelBack/10000` | 320250 ns | 31.2343M items/s |
+| `BM_CancelBack/100000` | 4562031 ns | 21.9304M items/s |
+| `BM_CancelRandom/1000` | 33922 ns | 29.4895M items/s |
+| `BM_CancelRandom/10000` | 413542 ns | 24.2253M items/s |
+| `BM_CancelRandom/100000` | 17524974 ns | 5.71876M items/s |
+| `BM_CancelUnknown/1000` | 74228 ns | 13.4721M items/s |
+| `BM_CancelUnknown/10000` | 747175 ns | 13.4079M items/s |
+| `BM_CancelUnknown/100000` | 9063258 ns | 11.0453M items/s |
+| `BM_MixedSubmitCancel/1000` | 80030 ns | 12.4954M items/s |
+| `BM_MixedSubmitCancel/10000` | 818817 ns | 12.2596M items/s |
+| `BM_MixedSubmitCancel/100000` | 12455077 ns | 8.03819M items/s |
 
 Separate paired 3-second comparison run:
 
@@ -166,11 +167,11 @@ workload.
 Deepest cancel cases across the deque baseline, iterator refactor, intrusive
 refactor, and dense lookup refactor:
 
-| Benchmark | Deque Throughput | Iterator Throughput | Intrusive Throughput | Dense Lookup Throughput |
+| Benchmark | Deque Throughput | Iterator Throughput | Intrusive Throughput | Latest Throughput |
 | --- | ---: | ---: | ---: | ---: |
-| `BM_CancelFront/100000` | 12.0807M items/s | 10.6954M items/s | 14.5193M items/s | 14.5812M items/s |
-| `BM_CancelBack/100000` | 7.02396k items/s | 10.8996M items/s | 14.7098M items/s | 16.2092M items/s |
-| `BM_CancelRandom/100000` | 6.73904k items/s | 1.68836M items/s | 2.53093M items/s | 5.21629M items/s |
+| `BM_CancelFront/100000` | 12.0807M items/s | 10.6954M items/s | 14.5193M items/s | 21.0711M items/s |
+| `BM_CancelBack/100000` | 7.02396k items/s | 10.8996M items/s | 14.7098M items/s | 21.9304M items/s |
+| `BM_CancelRandom/100000` | 6.73904k items/s | 1.68836M items/s | 2.53093M items/s | 5.71876M items/s |
 
 Artifact files:
 
@@ -179,19 +180,19 @@ Artifact files:
 
 ## Initial Read
 
-The latest insert results improved versus the prior intrusive-only artifact,
-helped by reserving order-id lookup capacity before the timed submit loop. The
-match results improved at 1,000 and 10,000 orders, while the 100,000-order match
-run was slower than the prior artifact, so the deep match result should be
-treated as a follow-up measurement point rather than a clean win.
+The symbol-free `Order` change reduces the Linux hot-path order object from 80
+bytes to 48 bytes by keeping `symbol` in `SubmitOrderAction` only long enough for
+exchange routing. The 100,000-order insert workload improved from 6.69874M to
+8.37928M items/s versus the previous dense-lookup artifact, while the 10,000-row
+insert result regressed and should be treated as noisy until rerun.
 
-The cancel results show that intrusive queues reduced allocator and node
-overhead versus the iterator-based `std::list` refactor, and that the dense
-order-id lookup improves the cache-sensitive random cancel path. At 100,000
-orders, random cancel improved to 5.21629M items/s in the full latest run and to
-5.23192M items/s in the paired 3-second comparison. The mixed workload also
-improved in the longer paired run, though it remains more sensitive to insert,
-erase, and matching churn than pure cancel lookup.
+The match results moved only slightly, with the deepest run improving from
+5.59863M to 5.68622M items/s. Cancel front/back and the mixed workload improved
+materially in the latest full artifact run. Random cancel at 100,000 orders rose
+from 5.21629M to 5.71876M items/s versus the prior full artifact, while unknown
+cancel regressed from 12.8694M to 11.0453M items/s, so the new result is a mixed
+but meaningful footprint/locality tradeoff rather than a clean across-the-board
+win.
 
 Future benchmark iterations should add workloads with wider price distributions
 and deeper books before drawing stronger conclusions about tree-structure costs.

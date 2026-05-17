@@ -1,18 +1,63 @@
---------------------------------------------------------------------------------------
-Benchmark                            Time             CPU   Iterations UserCounters...
---------------------------------------------------------------------------------------
-BM_CancelFront/1000              33293 ns        33270 ns        21015 items_per_second=30.0573M/s
-BM_CancelFront/10000            320260 ns       319987 ns         2174 items_per_second=31.2513M/s
-BM_CancelFront/100000          6860168 ns      6858158 ns          102 items_per_second=14.5812M/s
-BM_CancelBack/1000               32191 ns        32164 ns        21796 items_per_second=31.0909M/s
-BM_CancelBack/10000             403530 ns       402979 ns         2239 items_per_second=24.8152M/s
-BM_CancelBack/100000           6171145 ns      6169345 ns          116 items_per_second=16.2092M/s
-BM_CancelRandom/1000             34159 ns        34145 ns        20585 items_per_second=29.2865M/s
-BM_CancelRandom/10000           453172 ns       452879 ns         1516 items_per_second=22.0809M/s
-BM_CancelRandom/100000        19173941 ns     19170720 ns           35 items_per_second=5.21629M/s
-BM_CancelUnknown/1000            73920 ns        73857 ns         9417 items_per_second=13.5398M/s
-BM_CancelUnknown/10000          722762 ns       722294 ns          974 items_per_second=13.8448M/s
-BM_CancelUnknown/100000        7773306 ns      7770355 ns           89 items_per_second=12.8694M/s
-BM_MixedSubmitCancel/1000        89742 ns        89751 ns         7900 items_per_second=11.1419M/s
-BM_MixedSubmitCancel/10000      895765 ns       896010 ns          775 items_per_second=11.1606M/s
-BM_MixedSubmitCancel/100000   15904291 ns     15904599 ns           42 items_per_second=6.28749M/s
+---------------------------------------------------------------------------------------------
+Benchmark                                   Time             CPU   Iterations UserCounters...
+---------------------------------------------------------------------------------------------
+BM_CancelFront/1000_mean                32701 ns        32704 ns            5 items_per_second=30.5808M/s order_id_max_load_factor=0.8
+BM_CancelFront/1000_median              32542 ns        32544 ns            5 items_per_second=30.7274M/s order_id_max_load_factor=0.8
+BM_CancelFront/1000_stddev                383 ns          383 ns            5 items_per_second=352.263k/s order_id_max_load_factor=6.664n
+BM_CancelFront/1000_cv                   1.17 %          1.17 %             5 items_per_second=1.15% order_id_max_load_factor=0.00%
+BM_CancelFront/10000_mean              316127 ns       315696 ns            5 items_per_second=31.6824M/s order_id_max_load_factor=0.8
+BM_CancelFront/10000_median            313955 ns       313519 ns            5 items_per_second=31.896M/s order_id_max_load_factor=0.8
+BM_CancelFront/10000_stddev              5065 ns         5050 ns            5 items_per_second=496.292k/s order_id_max_load_factor=6.664n
+BM_CancelFront/10000_cv                  1.60 %          1.60 %             5 items_per_second=1.57% order_id_max_load_factor=0.00%
+BM_CancelFront/100000_mean            4755528 ns      4755103 ns            5 items_per_second=21.0711M/s order_id_max_load_factor=0.8
+BM_CancelFront/100000_median          4641109 ns      4640680 ns            5 items_per_second=21.5486M/s order_id_max_load_factor=0.8
+BM_CancelFront/100000_stddev           242508 ns       242465 ns            5 items_per_second=1.00648M/s order_id_max_load_factor=6.664n
+BM_CancelFront/100000_cv                 5.10 %          5.10 %             5 items_per_second=4.78% order_id_max_load_factor=0.00%
+BM_CancelBack/1000_mean                 33389 ns        33389 ns            5 items_per_second=29.9646M/s order_id_max_load_factor=0.8
+BM_CancelBack/1000_median               32879 ns        32880 ns            5 items_per_second=30.4136M/s order_id_max_load_factor=0.8
+BM_CancelBack/1000_stddev                 823 ns          816 ns            5 items_per_second=725.474k/s order_id_max_load_factor=6.664n
+BM_CancelBack/1000_cv                    2.47 %          2.44 %             5 items_per_second=2.42% order_id_max_load_factor=0.00%
+BM_CancelBack/10000_mean               320385 ns       320250 ns            5 items_per_second=31.2343M/s order_id_max_load_factor=0.8
+BM_CancelBack/10000_median             318629 ns       318498 ns            5 items_per_second=31.3973M/s order_id_max_load_factor=0.8
+BM_CancelBack/10000_stddev               6026 ns         6006 ns            5 items_per_second=580.042k/s order_id_max_load_factor=6.664n
+BM_CancelBack/10000_cv                   1.88 %          1.88 %             5 items_per_second=1.86% order_id_max_load_factor=0.00%
+BM_CancelBack/100000_mean             4562470 ns      4562031 ns            5 items_per_second=21.9304M/s order_id_max_load_factor=0.8
+BM_CancelBack/100000_median           4530099 ns      4529693 ns            5 items_per_second=22.0766M/s order_id_max_load_factor=0.8
+BM_CancelBack/100000_stddev            112373 ns       112379 ns            5 items_per_second=526.966k/s order_id_max_load_factor=6.664n
+BM_CancelBack/100000_cv                  2.46 %          2.46 %             5 items_per_second=2.40% order_id_max_load_factor=0.00%
+BM_CancelRandom/1000_mean               33923 ns        33922 ns            5 items_per_second=29.4895M/s order_id_max_load_factor=0.8
+BM_CancelRandom/1000_median             33457 ns        33459 ns            5 items_per_second=29.8875M/s order_id_max_load_factor=0.8
+BM_CancelRandom/1000_stddev               704 ns          696 ns            5 items_per_second=599.312k/s order_id_max_load_factor=6.664n
+BM_CancelRandom/1000_cv                  2.07 %          2.05 %             5 items_per_second=2.03% order_id_max_load_factor=0.00%
+BM_CancelRandom/10000_mean             413626 ns       413542 ns            5 items_per_second=24.2253M/s order_id_max_load_factor=0.8
+BM_CancelRandom/10000_median           406631 ns       406567 ns            5 items_per_second=24.5962M/s order_id_max_load_factor=0.8
+BM_CancelRandom/10000_stddev            20290 ns        20294 ns            5 items_per_second=1.11921M/s order_id_max_load_factor=6.664n
+BM_CancelRandom/10000_cv                 4.91 %          4.91 %             5 items_per_second=4.62% order_id_max_load_factor=0.00%
+BM_CancelRandom/100000_mean          17525953 ns     17524974 ns            5 items_per_second=5.71876M/s order_id_max_load_factor=0.8
+BM_CancelRandom/100000_median        17345535 ns     17344331 ns            5 items_per_second=5.76557M/s order_id_max_load_factor=0.8
+BM_CancelRandom/100000_stddev          940176 ns       939958 ns            5 items_per_second=294.221k/s order_id_max_load_factor=6.664n
+BM_CancelRandom/100000_cv                5.36 %          5.36 %             5 items_per_second=5.14% order_id_max_load_factor=0.00%
+BM_CancelUnknown/1000_mean              74240 ns        74228 ns            5 items_per_second=13.4721M/s order_id_max_load_factor=0.8
+BM_CancelUnknown/1000_median            74216 ns        74207 ns            5 items_per_second=13.4758M/s order_id_max_load_factor=0.8
+BM_CancelUnknown/1000_stddev              103 ns          101 ns            5 items_per_second=18.2753k/s order_id_max_load_factor=6.664n
+BM_CancelUnknown/1000_cv                 0.14 %          0.14 %             5 items_per_second=0.14% order_id_max_load_factor=0.00%
+BM_CancelUnknown/10000_mean            747434 ns       747175 ns            5 items_per_second=13.4079M/s order_id_max_load_factor=0.8
+BM_CancelUnknown/10000_median          731338 ns       731141 ns            5 items_per_second=13.6772M/s order_id_max_load_factor=0.8
+BM_CancelUnknown/10000_stddev           36750 ns        36609 ns            5 items_per_second=616.446k/s order_id_max_load_factor=6.664n
+BM_CancelUnknown/10000_cv                4.92 %          4.90 %             5 items_per_second=4.60% order_id_max_load_factor=0.00%
+BM_CancelUnknown/100000_mean          9064097 ns      9063258 ns            5 items_per_second=11.0453M/s order_id_max_load_factor=0.8
+BM_CancelUnknown/100000_median        8929633 ns      8928792 ns            5 items_per_second=11.1997M/s order_id_max_load_factor=0.8
+BM_CancelUnknown/100000_stddev         339063 ns       339012 ns            5 items_per_second=393.967k/s order_id_max_load_factor=6.664n
+BM_CancelUnknown/100000_cv               3.74 %          3.74 %             5 items_per_second=3.57% order_id_max_load_factor=0.00%
+BM_MixedSubmitCancel/1000_mean          80003 ns        80030 ns            5 items_per_second=12.4954M/s order_id_max_load_factor=0.8
+BM_MixedSubmitCancel/1000_median        79938 ns        79965 ns            5 items_per_second=12.5055M/s order_id_max_load_factor=0.8
+BM_MixedSubmitCancel/1000_stddev          211 ns          210 ns            5 items_per_second=32.7207k/s order_id_max_load_factor=6.664n
+BM_MixedSubmitCancel/1000_cv             0.26 %          0.26 %             5 items_per_second=0.26% order_id_max_load_factor=0.00%
+BM_MixedSubmitCancel/10000_mean        818632 ns       818817 ns            5 items_per_second=12.2596M/s order_id_max_load_factor=0.8
+BM_MixedSubmitCancel/10000_median      792481 ns       792604 ns            5 items_per_second=12.6166M/s order_id_max_load_factor=0.8
+BM_MixedSubmitCancel/10000_stddev       59158 ns        59292 ns            5 items_per_second=809.316k/s order_id_max_load_factor=6.664n
+BM_MixedSubmitCancel/10000_cv            7.23 %          7.24 %             5 items_per_second=6.60% order_id_max_load_factor=0.00%
+BM_MixedSubmitCancel/100000_mean     12457644 ns     12455077 ns            5 items_per_second=8.03819M/s order_id_max_load_factor=0.8
+BM_MixedSubmitCancel/100000_median   12531340 ns     12531748 ns            5 items_per_second=7.97973M/s order_id_max_load_factor=0.8
+BM_MixedSubmitCancel/100000_stddev     480483 ns       475150 ns            5 items_per_second=306.034k/s order_id_max_load_factor=6.664n
+BM_MixedSubmitCancel/100000_cv           3.86 %          3.81 %             5 items_per_second=3.81% order_id_max_load_factor=0.00%

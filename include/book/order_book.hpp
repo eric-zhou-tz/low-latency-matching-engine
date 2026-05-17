@@ -97,6 +97,14 @@ public:
     [[nodiscard]] std::vector<Event> cancel(std::uint64_t order_id);
 
     /**
+     * @brief Checks whether an order id is currently resting in this book.
+     *
+     * @param order_id Identifier to look up.
+     * @return True when the order is live in this book.
+     */
+    [[nodiscard]] bool contains_order(std::uint64_t order_id) const;
+
+    /**
      * @brief Builds a compact textual snapshot of the current book.
      *
      * @return Human-readable book summary.

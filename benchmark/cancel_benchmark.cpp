@@ -74,7 +74,6 @@ struct MixedOperation {
     // Use one price level so cancel position maps directly to FIFO position.
     for (std::int64_t index = 0; index < count; ++index) {
         orders.push_back(Order{.id = static_cast<std::uint64_t>(index + 1),
-                               .symbol = "AAPL",
                                .side = Side::Buy,
                                .price = kRestingBid,
                                .quantity = kQuantity});
@@ -230,7 +229,6 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
     // Price buys and sells apart so regular inserts do not cross.
     const auto price = side == Side::Buy ? kRestingBid : kRestingAsk;
     return Order{.id = order_id,
-                 .symbol = "AAPL",
                  .side = side,
                  .price = price,
                  .quantity = kQuantity};
@@ -245,7 +243,6 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
 [[nodiscard]] Order make_mixed_crossing_buy(std::uint64_t order_id) {
     // Price above the passive ask so the order exercises the matching path.
     return Order{.id = order_id,
-                 .symbol = "AAPL",
                  .side = Side::Buy,
                  .price = kCrossingBuy,
                  .quantity = kQuantity};

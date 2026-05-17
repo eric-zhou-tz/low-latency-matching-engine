@@ -3,19 +3,24 @@
 #include "core/order.hpp"
 
 #include <cstdint>
+#include <string>
 #include <variant>
 
 namespace matching_engine {
 
 /**
- * @brief Action describing a request to add a new order to the book.
+ * @brief Action describing a client request to submit a new order.
  *
- * Submit actions are produced by Parser and consumed by Exchange. Keeping input
- * intent as a value type makes it easy to test parsing and later replay command
- * streams deterministically.
+ * Submit actions are produced by Parser and consumed by Exchange. The action
+ * keeps the symbol needed for routing, while the book receives a compact
+ * symbol-free Order after routing has finished.
  */
 struct SubmitOrderAction {
-    Order order;
+    std::uint64_t id{};
+    std::string symbol;
+    Side side{Side::Buy};
+    std::int64_t price{};
+    std::uint64_t quantity{};
 };
 
 /**

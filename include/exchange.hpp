@@ -4,8 +4,10 @@
 #include "core/action.hpp"
 #include "core/event.hpp"
 
+#include <ankerl/unordered_dense.h>
+
+#include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace matching_engine {
@@ -51,7 +53,28 @@ private:
      */
     [[nodiscard]] std::vector<Event> process_action(const PrintBookAction& action) const;
 
-    std::unordered_map<std::string, OrderBook> books_by_symbol_;
+    /**
+     * @brief Returns the existing book for a symbol or creates it.
+     *
+     * @param symbol Symbol whose book should receive an action.
+     * @return Stable pointer to the owned book.
+     */
+    [[nodiscard]] OrderBook* get_or_create_book(const std::string& symbol);
+
+    /**
+     * @brief Removes filled resting orders from the exchange-level live index.
+     *
+     * @param events Events emitted by a submit.
+     */
+    void remove_filled_resting_orders_from_index(const std::vector<Event>& events);
+
+    // Books are heap-owned so OrderBook* values stored in order_to_book_ remain
+    // stable even when the symbol map rehashes or moves unique_ptr elements.
+    ankerl::unordered_dense::map<std::string, std::unique_ptr<OrderBook>> books_by_symbol_;
+
+    // Live cancel routing starts here: order id to the single-symbol book that
+    // owns the resting order.
+    ankerl::unordered_dense::map<OrderId, OrderBook*> order_to_book_;
 };
 
 } // namespace matching_engine

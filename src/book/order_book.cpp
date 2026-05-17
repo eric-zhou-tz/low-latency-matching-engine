@@ -172,6 +172,14 @@ std::vector<Event> OrderBook::cancel(std::uint64_t order_id) {
 }
 
 /**
+ * @brief Checks whether an order id is currently live in this book.
+ */
+bool OrderBook::contains_order(std::uint64_t order_id) const {
+    // Ask the book-local id index because it is the source of truth for live orders.
+    return orders_by_id_.contains(order_id);
+}
+
+/**
  * @brief Produces a compact representation of resting orders.
  */
 std::string OrderBook::snapshot() const {
@@ -182,16 +190,16 @@ std::string OrderBook::snapshot() const {
     // Print bids in book priority order: highest price, then FIFO within level.
     for (const auto& [_, level] : bids_) {
         for (const Order* order = level.head; order != nullptr; order = order->next) {
-            output << " [" << order->id << ' ' << order->symbol << ' ' << to_string(order->side)
-                   << ' ' << order->price << 'x' << order->quantity << ']';
+            output << " [" << order->id << ' ' << to_string(order->side) << ' ' << order->price
+                   << 'x' << order->quantity << ']';
         }
     }
 
     // Print asks in book priority order: lowest price, then FIFO within level.
     for (const auto& [_, level] : asks_) {
         for (const Order* order = level.head; order != nullptr; order = order->next) {
-            output << " [" << order->id << ' ' << order->symbol << ' ' << to_string(order->side)
-                   << ' ' << order->price << 'x' << order->quantity << ']';
+            output << " [" << order->id << ' ' << to_string(order->side) << ' ' << order->price
+                   << 'x' << order->quantity << ']';
         }
     }
 

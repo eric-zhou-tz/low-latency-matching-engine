@@ -27,7 +27,6 @@ constexpr std::uint64_t kIncomingIdBase = 1'000'000'000;
     // Create identical passive asks that incoming buys can consume one by one.
     for (std::int64_t index = 0; index < count; ++index) {
         orders.push_back(Order{.id = static_cast<std::uint64_t>(index + 1),
-                               .symbol = "AAPL",
                                .side = Side::Sell,
                                .price = kRestingAsk,
                                .quantity = kQuantity});
@@ -45,7 +44,6 @@ constexpr std::uint64_t kIncomingIdBase = 1'000'000'000;
     // Use ids far away from resting ids so duplicate checks never fire.
     for (std::int64_t index = 0; index < count; ++index) {
         orders.push_back(Order{.id = kIncomingIdBase + static_cast<std::uint64_t>(index),
-                               .symbol = "AAPL",
                                .side = Side::Buy,
                                .price = kAggressiveBuy,
                                .quantity = kQuantity});

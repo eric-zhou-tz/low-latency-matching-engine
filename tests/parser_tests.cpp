@@ -8,6 +8,7 @@ namespace {
 
 using matching_engine::CancelOrderAction;
 using matching_engine::Parser;
+using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
 
 } // namespace
@@ -19,7 +20,15 @@ TEST(ParserTest, ParsesSubmitOrderCommand) {
     const auto submit = parser.parse_line("SUBMIT 1 AAPL BUY 100 10");
     // Confirm parsing succeeded and produced the expected action variant.
     ASSERT_TRUE(submit.has_value());
-    EXPECT_TRUE(std::holds_alternative<SubmitOrderAction>(*submit));
+    ASSERT_TRUE(std::holds_alternative<SubmitOrderAction>(*submit));
+
+    // Verify routing and hot-path fields stay separated in the submit payload.
+    const auto& action = std::get<SubmitOrderAction>(*submit);
+    EXPECT_EQ(action.id, 1U);
+    EXPECT_EQ(action.symbol, "AAPL");
+    EXPECT_EQ(action.side, Side::Buy);
+    EXPECT_EQ(action.price, 100);
+    EXPECT_EQ(action.quantity, 10U);
 }
 
 TEST(ParserTest, ParsesCancelOrderCommand) {
