@@ -16,7 +16,7 @@ namespace matching_engine {
  * @brief Routes parsed actions to the appropriate order book.
  *
  * Exchange is the application boundary for command processing. It owns books by
- * symbol and returns events to callers instead of printing directly.
+ * symbol and writes events to caller-owned buffers instead of printing directly.
  */
 class Exchange {
 public:
@@ -24,34 +24,34 @@ public:
      * @brief Applies one action to the exchange.
      *
      * @param action Parsed command to execute.
-     * @return Events emitted by the command.
+     * @param out Caller-owned event buffer filled with emitted events.
      */
-    [[nodiscard]] std::vector<Event> process(const Action& action);
+    void process(const Action& action, std::vector<Event>& out);
 
 private:
     /**
      * @brief Handles a new-order submission.
      *
      * @param action Submit action to apply.
-     * @return Events emitted while applying the action.
+     * @param out Caller-owned event buffer filled with emitted events.
      */
-    [[nodiscard]] std::vector<Event> process_action(const SubmitOrderAction& action);
+    void process_action(const SubmitOrderAction& action, std::vector<Event>& out);
 
     /**
      * @brief Handles an order cancellation.
      *
      * @param action Cancel action to apply.
-     * @return Events emitted while applying the action.
+     * @param out Caller-owned event buffer filled with emitted events.
      */
-    [[nodiscard]] std::vector<Event> process_action(const CancelOrderAction& action);
+    void process_action(const CancelOrderAction& action, std::vector<Event>& out);
 
     /**
      * @brief Handles a book snapshot request.
      *
      * @param action Print action to apply.
-     * @return Events emitted while applying the action.
+     * @param out Caller-owned event buffer filled with emitted events.
      */
-    [[nodiscard]] std::vector<Event> process_action(const PrintBookAction& action) const;
+    void process_action(const PrintBookAction& action, std::vector<Event>& out) const;
 
     /**
      * @brief Returns the existing book for a symbol or creates it.

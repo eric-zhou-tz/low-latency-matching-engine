@@ -51,6 +51,8 @@ void BM_RestingLimitOrderInsert(benchmark::State& state) {
     const auto expected_order_capacity = static_cast<std::size_t>(order_count);
     const auto orders = make_passive_orders(order_count);
     std::optional<OrderBook> book;
+    std::vector<matching_engine::Event> events;
+    events.reserve(8);
 
     // Google Benchmark controls the number of repetitions.
     for (auto _ : state) {
@@ -61,8 +63,10 @@ void BM_RestingLimitOrderInsert(benchmark::State& state) {
 
         // Measure only non-crossing submit and append behavior.
         for (const auto& order : orders) {
-            auto events = book->submit(order);
-            benchmark::DoNotOptimize(events);
+            // Reuse the event buffer while still materializing accepted events.
+            book->submit(order, events);
+            benchmark::DoNotOptimize(events.data());
+            benchmark::DoNotOptimize(events.size());
         }
 
         // Keep the compiler from optimizing away book mutations.

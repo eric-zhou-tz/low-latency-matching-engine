@@ -84,9 +84,9 @@ public:
      * @brief Adds an order to the book.
      *
      * @param order Order to store.
-     * @return Events describing the result of the operation.
+     * @param out Caller-owned event buffer filled with the operation result.
      */
-    [[nodiscard]] std::vector<Event> submit(Order order);
+    void submit(Order order, std::vector<Event>& out);
 
     /**
      * @brief Cancels an existing order by id.
@@ -94,7 +94,7 @@ public:
      * @param order_id Identifier to cancel.
      * @return Single event describing whether the cancel succeeded.
      */
-    [[nodiscard]] CancelResult cancel(std::uint64_t order_id);
+    [[nodiscard]] CancelResult cancel(OrderId order_id);
 
     /**
      * @brief Checks whether an order id is currently resting in this book.
@@ -151,17 +151,17 @@ private:
      * @brief Matches an incoming buy order against resting asks.
      *
      * @param incoming Mutable incoming order whose remaining quantity is reduced.
-     * @param events Output event collection for generated trades.
+     * @param out Output event collection for generated trades.
      */
-    void match_buy_order(Order& incoming, std::vector<Event>& events);
+    void match_buy_order(Order& incoming, std::vector<Event>& out);
 
     /**
      * @brief Matches an incoming sell order against resting bids.
      *
      * @param incoming Mutable incoming order whose remaining quantity is reduced.
-     * @param events Output event collection for generated trades.
+     * @param out Output event collection for generated trades.
      */
-    void match_sell_order(Order& incoming, std::vector<Event>& events);
+    void match_sell_order(Order& incoming, std::vector<Event>& out);
 
     // Bids and asks live in separate maps because each side has a different
     // notion of "best": highest buy price versus lowest sell price.

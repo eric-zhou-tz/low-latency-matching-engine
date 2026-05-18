@@ -168,10 +168,14 @@ struct MixedOperation {
  * @param resting_orders Orders to submit as passive liquidity.
  */
 void preload_book(OrderBook& book, const std::vector<Order>& resting_orders) {
+    std::vector<matching_engine::Event> events;
+    events.reserve(8);
+
     // Add all orders to the same level so later cancels isolate queue behavior.
     for (const auto& order : resting_orders) {
-        auto events = book.submit(order);
-        benchmark::DoNotOptimize(events);
+        book.submit(order, events);
+        benchmark::DoNotOptimize(events.data());
+        benchmark::DoNotOptimize(events.size());
     }
 }
 
@@ -348,6 +352,8 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
     const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
     const auto operations = make_mixed_operations(operation_count);
     std::optional<OrderBook> book;
+    std::vector<matching_engine::Event> events;
+    events.reserve(8);
 
     // Google Benchmark controls the number of repetitions.
     for (auto _ : state) {
@@ -359,11 +365,14 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
         // Measure the mixed order-book workload as one exchange-style stream.
         for (const auto& operation : operations) {
             if (operation.kind == MixedOperationKind::Cancel) {
+                // Cancels return one direct result and do not need the event buffer.
                 auto result = book->cancel(operation.cancel_id);
                 benchmark::DoNotOptimize(result);
             } else {
-                auto events = book->submit(operation.order);
-                benchmark::DoNotOptimize(events);
+                // Submits overwrite the reusable buffer but still materialize events.
+                book->submit(operation.order, events);
+                benchmark::DoNotOptimize(events.data());
+                benchmark::DoNotOptimize(events.size());
             }
         }
 

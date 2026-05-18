@@ -94,34 +94,35 @@ OrderBook::~OrderBook() {
  * incoming limit. Any unfilled quantity is appended to the relevant resting
  * queue, preserving FIFO priority at that price level.
  */
-std::vector<Event> OrderBook::submit(Order order) {
+void OrderBook::submit(Order order, std::vector<Event>& out) {
+    // Reuse caller-owned storage so hot paths avoid repeated vector allocation churn.
+    out.clear();
+
     // Incoming stack orders should never inherit intrusive links from callers.
     order.prev = nullptr;
     order.next = nullptr;
 
     // Reject duplicate ids before matching so each live order id stays unique.
     if (orders_by_id_.contains(order.id)) {
-        return {RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = order.id}};
+        out.push_back(RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = order.id});
+        return;
     }
 
     // Acceptance is emitted first; any trades follow in matching order.
     const auto order_id = order.id;
-    std::vector<Event> events{AcceptedEvent{.order_id = order_id}};
+    out.push_back(AcceptedEvent{.order_id = order_id});
 
     // Route to the opposite side of the book based on the incoming side.
     if (order.side == Side::Buy) {
-        match_buy_order(order, events);
+        match_buy_order(order, out);
     } else {
-        match_sell_order(order, events);
+        match_sell_order(order, out);
     }
 
     // If matching did not fully fill the order, leave the remainder resting.
     if (order.quantity > 0) {
         add_resting_order(order);
     }
-
-    // Return the full observable result for this submission.
-    return events;
 }
 
 /**
@@ -131,7 +132,7 @@ std::vector<Event> OrderBook::submit(Order order) {
  * finds the price level for aggregate cleanup, but FIFO removal is just pointer
  * rewiring and does not allocate or scan through same-price orders.
  */
-CancelResult OrderBook::cancel(std::uint64_t order_id) {
+CancelResult OrderBook::cancel(OrderId order_id) {
     // Look up the live order pointer so cancellation can unlink it directly.
     const auto found = orders_by_id_.find(order_id);
     if (found == orders_by_id_.end()) {
@@ -293,7 +294,7 @@ void OrderBook::copy_from(const OrderBook& other) {
  * The front pointer is the oldest order at that price, so matching from front
  * to back preserves FIFO price-time priority.
  */
-void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& events) {
+void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& out) {
     // Keep trading while the buy still has quantity and there is sell liquidity.
     while (incoming.quantity > 0 && !asks_.empty()) {
         // The best ask is the lowest ask price because asks_ is ascending.
@@ -309,10 +310,10 @@ void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& events) {
         const auto trade_quantity = std::min(incoming.quantity, resting->quantity);
 
         // Trades execute at the resting order's price.
-        events.emplace_back(TradeEvent{.resting_order_id = resting->id,
-                                       .incoming_order_id = incoming.id,
-                                       .price = resting->price,
-                                       .quantity = trade_quantity});
+        out.push_back(TradeEvent{.resting_order_id = resting->id,
+                                 .incoming_order_id = incoming.id,
+                                 .price = resting->price,
+                                 .quantity = trade_quantity});
 
         // Reduce both orders and the aggregate level volume by the fill.
         incoming.quantity -= trade_quantity;
@@ -338,7 +339,7 @@ void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& events) {
  *
  * Bids are sorted descending, so begin() is always the highest-priced bid.
  */
-void OrderBook::match_sell_order(Order& incoming, std::vector<Event>& events) {
+void OrderBook::match_sell_order(Order& incoming, std::vector<Event>& out) {
     // Keep trading while the sell still has quantity and there is buy liquidity.
     while (incoming.quantity > 0 && !bids_.empty()) {
         // The best bid is the highest bid price because bids_ is descending.
@@ -354,10 +355,10 @@ void OrderBook::match_sell_order(Order& incoming, std::vector<Event>& events) {
         const auto trade_quantity = std::min(incoming.quantity, resting->quantity);
 
         // Trades execute at the resting order's price.
-        events.emplace_back(TradeEvent{.resting_order_id = resting->id,
-                                       .incoming_order_id = incoming.id,
-                                       .price = resting->price,
-                                       .quantity = trade_quantity});
+        out.push_back(TradeEvent{.resting_order_id = resting->id,
+                                 .incoming_order_id = incoming.id,
+                                 .price = resting->price,
+                                 .quantity = trade_quantity});
 
         // Reduce both orders and the aggregate level volume by the fill.
         incoming.quantity -= trade_quantity;

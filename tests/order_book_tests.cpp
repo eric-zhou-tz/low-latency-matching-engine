@@ -12,7 +12,8 @@ namespace {
  */
 void submit_accepted(matching_engine::OrderBook& book, matching_engine::Order order) {
     // Submit setup liquidity that should rest without matching.
-    const auto events = book.submit(std::move(order));
+    std::vector<matching_engine::Event> events;
+    book.submit(std::move(order), events);
     // The helper only accepts the simple one-event success path.
     assert(events.size() == 1);
     assert(std::holds_alternative<matching_engine::AcceptedEvent>(events.front()));
@@ -56,14 +57,15 @@ int main() {
                                  .side = matching_engine::Side::Buy,
                                  .price = 100,
                                  .quantity = 10};
+    std::vector<matching_engine::Event> events;
 
-    const auto accepted = book.submit(order);
-    assert(accepted.size() == 1);
-    assert(std::holds_alternative<matching_engine::AcceptedEvent>(accepted.front()));
+    book.submit(order, events);
+    assert(events.size() == 1);
+    assert(std::holds_alternative<matching_engine::AcceptedEvent>(events.front()));
 
-    const auto duplicate = book.submit(order);
-    assert(duplicate.size() == 1);
-    assert(std::holds_alternative<matching_engine::RejectedEvent>(duplicate.front()));
+    book.submit(order, events);
+    assert(events.size() == 1);
+    assert(std::holds_alternative<matching_engine::RejectedEvent>(events.front()));
 
     const auto cancelled = book.cancel(order.id);
     assert(std::holds_alternative<matching_engine::CanceledEvent>(cancelled));
@@ -116,13 +118,14 @@ int main() {
                                      .price = 100,
                                      .quantity = 10});
 
-    const auto buy_match = buy_match_book.submit({.id = 11,
-                                                  .side = matching_engine::Side::Buy,
-                                                  .price = 105,
-                                                  .quantity = 4});
-    assert(buy_match.size() == 2);
-    assert(std::holds_alternative<matching_engine::AcceptedEvent>(buy_match.front()));
-    assert_trade(buy_match[1], 10, 11, 100, 4);
+    buy_match_book.submit({.id = 11,
+                           .side = matching_engine::Side::Buy,
+                           .price = 105,
+                           .quantity = 4},
+                          events);
+    assert(events.size() == 2);
+    assert(std::holds_alternative<matching_engine::AcceptedEvent>(events.front()));
+    assert_trade(events[1], 10, 11, 100, 4);
     assert(buy_match_book.snapshot().find("[10 SELL 100x6]") != std::string::npos);
     assert(buy_match_book.snapshot().find("[11 BUY 105x4]") == std::string::npos);
 
@@ -137,13 +140,14 @@ int main() {
                                 .price = 100,
                                 .quantity = 5});
 
-    const auto fifo_match = fifo_book.submit({.id = 22,
-                                              .side = matching_engine::Side::Buy,
-                                              .price = 100,
-                                              .quantity = 7});
-    assert(fifo_match.size() == 3);
-    assert_trade(fifo_match[1], 20, 22, 100, 5);
-    assert_trade(fifo_match[2], 21, 22, 100, 2);
+    fifo_book.submit({.id = 22,
+                      .side = matching_engine::Side::Buy,
+                      .price = 100,
+                      .quantity = 7},
+                     events);
+    assert(events.size() == 3);
+    assert_trade(events[1], 20, 22, 100, 5);
+    assert_trade(events[2], 21, 22, 100, 2);
     assert(fifo_book.snapshot().find("[20 SELL 100x5]") == std::string::npos);
     assert(fifo_book.snapshot().find("[21 SELL 100x3]") != std::string::npos);
 
@@ -154,12 +158,13 @@ int main() {
                                       .price = 101,
                                       .quantity = 5});
 
-    const auto sell_match = sell_match_book.submit({.id = 31,
-                                                    .side = matching_engine::Side::Sell,
-                                                    .price = 100,
-                                                    .quantity = 8});
-    assert(sell_match.size() == 2);
-    assert_trade(sell_match[1], 30, 31, 101, 5);
+    sell_match_book.submit({.id = 31,
+                            .side = matching_engine::Side::Sell,
+                            .price = 100,
+                            .quantity = 8},
+                           events);
+    assert(events.size() == 2);
+    assert_trade(events[1], 30, 31, 101, 5);
     assert(sell_match_book.snapshot().find("[30 BUY 101x5]") == std::string::npos);
     assert(sell_match_book.snapshot().find("[31 SELL 100x3]") != std::string::npos);
 

@@ -54,11 +54,15 @@ constexpr std::uint64_t kIncomingIdBase = 1'000'000'000;
 }
 
 void preload_book(OrderBook& book, const std::vector<Order>& resting_orders) {
+    std::vector<matching_engine::Event> events;
+    events.reserve(8);
+
     // Insert all resting liquidity before the timed matching section.
     for (const auto& order : resting_orders) {
-        auto events = book.submit(order);
+        book.submit(order, events);
         // Prevent the compiler from discarding submit work during setup.
-        benchmark::DoNotOptimize(events);
+        benchmark::DoNotOptimize(events.data());
+        benchmark::DoNotOptimize(events.size());
     }
 }
 
@@ -78,6 +82,8 @@ void BM_CrossingLimitOrderMatch(benchmark::State& state) {
     const auto resting_orders = make_resting_asks(order_count);
     const auto crossing_orders = make_crossing_buys(order_count);
     std::optional<OrderBook> book;
+    std::vector<matching_engine::Event> events;
+    events.reserve(8);
 
     // Google Benchmark controls the number of repetitions.
     for (auto _ : state) {
@@ -89,8 +95,10 @@ void BM_CrossingLimitOrderMatch(benchmark::State& state) {
 
         // Measure only the crossing submit path.
         for (const auto& order : crossing_orders) {
-            auto events = book->submit(order);
-            benchmark::DoNotOptimize(events);
+            // Reuse the event buffer while still storing the acceptance and trade.
+            book->submit(order, events);
+            benchmark::DoNotOptimize(events.data());
+            benchmark::DoNotOptimize(events.size());
         }
 
         // Keep the compiler from optimizing away book mutations.

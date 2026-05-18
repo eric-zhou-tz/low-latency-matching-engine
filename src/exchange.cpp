@@ -18,33 +18,23 @@ namespace {
             .quantity = action.quantity};
 }
 
-/**
- * @brief Wraps a single cancel result in the exchange event stream type.
- */
-[[nodiscard]] std::vector<Event> make_single_event_stream(const CancelResult& result) {
-    // Keep Exchange::process stable while OrderBook::cancel returns one event directly.
-    return {std::visit(
-        [](const auto& event) {
-            // Convert the concrete cancel payload into the wider event variant.
-            return Event{event};
-        },
-        result)};
-}
-
 } // namespace
 
 /**
- * @brief Applies an action and returns the events produced by the exchange.
+ * @brief Applies an action and writes the events produced by the exchange.
  *
  * The exchange currently supports one book per symbol and keeps a live order
  * index so cancels can route directly to the owning book.
  */
-std::vector<Event> Exchange::process(const Action& action) {
+void Exchange::process(const Action& action, std::vector<Event>& out) {
+    // Reuse caller-owned storage across commands to avoid per-action vector churn.
+    out.clear();
+
     // Dispatch the variant to the matching process_action overload.
-    return std::visit(
-        [this](const auto& concrete_action) {
+    std::visit(
+        [this, &out](const auto& concrete_action) {
             // Forward the concrete action to the matching overload.
-            return process_action(concrete_action);
+            process_action(concrete_action, out);
         },
         action);
 }
@@ -52,27 +42,28 @@ std::vector<Event> Exchange::process(const Action& action) {
 /**
  * @brief Routes a submit action to the book for its symbol.
  */
-std::vector<Event> Exchange::process_action(const SubmitOrderAction& action) {
+void Exchange::process_action(const SubmitOrderAction& action, std::vector<Event>& out) {
     // Enforce one live owner per order id so the exchange-level cancel index is unambiguous.
     if (order_to_book_.contains(action.id)) {
-        return {RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = action.id}};
+        out.push_back(RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = action.id});
+        return;
     }
 
     // Create the symbol book on first use, then submit to that stable book pointer.
     OrderBook* book = get_or_create_book(action.symbol);
-    auto events = book->submit(make_book_order(action));
+    book->submit(make_book_order(action), out);
 
     // Trades may have removed previously resting orders from their owning books.
-    remove_filled_resting_orders_from_index(events);
+    remove_filled_resting_orders_from_index(out);
 
     // Rejections leave no live state and should not be added to the cancel index.
-    if (std::holds_alternative<RejectedEvent>(events.front())) {
-        return events;
+    if (std::holds_alternative<RejectedEvent>(out.front())) {
+        return;
     }
 
     // Work out whether the incoming order has remaining quantity after its trades.
     std::uint64_t filled_quantity = 0;
-    for (const auto& event : events) {
+    for (const auto& event : out) {
         if (const auto* trade = std::get_if<TradeEvent>(&event);
             trade != nullptr && trade->incoming_order_id == action.id) {
             filled_quantity += trade->quantity;
@@ -83,54 +74,53 @@ std::vector<Event> Exchange::process_action(const SubmitOrderAction& action) {
     if (filled_quantity < action.quantity) {
         order_to_book_.emplace(action.id, book);
     }
-
-    // Return the book's original event stream unchanged.
-    return events;
 }
 
 /**
  * @brief Routes cancellation directly to the book that owns the order.
  */
-std::vector<Event> Exchange::process_action(const CancelOrderAction& action) {
+void Exchange::process_action(const CancelOrderAction& action, std::vector<Event>& out) {
     // Missing ids are rejected at the exchange boundary without probing symbol books.
     const auto found = order_to_book_.find(action.order_id);
     if (found == order_to_book_.end()) {
-        return {RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = action.order_id}};
+        out.push_back(RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = action.order_id});
+        return;
     }
 
     // Route directly to the saved owning book.
     const auto result = found->second->cancel(action.order_id);
+    out.push_back(std::visit(
+        [](const auto& event) {
+            // Convert the concrete cancel payload into the wider event stream type.
+            return Event{event};
+        },
+        result));
 
     // A successful cancel removes the order from both the book and exchange indexes.
     if (!std::holds_alternative<RejectedEvent>(result)) {
         order_to_book_.erase(found);
-        return make_single_event_stream(result);
+        return;
     }
 
     // If the book rejects, the exchange index was stale; erase it to restore consistency.
     order_to_book_.erase(found);
-    return make_single_event_stream(result);
 }
 
 /**
  * @brief Emits one snapshot event per known book.
  */
-std::vector<Event> Exchange::process_action(const PrintBookAction&) const {
+void Exchange::process_action(const PrintBookAction&, std::vector<Event>& out) const {
     // Build snapshot messages as events so output formatting stays outside Exchange.
-    std::vector<Event> events;
     if (books_by_symbol_.empty()) {
         // Preserve a useful response even before any book has been created.
-        events.emplace_back(BookSnapshotEvent{"book: empty"});
-        return events;
+        out.push_back(BookSnapshotEvent{"book: empty"});
+        return;
     }
 
     // Emit one compact snapshot per symbol book.
     for (const auto& [symbol, book] : books_by_symbol_) {
-        events.emplace_back(BookSnapshotEvent{"book " + symbol + ": " + book->snapshot()});
+        out.push_back(BookSnapshotEvent{"book " + symbol + ": " + book->snapshot()});
     }
-
-    // Return snapshots in the symbol map iteration order for now.
-    return events;
 }
 
 /**

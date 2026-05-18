@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.3.7 - Reusable Submit Event Buffers
+
+- Changed submit processing to write into caller-owned reusable `std::vector<Event>` buffers instead of returning event vectors by value.
+- Preserved `OrderBook::cancel` as a direct `CancelResult` path because cancellation produces exactly one result and does not need an event buffer.
+- Updated CLI, exchange routing, tests, and benchmarks for the split API: submit/match reuse event buffers, cancel returns one result.
+- Refreshed EC2 Release benchmarks; 100,000-order insert improved from 13.6655M to 16.3102M items/s, crossing match improved from 9.71048M to 19.9854M items/s, and mixed submit/cancel/match improved from 11.0886M to 14.6258M items/s.
+- Confirmed cancel performance stayed in the direct-result range, with 100,000 random cancel at 11.1673M items/s and unknown cancel at 107.774M items/s.
+
 ## v0.3.6 - Structured Events + Cancel Result Optimization
 
 - Replaced hot-path accepted and rejected event strings with structured payloads: `AcceptedEvent` now stores the order id, and `RejectedEvent` stores `RejectReason` plus order id.

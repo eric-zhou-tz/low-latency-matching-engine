@@ -46,10 +46,9 @@ Trade / Accept / Reject Events
 ```
 
 Internally, the matching core emits structured domain events rather than
-preformatted strings. Submissions return an event stream because one order can
-produce multiple fills, while `OrderBook::cancel` returns a single
-`CancelResult` and is wrapped into the public event stream at the exchange
-boundary.
+preformatted strings. Submissions write into caller-owned `std::vector<Event>`
+buffers because one order can produce multiple fills, while cancellation returns
+a single `CancelResult` and does not need an event buffer.
 
 Additional documentation:
 
@@ -125,13 +124,13 @@ Current benchmark coverage includes:
 - FIFO cancel-order performance
 - Mixed submit/cancel/match workloads
 
-Latest EC2 Release highlights after the structured-event and cancel-result
-optimization:
+Latest EC2 Release highlights after the reusable submit-buffer optimization:
 
-- 100,000-order insert: `13.6655M items/s`
-- 100,000-order crossing match: `9.71048M items/s`
-- 100,000 random cancel: `11.2259M items/s`
-- 100,000 unknown cancel: `104.52M items/s`
+- 100,000-order insert: `16.3102M items/s`
+- 100,000-order crossing match: `19.9854M items/s`
+- 100,000 random cancel: `11.1673M items/s`
+- 100,000 unknown cancel: `107.774M items/s`
+- 100,000 mixed submit/cancel/match: `14.6258M items/s`
 
 Example Release build:
 

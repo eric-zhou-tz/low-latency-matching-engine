@@ -12,7 +12,7 @@ The current implementation is intentionally focused on correctness, deterministi
 
 ### Exchange
 
-`Exchange` is the command-processing boundary. It receives typed `Action` values, owns order books by symbol, routes submissions to the correct book, and returns emitted `Event` values to the caller.
+`Exchange` is the command-processing boundary. It receives typed `Action` values, owns order books by symbol, routes submissions to the correct book, and writes emitted `Event` values into a caller-owned buffer.
 
 The exchange also maintains a live order index:
 
@@ -26,7 +26,7 @@ The index maps each live order ID to the single-symbol `OrderBook` that owns the
 
 `OrderBook` owns the resting liquidity for a single symbol. It stores bid and
 ask price levels, performs crossing checks, executes matching, rests unfilled
-quantity, cancels live orders, and emits the events produced by those state
+quantity, cancels live orders, and writes the events produced by those state
 transitions. Submissions can produce an event stream because one incoming order
 can accept and then trade against several resting orders. Cancellation produces
 exactly one `CancelResult`.
@@ -55,7 +55,20 @@ This keeps command dispatch explicit and makes replay-style processing straightf
 
 ### Events
 
-Events describe the observable results of applying an action. The matching core returns events instead of printing directly, which separates domain behavior from presentation and makes the engine easier to test, replay, and integrate.
+Events describe the observable results of applying an action. The matching core writes events instead of printing directly, which separates domain behavior from presentation and makes the engine easier to test, replay, and integrate.
+
+Submissions use a caller-owned reusable event buffer because one submitted order
+can emit acceptance plus several trade events:
+
+```cpp
+void submit(Order order, std::vector<Event>& out);
+```
+
+Cancellation stays on a direct single-result API:
+
+```cpp
+CancelResult cancel(OrderId order_id);
+```
 
 ## Order Book Data Structures
 
@@ -166,9 +179,9 @@ The previous same-price cancellation path was `O(log P + Q)`: find the price lev
 using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
 ```
 
-This avoids allocating a one-event vector on the cancel hot path. `Exchange`
-still exposes `std::vector<Event>` from `process(...)` so callers have one
-command-processing API; it wraps the single cancel result only at that boundary.
+This avoids passing an event vector through the cancel hot path. Submissions
+still use caller-owned vectors because one submitted order can produce multiple
+events.
 
 ## Event System
 
@@ -193,13 +206,14 @@ Current events include:
 | `CanceledEvent` | Reports successful removal of a resting order. |
 | `BookSnapshotEvent` | Carries snapshot display text for the non-hot-path print command. |
 
-Event-driven design is useful because it keeps mutation and observation separate. The matching engine can update internal state and return a precise event stream without depending on terminal output, logging, networking, or persistence code.
+Event-driven design is useful because it keeps mutation and observation separate. The matching engine can update internal state and write a precise event stream without depending on terminal output, logging, networking, or persistence code.
 
 Hot-path events carry structured data instead of preformatted strings. Display
 strings such as `"accepted order 42"` and `"unknown order id 42"` are created by
-`format_event()` at the presentation boundary. This keeps matching, cancel, and
-rejection paths deterministic and avoids string allocation when the core updates
-book state.
+`format_event()` at the presentation boundary. Caller-owned submit buffers avoid
+repeated event-vector construction while preserving explicit event
+materialization. Cancellation uses `CancelResult` directly because it emits only
+one result.
 
 ## Complexity Analysis
 
@@ -216,7 +230,7 @@ Definitions:
 - `K` = number of matched resting orders that generate fills.
 - `Q` = number of resting orders at one price level.
 
-The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. The exchange-level `order_to_book_` index also removes the previous cross-symbol scan before entering the book. Pool allocation is amortized by fixed-size blocks, cancel/match release paths do not call the general-purpose allocator, and the cancel result no longer allocates a one-event vector.
+The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. The exchange-level `order_to_book_` index also removes the previous cross-symbol scan before entering the book. Pool allocation is amortized by fixed-size blocks, cancel/match release paths do not call the general-purpose allocator, and cancel returns a single result instead of using an event vector.
 
 ## Determinism
 
@@ -237,7 +251,7 @@ Future work should remain separate from the current correctness-focused implemen
 
 - Further tuning of the order pool block size after broader Linux benchmark validation.
 - Further exchange-level cancel metadata tuning after measuring multi-symbol workloads.
-- Consider an event sink/callback API for submission if future profiling shows event-vector allocation remains material on multi-fill workloads.
+- Consider an event sink/callback API for submission if future profiling shows caller-owned event buffers are still material on multi-fill workloads.
 - Lock-free or concurrent designs for higher-throughput deployments.
 - Network ingress and session management.
 - Binary protocols for lower parsing overhead.

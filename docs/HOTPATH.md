@@ -126,9 +126,8 @@ The useful regions are:
    - The widest frames under it are unordered-map lookup and erase work.
 
 3. `std::vector<std::variant<...>>`
-   - Each cancel returns a one-event `std::vector<Event>`.
-   - Vector construction/destruction and event materialization show up in the
-     sampled path.
+   - Older runs returned a one-event `std::vector<Event>` for each cancel.
+   - The current cancel path returns one direct `CancelResult` instead.
 
 ## Annotated Cancel Findings
 
@@ -164,7 +163,7 @@ The remaining random-cancel cost is dominated by:
 1. `orders_by_id_` unordered-map lookup.
 2. Random pointer chasing from the hash table to `Order`.
 3. Hash erase on successful cancel.
-4. Returning a `std::vector<Event>` for every cancel.
+4. Materializing the single cancel result.
 
 Not currently dominant:
 
@@ -189,9 +188,9 @@ Likely next targets, in priority order:
    - A lower max load factor may reduce bucket-chain work at the cost of memory.
 
 3. Reduce event-vector overhead.
-   - Cancel returns a one-event `std::vector<Event>`.
-   - A small-vector, caller-provided event buffer, or fixed-size operation result
-     could avoid repeated vector allocation/destruction in hot paths.
+   - Cancel returns a single direct result and no longer needs an event vector.
+   - Submit uses a caller-provided event buffer because it can produce multiple
+     events.
 
 4. Consider a flatter order-id table.
    - `std::unordered_map` is node-based.

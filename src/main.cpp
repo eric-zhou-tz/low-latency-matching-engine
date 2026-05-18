@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 /**
  * @brief Command-line entry point for the matching engine scaffold.
@@ -15,6 +16,8 @@ int main() {
     // Build the two application components used by the command loop.
     matching_engine::Parser parser;
     matching_engine::Exchange exchange;
+    std::vector<matching_engine::Event> events;
+    events.reserve(8);
 
     // Read one command per line so scripts and redirected files work naturally.
     std::string line;
@@ -27,8 +30,11 @@ int main() {
             continue;
         }
 
-        // Process the action and print each event in the order it was produced.
-        for (const auto& event : exchange.process(*action)) {
+        // Reuse one event buffer for the whole command loop to avoid allocation churn.
+        exchange.process(*action, events);
+
+        // Print each event in the order it was produced.
+        for (const auto& event : events) {
             std::cout << matching_engine::format_event(event) << '\n';
         }
     }
