@@ -214,6 +214,9 @@ std::string OrderBook::snapshot() const {
 void OrderBook::reserve_order_capacity(std::size_t expected_order_capacity) {
     // Keep the requested capacity with the id index because cancels start here.
     orders_by_id_.reserve(expected_order_capacity);
+
+    // Preallocate order slots so known-depth runs avoid arena growth on insert.
+    order_pool_.reserve(expected_order_capacity);
 }
 
 /**
@@ -264,8 +267,8 @@ void OrderBook::copy_from(const OrderBook& other) {
     // Preserve the source lookup density before sizing this book's id index.
     set_order_id_max_load_factor(other.orders_by_id_.max_load_factor());
 
-    // Reserve the same live-id count so cloning does not rehash mid-copy.
-    orders_by_id_.reserve(other.orders_by_id_.size());
+    // Reserve the same live count so cloning avoids hash rehashes and pool growth.
+    reserve_order_capacity(other.orders_by_id_.size());
 
     // Copy bids in price-priority order and preserve FIFO links within levels.
     for (const auto& [price, source_level] : other.bids_) {

@@ -1,15 +1,30 @@
 ---------------------------------------------------------------------------------------------------
 Benchmark                                         Time             CPU   Iterations UserCounters...
 ---------------------------------------------------------------------------------------------------
-BM_RestingLimitOrderInsert/1000_mean          30841 ns        30857 ns            5 items_per_second=32.4079M/s
-BM_RestingLimitOrderInsert/1000_median        30868 ns        30885 ns            5 items_per_second=32.3781M/s
-BM_RestingLimitOrderInsert/1000_stddev         74.8 ns         76.2 ns            5 items_per_second=80.0909k/s
-BM_RestingLimitOrderInsert/1000_cv             0.24 %          0.25 %             5 items_per_second=0.25%
-BM_RestingLimitOrderInsert/10000_mean        514795 ns       514647 ns            5 items_per_second=19.4707M/s
-BM_RestingLimitOrderInsert/10000_median      502762 ns       502620 ns            5 items_per_second=19.8958M/s
-BM_RestingLimitOrderInsert/10000_stddev       26972 ns        26962 ns            5 items_per_second=953.195k/s
-BM_RestingLimitOrderInsert/10000_cv            5.24 %          5.24 %             5 items_per_second=4.90%
-BM_RestingLimitOrderInsert/100000_mean      6130690 ns      6132113 ns            5 items_per_second=16.3102M/s
-BM_RestingLimitOrderInsert/100000_median    6095456 ns      6096766 ns            5 items_per_second=16.4021M/s
-BM_RestingLimitOrderInsert/100000_stddev      87392 ns        87415 ns            5 items_per_second=231.726k/s
-BM_RestingLimitOrderInsert/100000_cv           1.43 %          1.43 %             5 items_per_second=1.42%
+BM_RestingLimitOrderInsert/1000               31382 ns        31392 ns        22288 items_per_second=31.8557M/s
+BM_RestingLimitOrderInsert/1000               31357 ns        31381 ns        22288 items_per_second=31.8667M/s
+BM_RestingLimitOrderInsert/1000               31397 ns        31415 ns        22288 items_per_second=31.8318M/s
+BM_RestingLimitOrderInsert/1000               31298 ns        31319 ns        22288 items_per_second=31.9299M/s
+BM_RestingLimitOrderInsert/1000               31289 ns        31306 ns        22288 items_per_second=31.9428M/s
+BM_RestingLimitOrderInsert/1000_mean          31344 ns        31362 ns            5 items_per_second=31.8854M/s
+BM_RestingLimitOrderInsert/1000_median        31357 ns        31381 ns            5 items_per_second=31.8667M/s
+BM_RestingLimitOrderInsert/1000_stddev         48.9 ns         47.6 ns            5 items_per_second=48.4507k/s
+BM_RestingLimitOrderInsert/1000_cv             0.16 %          0.15 %             5 items_per_second=0.15%
+BM_RestingLimitOrderInsert/10000             501112 ns       500919 ns         1421 items_per_second=19.9633M/s
+BM_RestingLimitOrderInsert/10000             919214 ns       918950 ns         1421 items_per_second=10.882M/s
+BM_RestingLimitOrderInsert/10000             571014 ns       570955 ns         1421 items_per_second=17.5145M/s
+BM_RestingLimitOrderInsert/10000             499695 ns       499574 ns         1421 items_per_second=20.0171M/s
+BM_RestingLimitOrderInsert/10000             497458 ns       497304 ns         1421 items_per_second=20.1084M/s
+BM_RestingLimitOrderInsert/10000_mean        597699 ns       597540 ns            5 items_per_second=17.6971M/s
+BM_RestingLimitOrderInsert/10000_median      501112 ns       500919 ns            5 items_per_second=19.9633M/s
+BM_RestingLimitOrderInsert/10000_stddev      182391 ns       182340 ns            5 items_per_second=3.96269M/s
+BM_RestingLimitOrderInsert/10000_cv           30.52 %         30.52 %             5 items_per_second=22.39%
+BM_RestingLimitOrderInsert/100000           6282840 ns      6284155 ns          108 items_per_second=15.913M/s
+BM_RestingLimitOrderInsert/100000           6208579 ns      6209904 ns          108 items_per_second=16.1033M/s
+BM_RestingLimitOrderInsert/100000           6227802 ns      6229056 ns          108 items_per_second=16.0538M/s
+BM_RestingLimitOrderInsert/100000           6212320 ns      6213289 ns          108 items_per_second=16.0945M/s
+BM_RestingLimitOrderInsert/100000           6142540 ns      6143947 ns          108 items_per_second=16.2762M/s
+BM_RestingLimitOrderInsert/100000_mean      6214816 ns      6216070 ns            5 items_per_second=16.0882M/s
+BM_RestingLimitOrderInsert/100000_median    6212320 ns      6213289 ns            5 items_per_second=16.0945M/s
+BM_RestingLimitOrderInsert/100000_stddev      50162 ns        50129 ns            5 items_per_second=129.876k/s
+BM_RestingLimitOrderInsert/100000_cv           0.81 %          0.81 %             5 items_per_second=0.81%

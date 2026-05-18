@@ -102,4 +102,10 @@ if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
             benchmark::benchmark
             benchmark::benchmark_main
     )
+
+    add_executable(latency_benchmark benchmark/latency_benchmark.cpp)
+    target_link_libraries(latency_benchmark
+        PRIVATE
+            engine
+    )
 endif()

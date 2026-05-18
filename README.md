@@ -123,14 +123,15 @@ Current benchmark coverage includes:
 - Aggressive crossing-order matching
 - FIFO cancel-order performance
 - Mixed submit/cancel/match workloads
+- Amortized batch latency for matching-engine hot paths
 
-Latest EC2 Release highlights after the reusable submit-buffer optimization:
+Latest EC2 Release highlights after adding amortized batch latency benchmarks:
 
-- 100,000-order insert: `16.3102M items/s`
-- 100,000-order crossing match: `19.9854M items/s`
-- 100,000 random cancel: `11.1673M items/s`
-- 100,000 unknown cancel: `107.774M items/s`
-- 100,000 mixed submit/cancel/match: `14.6258M items/s`
+- 100,000-order insert: `16.0882M items/s`
+- 100,000-order crossing match: `20.5566M items/s`
+- 100,000 random cancel: `10.4114M items/s`
+- 100,000 unknown cancel: `103.564M items/s`
+- 100,000 mixed submit/cancel/match: `18.9449M items/s`
 
 Example Release build:
 
@@ -181,4 +182,3 @@ This project emphasizes:
 - Formalize the print book action and output contract.
 - Implement trade reports.
 - Perform hot path analysis across matching, canceling, and symbol routing.
-- Add latency benchmarks.

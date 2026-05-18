@@ -30,7 +30,8 @@ public:
      */
     OrderPool(OrderPool&& other) noexcept
         : blocks_(std::move(other.blocks_)),
-          free_orders_(std::exchange(other.free_orders_, nullptr)) {
+          free_orders_(std::exchange(other.free_orders_, nullptr)),
+          next_block_index_(std::exchange(other.next_block_index_, 0)) {
         // The moved-to pool owns all blocks; the moved-from pool no longer recycles slots.
     }
 
@@ -50,6 +51,7 @@ public:
         clear();
         blocks_ = std::move(other.blocks_);
         free_orders_ = std::exchange(other.free_orders_, nullptr);
+        next_block_index_ = std::exchange(other.next_block_index_, 0);
 
         // Return this object so assignment can be chained normally.
         return *this;
@@ -65,6 +67,25 @@ public:
 
     OrderPool(const OrderPool&) = delete;
     OrderPool& operator=(const OrderPool&) = delete;
+
+    /**
+     * @brief Allocates raw storage for an expected number of live orders.
+     *
+     * @param expected_order_capacity Expected number of simultaneously resting orders.
+     */
+    void reserve(std::size_t expected_order_capacity) {
+        // Convert order capacity to the number of fixed-size blocks needed.
+        const std::size_t required_blocks =
+            (expected_order_capacity + kBlockSize - 1) / kBlockSize;
+
+        // Keep block metadata contiguous when callers know the target depth.
+        blocks_.reserve(required_blocks);
+
+        // Allocate raw blocks now, while leaving each slot unconstructed until create().
+        while (blocks_.size() < required_blocks) {
+            blocks_.push_back(Block{.data = allocator_.allocate(kBlockSize), .used = 0});
+        }
+    }
 
     /**
      * @brief Allocates or reuses storage for one live order.
@@ -83,13 +104,19 @@ public:
             return reused;
         }
 
-        // Allocate a contiguous raw block only when all existing slots are live/used.
-        if (blocks_.empty() || blocks_.back().used == kBlockSize) {
+        // Skip full blocks so preallocated storage is consumed in order.
+        while (next_block_index_ < blocks_.size() &&
+               blocks_[next_block_index_].used == kBlockSize) {
+            ++next_block_index_;
+        }
+
+        // Allocate a contiguous raw block only when all reserved slots are used.
+        if (next_block_index_ == blocks_.size()) {
             blocks_.push_back(Block{.data = allocator_.allocate(kBlockSize), .used = 0});
         }
 
         // Construct the next stable slot from the current block.
-        auto& block = blocks_.back();
+        auto& block = blocks_[next_block_index_];
         Order* stored = block.data + block.used++;
         std::construct_at(stored, order);
         stored->prev = nullptr;
@@ -125,6 +152,7 @@ public:
         // Reset storage and free-list state for future reuse.
         blocks_.clear();
         free_orders_ = nullptr;
+        next_block_index_ = 0;
     }
 
 private:
@@ -141,6 +169,7 @@ private:
     std::allocator<Order> allocator_;
     std::vector<Block> blocks_;
     Order* free_orders_{};
+    std::size_t next_block_index_{};
 };
 
 } // namespace matching_engine
