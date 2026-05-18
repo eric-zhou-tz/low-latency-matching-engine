@@ -11,11 +11,11 @@ automatically by CMake or CI until that workflow is added intentionally.
 - Kernel: `7.0.0-1004-aws`
 - CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
 - Compiler: GCC/G++ 15.2.0
-- Commit: `6f581de` plus local amortized-batch-latency benchmark changes
+- Commit: `dca7f50` plus local perf-counter instrumentation changes
 - Build type: `Release`
 - Release flags: `-O3 -DNDEBUG`
 - Correctness tests: 26/26 passed before benchmark execution
-- Run date: `2026-05-18T06:54:52Z`
+- Run date: `2026-05-18T17:18:57Z`
 
 ## Workloads
 
@@ -72,27 +72,87 @@ warmup batches.
 
 | Benchmark | Workload Size | Batch Size | Samples / Trial | Trials | p50 ns/op | p95 ns/op | p99 ns/op | Max ns/op |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `RestingLimitOrderInsert` | 73,728 | 64 | 1,024 | 5 | 85.17 | 100.31 | 125.91 | 522.05 |
-| `RestingLimitOrderInsert` | 294,912 | 256 | 1,024 | 5 | 111.64 | 125.99 | 158.30 | 896.73 |
-| `RestingLimitOrderInsert` | 1,179,648 | 1,024 | 1,024 | 5 | 179.83 | 191.75 | 206.41 | 302.72 |
-| `CrossingLimitOrderMatch` | 73,728 | 64 | 1,024 | 5 | 49.45 | 64.41 | 80.91 | 199.30 |
-| `CrossingLimitOrderMatch` | 294,912 | 256 | 1,024 | 5 | 63.81 | 101.38 | 111.52 | 150.08 |
-| `CrossingLimitOrderMatch` | 1,179,648 | 1,024 | 1,024 | 5 | 151.34 | 251.11 | 268.84 | 327.51 |
-| `CancelFront` | 73,728 | 64 | 1,024 | 5 | 28.89 | 38.22 | 42.44 | 201.73 |
-| `CancelFront` | 294,912 | 256 | 1,024 | 5 | 38.44 | 54.10 | 74.75 | 120.66 |
-| `CancelFront` | 1,179,648 | 1,024 | 1,024 | 5 | 145.92 | 230.46 | 244.99 | 273.51 |
-| `CancelBack` | 73,728 | 64 | 1,024 | 5 | 27.86 | 35.84 | 41.36 | 185.19 |
-| `CancelBack` | 294,912 | 256 | 1,024 | 5 | 36.92 | 51.15 | 72.89 | 129.76 |
-| `CancelBack` | 1,179,648 | 1,024 | 1,024 | 5 | 139.67 | 150.20 | 155.13 | 170.88 |
-| `CancelRandom` | 73,728 | 64 | 1,024 | 5 | 80.08 | 119.88 | 139.12 | 280.34 |
-| `CancelRandom` | 294,912 | 256 | 1,024 | 5 | 313.30 | 363.28 | 386.71 | 484.33 |
-| `CancelRandom` | 1,179,648 | 1,024 | 1,024 | 5 | 492.00 | 516.70 | 523.77 | 565.47 |
-| `CancelUnknown` | 73,728 | 64 | 1,024 | 5 | 10.25 | 14.45 | 16.94 | 159.06 |
-| `CancelUnknown` | 294,912 | 256 | 1,024 | 5 | 12.45 | 26.24 | 30.27 | 64.70 |
-| `CancelUnknown` | 1,179,648 | 1,024 | 1,024 | 5 | 38.48 | 45.17 | 51.39 | 69.08 |
-| `MixedSubmitCancel` | 73,728 | 64 | 1,024 | 5 | 61.36 | 77.52 | 84.30 | 245.22 |
-| `MixedSubmitCancel` | 294,912 | 256 | 1,024 | 5 | 112.14 | 133.16 | 154.61 | 204.82 |
-| `MixedSubmitCancel` | 1,179,648 | 1,024 | 1,024 | 5 | 165.69 | 180.98 | 191.54 | 301.92 |
+| `RestingLimitOrderInsert` | 73,728 | 64 | 1,024 | 5 | 85.70 | 99.62 | 116.05 | 523.14 |
+| `RestingLimitOrderInsert` | 294,912 | 256 | 1,024 | 5 | 118.50 | 132.79 | 164.04 | 212.69 |
+| `RestingLimitOrderInsert` | 1,179,648 | 1,024 | 1,024 | 5 | 181.19 | 195.13 | 211.46 | 315.81 |
+| `CrossingLimitOrderMatch` | 73,728 | 64 | 1,024 | 5 | 50.00 | 62.81 | 80.03 | 218.08 |
+| `CrossingLimitOrderMatch` | 294,912 | 256 | 1,024 | 5 | 82.45 | 117.00 | 135.36 | 243.33 |
+| `CrossingLimitOrderMatch` | 1,179,648 | 1,024 | 1,024 | 5 | 148.87 | 248.35 | 258.39 | 293.79 |
+| `CancelFront` | 73,728 | 64 | 1,024 | 5 | 29.23 | 38.89 | 44.59 | 198.44 |
+| `CancelFront` | 294,912 | 256 | 1,024 | 5 | 36.96 | 56.53 | 74.57 | 112.37 |
+| `CancelFront` | 1,179,648 | 1,024 | 1,024 | 5 | 146.27 | 228.54 | 246.30 | 257.28 |
+| `CancelBack` | 73,728 | 64 | 1,024 | 5 | 28.02 | 35.25 | 39.84 | 187.33 |
+| `CancelBack` | 294,912 | 256 | 1,024 | 5 | 46.86 | 60.96 | 82.38 | 132.33 |
+| `CancelBack` | 1,179,648 | 1,024 | 1,024 | 5 | 141.11 | 152.67 | 159.22 | 198.13 |
+| `CancelRandom` | 73,728 | 64 | 1,024 | 5 | 82.52 | 121.33 | 146.27 | 311.98 |
+| `CancelRandom` | 294,912 | 256 | 1,024 | 5 | 319.20 | 367.16 | 393.31 | 445.71 |
+| `CancelRandom` | 1,179,648 | 1,024 | 1,024 | 5 | 497.65 | 521.81 | 535.16 | 616.75 |
+| `CancelUnknown` | 73,728 | 64 | 1,024 | 5 | 10.20 | 14.50 | 16.66 | 153.48 |
+| `CancelUnknown` | 294,912 | 256 | 1,024 | 5 | 12.33 | 27.82 | 31.81 | 67.04 |
+| `CancelUnknown` | 1,179,648 | 1,024 | 1,024 | 5 | 38.02 | 42.73 | 49.69 | 65.33 |
+| `MixedSubmitCancel` | 73,728 | 64 | 1,024 | 5 | 61.25 | 78.53 | 87.30 | 469.03 |
+| `MixedSubmitCancel` | 294,912 | 256 | 1,024 | 5 | 120.23 | 139.16 | 167.57 | 280.15 |
+| `MixedSubmitCancel` | 1,179,648 | 1,024 | 1,024 | 5 | 167.96 | 183.54 | 198.38 | 312.93 |
+
+## Hardware Performance Counters
+
+The EC2 latency workflow also has an additive `perf stat` counter pass in
+`benchmarks/run_perf_counters.sh`. Run it after building the Release benchmark
+binary, typically after `benchmarks/run_ec2_benchmarks.sh`, when latency changes
+need a hardware-level explanation. The existing throughput and latency pipeline
+is unchanged.
+
+The script pins the latency runner with `taskset -c 0`, executes
+`latency_benchmark` under `perf stat`, and records aggregate counters for:
+
+- `cycles`
+- `instructions`
+- `branches`
+- `branch-misses`
+- `cache-references`
+- `cache-misses`
+- `L1-dcache-loads`
+- `L1-dcache-load-misses`
+- `LLC-loads`
+- `LLC-load-misses`
+
+Perf artifact files:
+
+- `benchmarks/perf_results.txt`
+- `benchmarks/perf_results.csv`
+
+Some virtualized EC2 PMUs may not expose every requested cache event. The script
+probes each counter before the measured run, skips unsupported events, and lists
+them in `perf_results.txt` so the artifact remains reproducible instead of
+silently changing the event set. If `perf` or `taskset` is missing on an Ubuntu
+host, the script attempts to install the matching `linux-tools` or `util-linux`
+package before failing with an explicit error.
+
+Latest counter probe:
+
+- Run date: `2026-05-18T17:32:14Z`
+- Host: AWS EC2 `t3.small` on KVM
+- Result: none of the requested hardware PMU events were exposed to `perf`
+- Unsupported events: `cycles`, `instructions`, `branches`, `branch-misses`,
+  `cache-references`, `cache-misses`, `L1-dcache-loads`,
+  `L1-dcache-load-misses`, `LLC-loads`, and `LLC-load-misses`
+
+Interpretation notes:
+
+- Deep random cancel workloads are expected to be dominated by cache misses as
+  lookup depth and shuffled order IDs put more pressure on the memory hierarchy.
+- Front and back cancels should stay comparatively cache-local because the
+  intrusive queue keeps unlinking `O(1)` once the order is found.
+- Rising `LLC-load-misses` as workload depth grows indicates memory hierarchy
+  pressure, especially on random cancel and mixed submit/cancel workloads.
+- High branch-miss rates can indicate unpredictable random lookup paths rather
+  than arithmetic or matching-rule cost.
+- Cycles-per-instruction trends help explain whether a workload is becoming
+  memory-bound or remains mostly compute-bound.
+
+These counters complement latency percentiles by explaining why latency changes
+occur. They are intentionally aggregate `perf stat` counters only; this workflow
+does not add flamegraphs, `perf record`, `perf report`, or sampling profilers.
 
 ## Results
 
@@ -105,9 +165,9 @@ benchmark rows are tracked in `docs/benchmark_history.md`.
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_RestingLimitOrderInsert/1000` | 31362 ns | 31.8854M items/s |
-| `BM_RestingLimitOrderInsert/10000` | 597540 ns | 17.6971M items/s |
-| `BM_RestingLimitOrderInsert/100000` | 6216070 ns | 16.0882M items/s |
+| `BM_RestingLimitOrderInsert/1000` | 34287 ns | 29.6014M items/s |
+| `BM_RestingLimitOrderInsert/10000` | 497681 ns | 20.0948M items/s |
+| `BM_RestingLimitOrderInsert/100000` | 6166983 ns | 16.2208M items/s |
 
 Artifact files:
 
@@ -118,9 +178,9 @@ Artifact files:
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_CrossingLimitOrderMatch/1000` | 31368 ns | 31.8803M items/s |
-| `BM_CrossingLimitOrderMatch/10000` | 308796 ns | 32.3838M items/s |
-| `BM_CrossingLimitOrderMatch/100000` | 4864998 ns | 20.5566M items/s |
+| `BM_CrossingLimitOrderMatch/1000` | 31098 ns | 32.1567M items/s |
+| `BM_CrossingLimitOrderMatch/10000` | 306560 ns | 32.6207M items/s |
+| `BM_CrossingLimitOrderMatch/100000` | 4901451 ns | 20.41M items/s |
 
 Artifact files:
 
@@ -167,6 +227,7 @@ Run metadata:
 - Structured event/cancel-result base: `00ca2b1` plus local structured-event/cancel-result changes
 - Reusable submit event-buffer base: `523506d` plus local reusable-submit-buffer changes
 - Amortized batch latency base: `6f581de` plus local latency benchmark changes
+- Perf-counter instrumentation base: `dca7f50` plus local perf-counter instrumentation changes
 - Refactor host: AWS EC2 `t3.small`
 - Correctness tests: 26/26 passed before benchmark execution
 
@@ -174,21 +235,21 @@ Latest full cancel artifact run:
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_CancelFront/1000` | 16559 ns | 60.3903M items/s |
-| `BM_CancelFront/10000` | 158706 ns | 63.2502M items/s |
-| `BM_CancelFront/100000` | 2935703 ns | 34.069M items/s |
-| `BM_CancelBack/1000` | 16102 ns | 62.1035M items/s |
-| `BM_CancelBack/10000` | 148024 ns | 67.5564M items/s |
-| `BM_CancelBack/100000` | 2781006 ns | 35.959M items/s |
-| `BM_CancelRandom/1000` | 18925 ns | 53.0964M items/s |
-| `BM_CancelRandom/10000` | 228504 ns | 43.7639M items/s |
-| `BM_CancelRandom/100000` | 9608913 ns | 10.4114M items/s |
-| `BM_CancelUnknown/1000` | 8089 ns | 123.625M items/s |
-| `BM_CancelUnknown/10000` | 68107 ns | 146.827M items/s |
-| `BM_CancelUnknown/100000` | 968597 ns | 103.564M items/s |
-| `BM_MixedSubmitCancel/1000` | 27070 ns | 36.9416M items/s |
-| `BM_MixedSubmitCancel/10000` | 260516 ns | 38.3875M items/s |
-| `BM_MixedSubmitCancel/100000` | 5279053 ns | 18.9449M items/s |
+| `BM_CancelFront/1000` | 16524 ns | 60.5168M items/s |
+| `BM_CancelFront/10000` | 158584 ns | 63.2277M items/s |
+| `BM_CancelFront/100000` | 2950841 ns | 33.9001M items/s |
+| `BM_CancelBack/1000` | 16049 ns | 62.31M items/s |
+| `BM_CancelBack/10000` | 148874 ns | 67.1732M items/s |
+| `BM_CancelBack/100000` | 2799016 ns | 35.7337M items/s |
+| `BM_CancelRandom/1000` | 18631 ns | 53.9077M items/s |
+| `BM_CancelRandom/10000` | 231802 ns | 43.1423M items/s |
+| `BM_CancelRandom/100000` | 9649975 ns | 10.3807M items/s |
+| `BM_CancelUnknown/1000` | 8140 ns | 122.848M items/s |
+| `BM_CancelUnknown/10000` | 68333 ns | 146.343M items/s |
+| `BM_CancelUnknown/100000` | 978926 ns | 102.543M items/s |
+| `BM_MixedSubmitCancel/1000` | 26786 ns | 37.333M items/s |
+| `BM_MixedSubmitCancel/10000` | 261513 ns | 38.2455M items/s |
+| `BM_MixedSubmitCancel/100000` | 5322068 ns | 18.798M items/s |
 
 Separate paired 3-second comparison run:
 
@@ -237,9 +298,9 @@ refactor, and dense lookup refactor:
 
 | Benchmark | Deque Throughput | Iterator Throughput | Intrusive Throughput | Latest Throughput |
 | --- | ---: | ---: | ---: | ---: |
-| `BM_CancelFront/100000` | 12.0807M items/s | 10.6954M items/s | 14.5193M items/s | 34.069M items/s |
-| `BM_CancelBack/100000` | 7.02396k items/s | 10.8996M items/s | 14.7098M items/s | 35.959M items/s |
-| `BM_CancelRandom/100000` | 6.73904k items/s | 1.68836M items/s | 2.53093M items/s | 10.4114M items/s |
+| `BM_CancelFront/100000` | 12.0807M items/s | 10.6954M items/s | 14.5193M items/s | 33.9001M items/s |
+| `BM_CancelBack/100000` | 7.02396k items/s | 10.8996M items/s | 14.7098M items/s | 35.7337M items/s |
+| `BM_CancelRandom/100000` | 6.73904k items/s | 1.68836M items/s | 2.53093M items/s | 10.3807M items/s |
 
 Artifact files:
 
@@ -255,13 +316,13 @@ The current event API keeps cancellation on the direct single-result
 submit and match benchmarks without constructing and destroying a vector for
 every submitted order.
 
-The latest run keeps the existing Google Benchmark throughput suite intact and
-adds amortized batch latency artifacts for the same hot paths. Versus the prior
-reusable-submit-buffer run, the deepest crossing-match workload moved from
-19.9854M to 20.5566M items/s, while deepest mixed submit/cancel/match moved
-from 14.6258M to 18.9449M items/s. The 10,000-order insert and a few cancel
-rows were noisier than the surrounding workloads, so avoid over-reading small
-deltas from this single full-suite pass.
+The latest run keeps the existing Google Benchmark throughput suite intact,
+refreshes amortized batch latency artifacts for the same hot paths, and adds a
+`perf stat` counter probe. The deepest crossing-match workload measured
+20.41M items/s, while deepest mixed submit/cancel/match measured 18.798M
+items/s. The perf probe did not expose the requested hardware PMU events on
+this `t3.small` KVM host, so the counter artifacts document the unsupported
+event set instead of reporting cache or branch statistics.
 
 Future benchmark iterations should add workloads with wider price distributions
 and deeper books before drawing stronger conclusions about tree-structure costs.

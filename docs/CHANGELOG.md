@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.3.9 - Perf Counter Instrumentation + EC2 Validation
+
+- Added lightweight EC2 `perf stat` instrumentation for the amortized batch latency benchmark workflow.
+- Added `benchmarks/run_perf_counters.sh` to pin `latency_benchmark` with `taskset -c 0`, probe requested PMU counters, and write both text and CSV perf artifacts.
+- Requested aggregate counters for cycles, instructions, branches, branch misses, cache references/misses, L1 data-cache loads/misses, and LLC loads/misses.
+- Refreshed EC2 Release benchmark artifacts on `t3.small`; 26/26 correctness tests passed before benchmark execution.
+- Confirmed the latest throughput results are broadly stable versus the previous EC2 run, with small deltas treated as normal run-to-run variation rather than a code regression.
+- Captured that this EC2 KVM host did not expose the requested hardware PMU events to `perf`, so `perf_results.txt` and `perf_results.csv` record the unsupported counter set instead of reporting misleading values.
+- Updated `BENCHMARKS.md` and `docs/benchmark_history.md` with the new latency results, perf-counter methodology, and unsupported-counter probe outcome.
+
+## v0.3.8 - Latency Benchmarks
+- Added a standalone amortized batch latency benchmarking suite alongside the existing Google Benchmark throughput benchmarks.
+- Added fixed-size batch latency measurements (64, 256, and 1,024 operations) with p50, p95, p99, and max percentile reporting across five EC2 trials.
+- Added dedicated latency workloads for resting inserts, crossing matches, front/back/random cancels, unknown cancels, and mixed submit/cancel/match streams.
+-  Implemented low-overhead latency methodology using timed operation batches instead of per-operation timers to avoid misleading single-op measurements.
+- Added EC2 benchmark automation with taskset-based CPU pinning, environment metadata capture, and JSON/text latency artifacts.
+- Refreshed Linux EC2 Release benchmarks; deepest mixed submit/cancel/match throughput improved from 14.6258M to 18.9449M items/s, while deepest crossing match throughput improved from 19.9854M to 20.5566M items/s.
+- Latest latency results showed ~28 ns p50 front/back cancels, ~10 ns p50 unknown cancels, and ~61 ns p50 mixed submit/cancel latency at 64-operation batches on the EC2 benchmark host.
+
 ## v0.3.7 - Reusable Submit Event Buffers
 
 - Changed submit processing to write into caller-owned reusable `std::vector<Event>` buffers instead of returning event vectors by value.

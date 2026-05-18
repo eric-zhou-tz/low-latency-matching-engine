@@ -1,0 +1,11 @@
+status,event,count,unit,metric
+unsupported,cycles,N/A,N/A,PMU event unavailable on this host
+unsupported,instructions,N/A,N/A,PMU event unavailable on this host
+unsupported,branches,N/A,N/A,PMU event unavailable on this host
+unsupported,branch-misses,N/A,N/A,PMU event unavailable on this host
+unsupported,cache-references,N/A,N/A,PMU event unavailable on this host
+unsupported,cache-misses,N/A,N/A,PMU event unavailable on this host
+unsupported,L1-dcache-loads,N/A,N/A,PMU event unavailable on this host
+unsupported,L1-dcache-load-misses,N/A,N/A,PMU event unavailable on this host
+unsupported,LLC-loads,N/A,N/A,PMU event unavailable on this host
+unsupported,LLC-load-misses,N/A,N/A,PMU event unavailable on this host

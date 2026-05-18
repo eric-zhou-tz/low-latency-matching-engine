@@ -1,16 +1,6 @@
-date=2026-05-18T06:54:52Z
-git_commit=6f581dece53b601ea5bbc74773fe388d888b378c
-git_status=dirty
- M BENCHMARKS.md
- M CMakeLists.txt
- M README.md
- M docs/benchmark_history.md
- M include/book/order_pool.hpp
- M src/book/order_book.cpp
-?? benchmark/latency_benchmark.cpp
-?? benchmarks/benchmark_environment.txt
-?? benchmarks/full_suite_run.log
-?? benchmarks/run_ec2_benchmarks.sh
+date=2026-05-18T17:18:57Z
+git_commit=dca7f50 + local perf-counter instrumentation changes
+git_status=dirty (local workspace copied to EC2 tarball)
 ec2_instance_type=t3.small
 uname=Linux ip-172-31-44-213 7.0.0-1004-aws #4-Ubuntu SMP PREEMPT Mon Apr 13 13:14:24 UTC 2026 x86_64 GNU/Linux
 build_type=Release
