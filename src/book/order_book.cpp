@@ -1,6 +1,7 @@
 #include "book/order_book.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <sstream>
 #include <utility>
 
@@ -95,22 +96,10 @@ OrderBook::~OrderBook() {
  * queue, preserving FIFO priority at that price level.
  */
 void OrderBook::submit(Order order, std::vector<Event>& out) {
-    // Reuse caller-owned storage so hot paths avoid repeated vector allocation churn.
-    out.clear();
-
-    // Incoming stack orders should never inherit intrusive links from callers.
-    order.prev = nullptr;
-    order.next = nullptr;
-
-    // Reject duplicate ids before matching so each live order id stays unique.
-    if (orders_by_id_.contains(order.id)) {
-        out.push_back(RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = order.id});
+    // Validate and accept the order before entering the shared matching path.
+    if (!prepare_incoming_order(order, out)) {
         return;
     }
-
-    // Acceptance is emitted first; any trades follow in matching order.
-    const auto order_id = order.id;
-    out.push_back(AcceptedEvent{.order_id = order_id});
 
     // Route to the opposite side of the book based on the incoming side.
     if (order.side == Side::Buy) {
@@ -122,6 +111,35 @@ void OrderBook::submit(Order order, std::vector<Event>& out) {
     // If matching did not fully fill the order, leave the remainder resting.
     if (order.quantity > 0) {
         add_resting_order(order);
+    }
+}
+
+/**
+ * @brief Matches a market order and expires any leftover quantity.
+ *
+ * Market orders reuse the limit matching loops by giving the incoming order an
+ * unbounded crossing price. The only market-specific behavior is that an
+ * unmatched remainder produces a rejection event instead of resting.
+ */
+void OrderBook::submit_market(Order order, std::vector<Event>& out) {
+    // Validate and accept the order before entering the shared matching path.
+    if (!prepare_incoming_order(order, out)) {
+        return;
+    }
+
+    // Use a sentinel crossing price so the existing matcher sweeps all opposite liquidity.
+    if (order.side == Side::Buy) {
+        order.price = std::numeric_limits<Price>::max();
+        match_buy_order(order, out);
+    } else {
+        order.price = std::numeric_limits<Price>::min();
+        match_sell_order(order, out);
+    }
+
+    // Market orders never rest; any remaining quantity expires as insufficient liquidity.
+    if (order.quantity > 0) {
+        out.push_back(
+            RejectedEvent{.reason = RejectReason::InsufficientLiquidity, .order_id = order.id});
     }
 }
 
@@ -245,6 +263,28 @@ void OrderBook::add_resting_order(const Order& order) {
 
     // Remember the exact order node so future cancels can unlink without scans.
     orders_by_id_.emplace(stored_order->id, stored_order);
+}
+
+/**
+ * @brief Resets incoming order links and emits the initial submit event.
+ */
+bool OrderBook::prepare_incoming_order(Order& order, std::vector<Event>& out) const {
+    // Reuse caller-owned storage so hot paths avoid repeated vector allocation churn.
+    out.clear();
+
+    // Incoming stack orders should never inherit intrusive links from callers.
+    order.prev = nullptr;
+    order.next = nullptr;
+
+    // Reject duplicate ids before matching so each live order id stays unique.
+    if (orders_by_id_.contains(order.id)) {
+        out.push_back(RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = order.id});
+        return false;
+    }
+
+    // Acceptance is emitted first; any trades or remainder events follow in order.
+    out.push_back(AcceptedEvent{.order_id = order.id});
+    return true;
 }
 
 /**

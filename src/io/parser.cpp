@@ -55,6 +55,23 @@ std::optional<Action> Parser::parse_line(const std::string& line) const {
         return action;
     }
 
+    if (command == "MARKET") {
+        // Read the market order fields; market orders do not carry a limit price.
+        MarketOrderAction action;
+        std::string side_token;
+        input >> action.id >> action.symbol >> side_token >> action.quantity;
+
+        // Validate side and quantity before returning a command to the exchange.
+        const auto side = parse_side(side_token);
+        if (!input || !side || action.symbol.empty() || action.quantity == 0) {
+            return std::nullopt;
+        }
+
+        // Store the parsed side so the exchange can route to the correct book side.
+        action.side = *side;
+        return action;
+    }
+
     if (command == "CANCEL") {
         // Cancellation only needs the unique order id.
         std::uint64_t order_id{};

@@ -20,6 +20,7 @@ public:
      *
      * Supported commands:
      * - SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity>
+     * - MARKET <id> <symbol> <BUY|SELL> <quantity>
      * - CANCEL <id>
      * - PRINT
      *

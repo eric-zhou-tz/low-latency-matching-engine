@@ -7,6 +7,7 @@
 namespace {
 
 using matching_engine::CancelOrderAction;
+using matching_engine::MarketOrderAction;
 using matching_engine::Parser;
 using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
@@ -40,6 +41,23 @@ TEST(ParserTest, ParsesCancelOrderCommand) {
     ASSERT_TRUE(cancel.has_value());
     ASSERT_TRUE(std::holds_alternative<CancelOrderAction>(*cancel));
     EXPECT_EQ(std::get<CancelOrderAction>(*cancel).order_id, 1U);
+}
+
+TEST(ParserTest, ParsesMarketOrderCommand) {
+    // Parse a market command with no limit price field.
+    Parser parser;
+
+    const auto market = parser.parse_line("MARKET 2 AAPL SELL 25");
+    // Confirm parsing succeeded and produced the market action variant.
+    ASSERT_TRUE(market.has_value());
+    ASSERT_TRUE(std::holds_alternative<MarketOrderAction>(*market));
+
+    // Verify routing fields and quantity are preserved.
+    const auto& action = std::get<MarketOrderAction>(*market);
+    EXPECT_EQ(action.id, 2U);
+    EXPECT_EQ(action.symbol, "AAPL");
+    EXPECT_EQ(action.side, Side::Sell);
+    EXPECT_EQ(action.quantity, 25U);
 }
 
 TEST(ParserTest, RejectsMalformedSubmitOrderCommand) {

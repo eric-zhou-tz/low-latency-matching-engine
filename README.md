@@ -16,6 +16,7 @@ electronic trading systems.
 ## Features
 
 - Price-time priority matching
+- Market order support
 - FIFO queues at each price level
 - Deterministic integer-based pricing and quantities
 - Cancel order support
@@ -100,6 +101,7 @@ Run the demo order stream:
 
 ```text
 SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity>
+MARKET <id> <symbol> <BUY|SELL> <quantity>
 CANCEL <id>
 PRINT
 ```

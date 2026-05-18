@@ -42,6 +42,7 @@ struct CanceledEvent {
 enum class RejectReason {
     DuplicateOrderId,
     UnknownOrderId,
+    InsufficientLiquidity,
 };
 
 /**
@@ -82,6 +83,8 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
         return "duplicate order id";
     case RejectReason::UnknownOrderId:
         return "unknown order id";
+    case RejectReason::InsufficientLiquidity:
+        return "insufficient liquidity";
     }
 
     // Return a defensive fallback for future enum additions.

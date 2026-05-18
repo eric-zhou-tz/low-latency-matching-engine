@@ -18,6 +18,14 @@ namespace {
             .quantity = action.quantity};
 }
 
+/**
+ * @brief Builds the compact book order from a routed market action.
+ */
+[[nodiscard]] Order make_book_order(const MarketOrderAction& action) {
+    // Market matching overwrites the price with a crossing sentinel inside OrderBook.
+    return {.id = action.id, .side = action.side, .price = 0, .quantity = action.quantity};
+}
+
 } // namespace
 
 /**
@@ -74,6 +82,24 @@ void Exchange::process_action(const SubmitOrderAction& action, std::vector<Event
     if (filled_quantity < action.quantity) {
         order_to_book_.emplace(action.id, book);
     }
+}
+
+/**
+ * @brief Routes a market action to the book for its symbol.
+ */
+void Exchange::process_action(const MarketOrderAction& action, std::vector<Event>& out) {
+    // Enforce one live owner per order id so market orders cannot collide with resting orders.
+    if (order_to_book_.contains(action.id)) {
+        out.push_back(RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = action.id});
+        return;
+    }
+
+    // Create the symbol book on first use, then use the market-specific no-resting path.
+    OrderBook* book = get_or_create_book(action.symbol);
+    book->submit_market(make_book_order(action), out);
+
+    // Trades may have removed previously resting orders from their owning books.
+    remove_filled_resting_orders_from_index(out);
 }
 
 /**

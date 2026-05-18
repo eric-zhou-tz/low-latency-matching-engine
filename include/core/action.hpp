@@ -24,6 +24,19 @@ struct SubmitOrderAction {
 };
 
 /**
+ * @brief Action describing a client request to submit a market order.
+ *
+ * Market orders carry no limit price. They consume available opposite-side
+ * liquidity immediately and never leave a resting remainder on the book.
+ */
+struct MarketOrderAction {
+    std::uint64_t id{};
+    std::string symbol;
+    Side side{Side::Buy};
+    std::uint64_t quantity{};
+};
+
+/**
  * @brief Action describing a request to cancel an existing order.
  */
 struct CancelOrderAction {
@@ -38,6 +51,6 @@ struct PrintBookAction {};
 /**
  * @brief Sum type for every command accepted by the exchange.
  */
-using Action = std::variant<SubmitOrderAction, CancelOrderAction, PrintBookAction>;
+using Action = std::variant<SubmitOrderAction, MarketOrderAction, CancelOrderAction, PrintBookAction>;
 
 } // namespace matching_engine

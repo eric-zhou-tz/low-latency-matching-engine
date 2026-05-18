@@ -89,6 +89,14 @@ public:
     void submit(Order order, std::vector<Event>& out);
 
     /**
+     * @brief Matches a market order without resting any unfilled remainder.
+     *
+     * @param order Market order to match immediately.
+     * @param out Caller-owned event buffer filled with the operation result.
+     */
+    void submit_market(Order order, std::vector<Event>& out);
+
+    /**
      * @brief Cancels an existing order by id.
      *
      * @param order_id Identifier to cancel.
@@ -146,6 +154,15 @@ private:
      * @param order Order that should rest on the book.
      */
     void add_resting_order(const Order& order);
+
+    /**
+     * @brief Prepares an incoming order and emits the acceptance or rejection.
+     *
+     * @param order Incoming order whose intrusive links should be reset.
+     * @param out Caller-owned event buffer filled with initial events.
+     * @return True when matching may continue.
+     */
+    [[nodiscard]] bool prepare_incoming_order(Order& order, std::vector<Event>& out) const;
 
     /**
      * @brief Matches an incoming buy order against resting asks.

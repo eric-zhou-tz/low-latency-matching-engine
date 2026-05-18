@@ -38,6 +38,14 @@ private:
     void process_action(const SubmitOrderAction& action, std::vector<Event>& out);
 
     /**
+     * @brief Handles a market-order submission.
+     *
+     * @param action Market action to apply.
+     * @param out Caller-owned event buffer filled with emitted events.
+     */
+    void process_action(const MarketOrderAction& action, std::vector<Event>& out);
+
+    /**
      * @brief Handles an order cancellation.
      *
      * @param action Cancel action to apply.

@@ -15,6 +15,7 @@ using matching_engine::Event;
 using matching_engine::Order;
 using matching_engine::OrderBook;
 using matching_engine::RejectedEvent;
+using matching_engine::RejectReason;
 using matching_engine::Side;
 using matching_engine::TradeEvent;
 
@@ -34,6 +35,14 @@ void expect_accepted(const Event& event) {
 void expect_rejected(const Event& event) {
     // Verify the event variant represents a rejected action.
     EXPECT_TRUE(std::holds_alternative<RejectedEvent>(event));
+}
+
+void expect_rejected(const Event& event, RejectReason reason, std::uint64_t order_id) {
+    // Check both the rejection type and the machine-readable reason.
+    ASSERT_TRUE(std::holds_alternative<RejectedEvent>(event));
+    const auto& rejected = std::get<RejectedEvent>(event);
+    EXPECT_EQ(rejected.reason, reason);
+    EXPECT_EQ(rejected.order_id, order_id);
 }
 
 void expect_rejected(const matching_engine::CancelResult& result) {
@@ -219,6 +228,122 @@ TEST(OrderBookTest, AggressiveSellWalksBidLevelsAndRestsRemainder) {
     EXPECT_EQ(snapshot.find("[46 BUY 101x3]"), std::string::npos);
     EXPECT_NE(snapshot.find("[47 SELL 100x3]"), std::string::npos);
     EXPECT_NE(snapshot.find("orders=1"), std::string::npos);
+}
+
+TEST(OrderBookTest, MarketBuyFullyFillsAgainstBestAsk) {
+    // Seed one ask so the market buy can fill entirely at the best ask.
+    OrderBook book;
+    submit_accepted(book, make_order(500, Side::Sell, 100, 6));
+    std::vector<Event> events;
+
+    book.submit_market(make_order(501, Side::Buy, 0, 4), events);
+
+    // The market buy trades immediately and leaves only the ask remainder.
+    ASSERT_EQ(events.size(), 2U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 500, 501, 100, 4);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_NE(snapshot.find("[500 SELL 100x2]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[501 BUY"), std::string::npos);
+}
+
+TEST(OrderBookTest, MarketBuySweepsMultipleAskPriceLevels) {
+    // Seed ascending ask levels so the market buy must consume best prices first.
+    OrderBook book;
+    submit_accepted(book, make_order(510, Side::Sell, 100, 4));
+    submit_accepted(book, make_order(511, Side::Sell, 101, 3));
+    submit_accepted(book, make_order(512, Side::Sell, 102, 5));
+    std::vector<Event> events;
+
+    book.submit_market(make_order(513, Side::Buy, 0, 7), events);
+
+    // The market buy fills the lower ask before moving to the next price level.
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 510, 513, 100, 4);
+    expect_trade(events[2], 511, 513, 101, 3);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_EQ(snapshot.find("[510 SELL 100x4]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[511 SELL 101x3]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[512 SELL 102x5]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[513 BUY"), std::string::npos);
+}
+
+TEST(OrderBookTest, MarketSellFullyFillsAgainstBestBid) {
+    // Seed one bid so the market sell can fill entirely at the best bid.
+    OrderBook book;
+    submit_accepted(book, make_order(520, Side::Buy, 105, 6));
+    std::vector<Event> events;
+
+    book.submit_market(make_order(521, Side::Sell, 0, 4), events);
+
+    // The market sell trades immediately and leaves only the bid remainder.
+    ASSERT_EQ(events.size(), 2U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 520, 521, 105, 4);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_NE(snapshot.find("[520 BUY 105x2]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[521 SELL"), std::string::npos);
+}
+
+TEST(OrderBookTest, MarketSellSweepsMultipleBidPriceLevels) {
+    // Seed descending bid levels so the market sell must consume best prices first.
+    OrderBook book;
+    submit_accepted(book, make_order(530, Side::Buy, 105, 4));
+    submit_accepted(book, make_order(531, Side::Buy, 104, 3));
+    submit_accepted(book, make_order(532, Side::Buy, 103, 5));
+    std::vector<Event> events;
+
+    book.submit_market(make_order(533, Side::Sell, 0, 7), events);
+
+    // The market sell fills the higher bid before moving down to the next price.
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 530, 533, 105, 4);
+    expect_trade(events[2], 531, 533, 104, 3);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_EQ(snapshot.find("[530 BUY 105x4]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[531 BUY 104x3]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[532 BUY 103x5]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[533 SELL"), std::string::npos);
+}
+
+TEST(OrderBookTest, PartiallyFilledMarketOrderDoesNotRestOnBook) {
+    // Seed less ask liquidity than the market buy wants.
+    OrderBook book;
+    submit_accepted(book, make_order(540, Side::Sell, 100, 3));
+    std::vector<Event> events;
+
+    book.submit_market(make_order(541, Side::Buy, 0, 8), events);
+
+    // The filled quantity trades and the unfilled remainder expires instead of resting.
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 540, 541, 100, 3);
+    expect_rejected(events[2], RejectReason::InsufficientLiquidity, 541);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_NE(snapshot.find("orders=0"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[541 BUY"), std::string::npos);
+    expect_rejected(book.cancel(541));
+}
+
+TEST(OrderBookTest, MarketOrderOnEmptyOppositeBookExpiresRemainder) {
+    // Submit a market sell when there are no bids to consume.
+    OrderBook book;
+    std::vector<Event> events;
+
+    book.submit_market(make_order(550, Side::Sell, 0, 5), events);
+
+    // The accepted market order cannot trade and emits an insufficient-liquidity rejection.
+    ASSERT_EQ(events.size(), 2U);
+    expect_accepted(events.front());
+    expect_rejected(events[1], RejectReason::InsufficientLiquidity, 550);
+    EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
 }
 
 TEST(OrderBookTest, CancelRestingBuyOrderSucceeds) {
