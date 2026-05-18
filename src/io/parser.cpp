@@ -24,6 +24,24 @@ namespace {
     return std::nullopt;
 }
 
+/**
+ * @brief Parses an optional time-in-force token from the command stream.
+ *
+ * @param token Text token to parse.
+ * @return Parsed policy when recognized.
+ */
+[[nodiscard]] std::optional<TimeInForce> parse_time_in_force(const std::string& token) {
+    // GTC is the default resting-limit policy, but accepting it keeps input explicit.
+    if (token == "GTC") {
+        return TimeInForce::GoodTilCancel;
+    }
+    if (token == "IOC") {
+        return TimeInForce::ImmediateOrCancel;
+    }
+    // Unknown flags make the SUBMIT command malformed.
+    return std::nullopt;
+}
+
 } // namespace
 
 /**
@@ -50,7 +68,23 @@ std::optional<Action> Parser::parse_line(const std::string& line) const {
             return std::nullopt;
         }
 
-        // Store the parsed enum and return a typed submit action.
+        // Parse an optional limit-order lifetime flag after the core fields.
+        std::string time_in_force_token;
+        if (input >> time_in_force_token) {
+            const auto time_in_force = parse_time_in_force(time_in_force_token);
+            if (!time_in_force) {
+                return std::nullopt;
+            }
+            action.time_in_force = *time_in_force;
+
+            // Reject extra tokens so malformed commands do not silently pass.
+            std::string extra_token;
+            if (input >> extra_token) {
+                return std::nullopt;
+            }
+        }
+
+        // Store the parsed side and return a typed submit action.
         action.side = *side;
         return action;
     }

@@ -21,6 +21,7 @@ struct SubmitOrderAction {
     Side side{Side::Buy};
     std::int64_t price{};
     std::uint64_t quantity{};
+    TimeInForce time_in_force{TimeInForce::GoodTilCancel};
 };
 
 /**

@@ -17,14 +17,20 @@ using matching_engine::OrderBook;
 using matching_engine::RejectedEvent;
 using matching_engine::RejectReason;
 using matching_engine::Side;
+using matching_engine::TimeInForce;
 using matching_engine::TradeEvent;
 
 [[nodiscard]] Order make_order(std::uint64_t id,
                                Side side,
                                std::int64_t price,
-                               std::uint64_t quantity) {
+                               std::uint64_t quantity,
+                               TimeInForce time_in_force = TimeInForce::GoodTilCancel) {
     // Keep order construction compact so each test focuses on book behavior.
-    return {.id = id, .side = side, .price = price, .quantity = quantity};
+    return {.id = id,
+            .side = side,
+            .price = price,
+            .quantity = quantity,
+            .time_in_force = time_in_force};
 }
 
 void expect_accepted(const Event& event) {
@@ -228,6 +234,43 @@ TEST(OrderBookTest, AggressiveSellWalksBidLevelsAndRestsRemainder) {
     EXPECT_EQ(snapshot.find("[46 BUY 101x3]"), std::string::npos);
     EXPECT_NE(snapshot.find("[47 SELL 100x3]"), std::string::npos);
     EXPECT_NE(snapshot.find("orders=1"), std::string::npos);
+}
+
+TEST(OrderBookTest, IocLimitOrderDoesNotRestWhenUnfilled) {
+    // Submit an IOC buy that cannot cross the empty ask side.
+    OrderBook book;
+    std::vector<Event> events;
+
+    book.submit(
+        make_order(480, Side::Buy, 100, 5, TimeInForce::ImmediateOrCancel), events);
+
+    // The order is accepted but its unfilled quantity expires instead of resting.
+    ASSERT_EQ(events.size(), 1U);
+    expect_accepted(events.front());
+    EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
+    EXPECT_EQ(book.snapshot().find("[480 BUY"), std::string::npos);
+    expect_rejected(book.cancel(480));
+}
+
+TEST(OrderBookTest, IocLimitOrderTradesAndCancelsRemainder) {
+    // Seed less ask liquidity than the IOC buy wants.
+    OrderBook book;
+    submit_accepted(book, make_order(481, Side::Sell, 100, 3));
+    std::vector<Event> events;
+
+    book.submit(
+        make_order(482, Side::Buy, 101, 8, TimeInForce::ImmediateOrCancel), events);
+
+    // The IOC buy executes available liquidity and does not rest its leftover five.
+    ASSERT_EQ(events.size(), 2U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 481, 482, 100, 3);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_NE(snapshot.find("orders=0"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[481 SELL"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[482 BUY"), std::string::npos);
+    expect_rejected(book.cancel(482));
 }
 
 TEST(OrderBookTest, MarketBuyFullyFillsAgainstBestAsk) {

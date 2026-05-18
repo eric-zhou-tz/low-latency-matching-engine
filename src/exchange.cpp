@@ -15,7 +15,8 @@ namespace {
     return {.id = action.id,
             .side = action.side,
             .price = action.price,
-            .quantity = action.quantity};
+            .quantity = action.quantity,
+            .time_in_force = action.time_in_force};
 }
 
 /**
@@ -78,8 +79,8 @@ void Exchange::process_action(const SubmitOrderAction& action, std::vector<Event
         }
     }
 
-    // Only resting remainders can be canceled later, so fully filled takers are not indexed.
-    if (filled_quantity < action.quantity) {
+    // Only GTC resting remainders can be canceled later; IOC leftovers expire immediately.
+    if (filled_quantity < action.quantity && action.time_in_force == TimeInForce::GoodTilCancel) {
         order_to_book_.emplace(action.id, book);
     }
 }

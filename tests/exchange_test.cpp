@@ -18,6 +18,7 @@ using matching_engine::Exchange;
 using matching_engine::RejectedEvent;
 using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
+using matching_engine::TimeInForce;
 using matching_engine::TradeEvent;
 
 /**
@@ -27,13 +28,15 @@ using matching_engine::TradeEvent;
                                             std::string symbol,
                                             Side side,
                                             std::int64_t price,
-                                            std::uint64_t quantity) {
+                                            std::uint64_t quantity,
+                                            TimeInForce time_in_force = TimeInForce::GoodTilCancel) {
     // Keep submit construction compact so each test highlights exchange behavior.
     return {.id = id,
             .symbol = std::move(symbol),
             .side = side,
             .price = price,
-            .quantity = quantity};
+            .quantity = quantity,
+            .time_in_force = time_in_force};
 }
 
 /**
@@ -177,4 +180,21 @@ TEST(ExchangeTest, FilledRestingOrdersLeaveExchangeIndex) {
     expect_accepted(events);
     cancel(exchange, 30, events);
     expect_canceled(events, 30);
+}
+
+TEST(ExchangeTest, IocRemainderDoesNotEnterCancelIndex) {
+    // Submit an IOC order that cannot rest because the opposite side is empty.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange,
+           make_submit(40, "AAPL", Side::Buy, 100, 5, TimeInForce::ImmediateOrCancel),
+           events);
+
+    // The id should be reusable immediately because IOC leftovers expire.
+    expect_accepted(events);
+    cancel(exchange, 40, events);
+    expect_rejected(events, "unknown order id 40");
+
+    submit(exchange, make_submit(40, "MSFT", Side::Sell, 200, 1), events);
+    expect_accepted(events);
 }

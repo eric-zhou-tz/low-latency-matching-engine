@@ -11,6 +11,7 @@ using matching_engine::MarketOrderAction;
 using matching_engine::Parser;
 using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
+using matching_engine::TimeInForce;
 
 } // namespace
 
@@ -30,6 +31,21 @@ TEST(ParserTest, ParsesSubmitOrderCommand) {
     EXPECT_EQ(action.side, Side::Buy);
     EXPECT_EQ(action.price, 100);
     EXPECT_EQ(action.quantity, 10U);
+    EXPECT_EQ(action.time_in_force, TimeInForce::GoodTilCancel);
+}
+
+TEST(ParserTest, ParsesIocSubmitOrderCommand) {
+    // Parse a SUBMIT command with an explicit immediate-or-cancel flag.
+    Parser parser;
+
+    const auto submit = parser.parse_line("SUBMIT 3 AAPL BUY 100 10 IOC");
+    ASSERT_TRUE(submit.has_value());
+    ASSERT_TRUE(std::holds_alternative<SubmitOrderAction>(*submit));
+
+    // Verify the optional flag is carried into the submit action.
+    const auto& action = std::get<SubmitOrderAction>(*submit);
+    EXPECT_EQ(action.id, 3U);
+    EXPECT_EQ(action.time_in_force, TimeInForce::ImmediateOrCancel);
 }
 
 TEST(ParserTest, ParsesCancelOrderCommand) {
@@ -65,5 +81,13 @@ TEST(ParserTest, RejectsMalformedSubmitOrderCommand) {
     Parser parser;
 
     const auto invalid = parser.parse_line("SUBMIT bad");
+    EXPECT_FALSE(invalid.has_value());
+}
+
+TEST(ParserTest, RejectsUnknownSubmitTimeInForce) {
+    // Unknown trailing flags should not be silently accepted.
+    Parser parser;
+
+    const auto invalid = parser.parse_line("SUBMIT 4 AAPL BUY 100 10 FOK");
     EXPECT_FALSE(invalid.has_value());
 }

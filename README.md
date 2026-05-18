@@ -16,6 +16,7 @@ electronic trading systems.
 ## Features
 
 - Price-time priority matching
+- Immediate-or-cancel (IOC) limit orders
 - Market order support
 - FIFO queues at each price level
 - Deterministic integer-based pricing and quantities
@@ -100,7 +101,7 @@ Run the demo order stream:
 ## Supported Commands
 
 ```text
-SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity>
+SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity> [GTC|IOC]
 MARKET <id> <symbol> <BUY|SELL> <quantity>
 CANCEL <id>
 PRINT

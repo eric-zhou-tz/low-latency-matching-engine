@@ -108,8 +108,8 @@ void OrderBook::submit(Order order, std::vector<Event>& out) {
         match_sell_order(order, out);
     }
 
-    // If matching did not fully fill the order, leave the remainder resting.
-    if (order.quantity > 0) {
+    // If matching did not fully fill a GTC order, leave the remainder resting.
+    if (order.quantity > 0 && order.time_in_force == TimeInForce::GoodTilCancel) {
         add_resting_order(order);
     }
 }
