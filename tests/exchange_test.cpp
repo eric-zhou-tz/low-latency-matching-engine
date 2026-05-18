@@ -15,6 +15,7 @@ using matching_engine::CancelOrderAction;
 using matching_engine::CanceledEvent;
 using matching_engine::Event;
 using matching_engine::Exchange;
+using matching_engine::MarketOrderAction;
 using matching_engine::RejectedEvent;
 using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
@@ -40,10 +41,29 @@ using matching_engine::TradeEvent;
 }
 
 /**
+ * @brief Builds a test market action with explicit symbol and side.
+ */
+[[nodiscard]] MarketOrderAction make_market(std::uint64_t id,
+                                            std::string symbol,
+                                            Side side,
+                                            std::uint64_t quantity) {
+    // Keep market construction compact so tests focus on immediate execution behavior.
+    return {.id = id, .symbol = std::move(symbol), .side = side, .quantity = quantity};
+}
+
+/**
  * @brief Submits an order through the public exchange API.
  */
 void submit(Exchange& exchange, SubmitOrderAction action, std::vector<Event>& out) {
     // Wrap the submit action in the same variant path used by production callers.
+    exchange.process(Action{std::move(action)}, out);
+}
+
+/**
+ * @brief Submits a market order through the public exchange API.
+ */
+void submit_market(Exchange& exchange, MarketOrderAction action, std::vector<Event>& out) {
+    // Wrap the market action in the same variant path used by production callers.
     exchange.process(Action{std::move(action)}, out);
 }
 
@@ -82,6 +102,23 @@ void expect_rejected(const std::vector<Event>& events, const std::string& reason
     ASSERT_EQ(events.size(), 1U);
     ASSERT_TRUE(std::holds_alternative<RejectedEvent>(events.front()));
     EXPECT_EQ(matching_engine::format_event(events.front()), "REJECTED " + reason);
+}
+
+/**
+ * @brief Verifies an exchange trade event.
+ */
+void expect_trade(const Event& event,
+                  std::uint64_t resting_order_id,
+                  std::uint64_t incoming_order_id,
+                  std::int64_t price,
+                  std::uint64_t quantity) {
+    // Pull out the trade payload before comparing execution details.
+    ASSERT_TRUE(std::holds_alternative<TradeEvent>(event));
+    const auto& trade = std::get<TradeEvent>(event);
+    EXPECT_EQ(trade.resting_order_id, resting_order_id);
+    EXPECT_EQ(trade.incoming_order_id, incoming_order_id);
+    EXPECT_EQ(trade.price, price);
+    EXPECT_EQ(trade.quantity, quantity);
 }
 
 } // namespace
@@ -196,5 +233,51 @@ TEST(ExchangeTest, IocRemainderDoesNotEnterCancelIndex) {
     expect_rejected(events, "unknown order id 40");
 
     submit(exchange, make_submit(40, "MSFT", Side::Sell, 200, 1), events);
+    expect_accepted(events);
+}
+
+TEST(ExchangeTest, MarketOrderTradesAndDoesNotEnterCancelIndex) {
+    // Seed less ask liquidity than the market buy wants.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(50, "AAPL", Side::Sell, 100, 3), events);
+    expect_accepted(events);
+
+    submit_market(exchange, make_market(51, "AAPL", Side::Buy, 8), events);
+
+    // The market order executes available liquidity and rejects the unfilled remainder.
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events);
+    expect_trade(events[1], 50, 51, 100, 3);
+    ASSERT_TRUE(std::holds_alternative<RejectedEvent>(events[2]));
+    EXPECT_EQ(matching_engine::format_event(events[2]), "REJECTED insufficient liquidity 51");
+
+    // Neither the filled resting order nor the market order should remain cancelable.
+    cancel(exchange, 50, events);
+    expect_rejected(events, "unknown order id 50");
+    cancel(exchange, 51, events);
+    expect_rejected(events, "unknown order id 51");
+}
+
+TEST(ExchangeTest, IocOrderTradesAndDoesNotRestRemainder) {
+    // Seed less ask liquidity than the IOC buy wants.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(60, "AAPL", Side::Sell, 100, 3), events);
+    expect_accepted(events);
+
+    submit(exchange,
+           make_submit(61, "AAPL", Side::Buy, 101, 8, TimeInForce::ImmediateOrCancel),
+           events);
+
+    // The IOC order trades what is available and expires the leftover five.
+    ASSERT_EQ(events.size(), 2U);
+    expect_accepted(events);
+    expect_trade(events[1], 60, 61, 100, 3);
+
+    // The incoming IOC id should be reusable because no remainder rested.
+    cancel(exchange, 61, events);
+    expect_rejected(events, "unknown order id 61");
+    submit(exchange, make_submit(61, "MSFT", Side::Sell, 200, 1), events);
     expect_accepted(events);
 }
