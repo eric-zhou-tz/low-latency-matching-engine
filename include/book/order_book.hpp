@@ -92,9 +92,9 @@ public:
      * @brief Cancels an existing order by id.
      *
      * @param order_id Identifier to cancel.
-     * @return Events describing the result of the operation.
+     * @return Single event describing whether the cancel succeeded.
      */
-    [[nodiscard]] std::vector<Event> cancel(std::uint64_t order_id);
+    [[nodiscard]] CancelResult cancel(std::uint64_t order_id);
 
     /**
      * @brief Checks whether an order id is currently resting in this book.

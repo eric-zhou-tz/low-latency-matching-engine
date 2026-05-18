@@ -101,12 +101,12 @@ std::vector<Event> OrderBook::submit(Order order) {
 
     // Reject duplicate ids before matching so each live order id stays unique.
     if (orders_by_id_.contains(order.id)) {
-        return {RejectedEvent{"duplicate order id " + std::to_string(order.id)}};
+        return {RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = order.id}};
     }
 
     // Acceptance is emitted first; any trades follow in matching order.
     const auto order_id = order.id;
-    std::vector<Event> events{AcceptedEvent{"accepted order " + std::to_string(order_id)}};
+    std::vector<Event> events{AcceptedEvent{.order_id = order_id}};
 
     // Route to the opposite side of the book based on the incoming side.
     if (order.side == Side::Buy) {
@@ -131,11 +131,11 @@ std::vector<Event> OrderBook::submit(Order order) {
  * finds the price level for aggregate cleanup, but FIFO removal is just pointer
  * rewiring and does not allocate or scan through same-price orders.
  */
-std::vector<Event> OrderBook::cancel(std::uint64_t order_id) {
+CancelResult OrderBook::cancel(std::uint64_t order_id) {
     // Look up the live order pointer so cancellation can unlink it directly.
     const auto found = orders_by_id_.find(order_id);
     if (found == orders_by_id_.end()) {
-        return {RejectedEvent{"unknown order id " + std::to_string(order_id)}};
+        return RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = order_id};
     }
 
     // Keep the order pointer long enough to update the level and recycle storage.
@@ -168,7 +168,7 @@ std::vector<Event> OrderBook::cancel(std::uint64_t order_id) {
     // Remove the id index and recycle the order slot after the book is updated.
     orders_by_id_.erase(found);
     order_pool_.release(order);
-    return {CanceledEvent{.order_id = order_id}};
+    return CanceledEvent{.order_id = order_id};
 }
 
 /**

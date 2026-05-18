@@ -20,6 +20,7 @@ electronic trading systems.
 - Deterministic integer-based pricing and quantities
 - Cancel order support
 - Exchange-level symbol routing
+- Structured hot-path events with presentation formatting at the boundary
 - GoogleTest unit testing
 - Google Benchmark performance benchmarking
 - Linux benchmark validation on EC2
@@ -43,6 +44,12 @@ Matching Engine
     |
 Trade / Accept / Reject Events
 ```
+
+Internally, the matching core emits structured domain events rather than
+preformatted strings. Submissions return an event stream because one order can
+produce multiple fills, while `OrderBook::cancel` returns a single
+`CancelResult` and is wrapped into the public event stream at the exchange
+boundary.
 
 Additional documentation:
 
@@ -118,6 +125,14 @@ Current benchmark coverage includes:
 - FIFO cancel-order performance
 - Mixed submit/cancel/match workloads
 
+Latest EC2 Release highlights after the structured-event and cancel-result
+optimization:
+
+- 100,000-order insert: `13.6655M items/s`
+- 100,000-order crossing match: `9.71048M items/s`
+- 100,000 random cancel: `11.2259M items/s`
+- 100,000 unknown cancel: `104.52M items/s`
+
 Example Release build:
 
 ```bash
@@ -162,7 +177,7 @@ This project emphasizes:
 
 ## Future Steps
 
-- Investigate why random cancels are significantly slower than other cancel paths.
+- Evaluate an event sink/callback API for submissions if event-vector allocation remains visible in future profiles.
 - Implement market order support.
 - Formalize the print book action and output contract.
 - Implement trade reports.

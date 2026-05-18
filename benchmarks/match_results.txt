@@ -1,15 +1,15 @@
 ---------------------------------------------------------------------------------------------------
 Benchmark                                         Time             CPU   Iterations UserCounters...
 ---------------------------------------------------------------------------------------------------
-BM_CrossingLimitOrderMatch/1000_mean         118452 ns       118468 ns            5 items_per_second=8.45705M/s
-BM_CrossingLimitOrderMatch/1000_median       115638 ns       115640 ns            5 items_per_second=8.64749M/s
-BM_CrossingLimitOrderMatch/1000_stddev         5910 ns         5943 ns            5 items_per_second=398.236k/s
-BM_CrossingLimitOrderMatch/1000_cv             4.99 %          5.02 %             5 items_per_second=4.71%
-BM_CrossingLimitOrderMatch/10000_mean       1169774 ns      1169432 ns            5 items_per_second=8.55897M/s
-BM_CrossingLimitOrderMatch/10000_median     1150554 ns      1150187 ns            5 items_per_second=8.69424M/s
-BM_CrossingLimitOrderMatch/10000_stddev       40338 ns        40362 ns            5 items_per_second=283.048k/s
-BM_CrossingLimitOrderMatch/10000_cv            3.45 %          3.45 %             5 items_per_second=3.31%
-BM_CrossingLimitOrderMatch/100000_mean     17588158 ns     17586539 ns            5 items_per_second=5.68622M/s
-BM_CrossingLimitOrderMatch/100000_median   17600095 ns     17598337 ns            5 items_per_second=5.68236M/s
-BM_CrossingLimitOrderMatch/100000_stddev      59645 ns        59612 ns            5 items_per_second=19.2604k/s
-BM_CrossingLimitOrderMatch/100000_cv           0.34 %          0.34 %             5 items_per_second=0.34%
+BM_CrossingLimitOrderMatch/1000_mean          60864 ns        60851 ns            5 items_per_second=16.4599M/s
+BM_CrossingLimitOrderMatch/1000_median        59648 ns        59640 ns            5 items_per_second=16.7674M/s
+BM_CrossingLimitOrderMatch/1000_stddev         2814 ns         2809 ns            5 items_per_second=715.651k/s
+BM_CrossingLimitOrderMatch/1000_cv             4.62 %          4.62 %             5 items_per_second=4.35%
+BM_CrossingLimitOrderMatch/10000_mean        608514 ns       608196 ns            5 items_per_second=16.4645M/s
+BM_CrossingLimitOrderMatch/10000_median      597133 ns       596812 ns            5 items_per_second=16.7557M/s
+BM_CrossingLimitOrderMatch/10000_stddev       25780 ns        25792 ns            5 items_per_second=660.643k/s
+BM_CrossingLimitOrderMatch/10000_cv            4.24 %          4.24 %             5 items_per_second=4.01%
+BM_CrossingLimitOrderMatch/100000_mean     10299793 ns     10298957 ns            5 items_per_second=9.71048M/s
+BM_CrossingLimitOrderMatch/100000_median   10302906 ns     10302200 ns            5 items_per_second=9.70666M/s
+BM_CrossingLimitOrderMatch/100000_stddev     101731 ns       101702 ns            5 items_per_second=95.6705k/s
+BM_CrossingLimitOrderMatch/100000_cv           0.99 %          0.99 %             5 items_per_second=0.99%

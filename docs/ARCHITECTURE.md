@@ -24,7 +24,12 @@ The index maps each live order ID to the single-symbol `OrderBook` that owns the
 
 ### OrderBook
 
-`OrderBook` owns the resting liquidity for a single symbol. It stores bid and ask price levels, performs crossing checks, executes matching, rests unfilled quantity, cancels live orders, and emits the events produced by those state transitions.
+`OrderBook` owns the resting liquidity for a single symbol. It stores bid and
+ask price levels, performs crossing checks, executes matching, rests unfilled
+quantity, cancels live orders, and emits the events produced by those state
+transitions. Submissions can produce an event stream because one incoming order
+can accept and then trade against several resting orders. Cancellation produces
+exactly one `CancelResult`.
 
 ### Parser
 
@@ -149,30 +154,52 @@ The book then:
 3. Removes the price level if the queue becomes empty.
 4. Erases the order ID from the live order lookup.
 5. Returns the order slot to `OrderPool`.
-6. Emits a cancel event for a successful cancellation.
+6. Returns a single `CanceledEvent` result for a successful cancellation.
 
 Unknown IDs are rejected with a `RejectedEvent`. At the exchange layer, cancellation first probes the dense `order_to_book_` index and then calls `OrderBook::cancel` only on the owning symbol book.
 
 The previous same-price cancellation path was `O(log P + Q)`: find the price level, then scan the queue. The current intrusive design keeps the ordered price-level lookup and makes queue removal `O(1)`, so `OrderBook` cancellation is `O(log P)` after the average `O(1)` order-ID hash lookup.
+
+`OrderBook::cancel` returns:
+
+```cpp
+using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
+```
+
+This avoids allocating a one-event vector on the cancel hot path. `Exchange`
+still exposes `std::vector<Event>` from `process(...)` so callers have one
+command-processing API; it wraps the single cancel result only at that boundary.
 
 ## Event System
 
 The current event system is implemented as a `std::variant`:
 
 ```cpp
-using Event = std::variant<TradeEvent, AcceptedEvent, CanceledEvent, RejectedEvent>;
+using Event = std::variant<
+    TradeEvent,
+    AcceptedEvent,
+    CanceledEvent,
+    RejectedEvent,
+    BookSnapshotEvent>;
 ```
 
 Current events include:
 
 | Event | Purpose |
 | --- | --- |
-| `AcceptedEvent` | Reports that a command was accepted or returns a book snapshot message. |
-| `RejectedEvent` | Reports invalid operations such as duplicate order IDs or unknown cancel IDs. |
+| `AcceptedEvent` | Reports that an order was accepted using a structured order id payload. |
+| `RejectedEvent` | Reports invalid operations using a structured `RejectReason` plus order id. |
 | `TradeEvent` | Reports an execution between an incoming order and a resting order. |
 | `CanceledEvent` | Reports successful removal of a resting order. |
+| `BookSnapshotEvent` | Carries snapshot display text for the non-hot-path print command. |
 
 Event-driven design is useful because it keeps mutation and observation separate. The matching engine can update internal state and return a precise event stream without depending on terminal output, logging, networking, or persistence code.
+
+Hot-path events carry structured data instead of preformatted strings. Display
+strings such as `"accepted order 42"` and `"unknown order id 42"` are created by
+`format_event()` at the presentation boundary. This keeps matching, cancel, and
+rejection paths deterministic and avoids string allocation when the core updates
+book state.
 
 ## Complexity Analysis
 
@@ -189,7 +216,7 @@ Definitions:
 - `K` = number of matched resting orders that generate fills.
 - `Q` = number of resting orders at one price level.
 
-The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. The exchange-level `order_to_book_` index also removes the previous cross-symbol scan before entering the book. Pool allocation is amortized by fixed-size blocks, and cancel/match release paths do not call the general-purpose allocator.
+The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. The exchange-level `order_to_book_` index also removes the previous cross-symbol scan before entering the book. Pool allocation is amortized by fixed-size blocks, cancel/match release paths do not call the general-purpose allocator, and the cancel result no longer allocates a one-event vector.
 
 ## Determinism
 
@@ -210,6 +237,7 @@ Future work should remain separate from the current correctness-focused implemen
 
 - Further tuning of the order pool block size after broader Linux benchmark validation.
 - Further exchange-level cancel metadata tuning after measuring multi-symbol workloads.
+- Consider an event sink/callback API for submission if future profiling shows event-vector allocation remains material on multi-fill workloads.
 - Lock-free or concurrent designs for higher-throughput deployments.
 - Network ingress and session management.
 - Binary protocols for lower parsing overhead.

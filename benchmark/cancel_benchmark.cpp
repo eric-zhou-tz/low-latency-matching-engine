@@ -199,8 +199,8 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
 
         // Measure only the cancel path for the requested id order.
         for (const auto order_id : cancel_ids) {
-            auto events = book->cancel(order_id);
-            benchmark::DoNotOptimize(events);
+            auto result = book->cancel(order_id);
+            benchmark::DoNotOptimize(result);
         }
 
         // Keep the compiler from discarding the book mutations.
@@ -359,8 +359,8 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
         // Measure the mixed order-book workload as one exchange-style stream.
         for (const auto& operation : operations) {
             if (operation.kind == MixedOperationKind::Cancel) {
-                auto events = book->cancel(operation.cancel_id);
-                benchmark::DoNotOptimize(events);
+                auto result = book->cancel(operation.cancel_id);
+                benchmark::DoNotOptimize(result);
             } else {
                 auto events = book->submit(operation.order);
                 benchmark::DoNotOptimize(events);

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.3.6 - Structured Events + Cancel Result Optimization
+
+- Replaced hot-path accepted and rejected event strings with structured payloads: `AcceptedEvent` now stores the order id, and `RejectedEvent` stores `RejectReason` plus order id.
+- Added `BookSnapshotEvent` so snapshot output can remain presentation-oriented without forcing `AcceptedEvent` to carry arbitrary strings.
+- Changed `OrderBook::cancel` to return a single `CancelResult` variant instead of allocating and returning a one-event `std::vector<Event>`.
+- Kept `Exchange::process` returning event vectors for the public command boundary while wrapping cancel results only at that outer layer.
+- Refreshed EC2 Release benchmarks after the event optimization; 100,000-order insert improved from 8.37928M to 13.6655M items/s, crossing match improved from 5.68622M to 9.71048M items/s, random cancel improved from 5.71876M to 11.2259M items/s, and unknown cancel improved from 11.0453M to 104.52M items/s.
+
 ## v0.3.5 - Symbol-Free Resting Orders + Struct Padding Optimizations
 
 - Removed `symbol` from the hot-path `Order` stored in `OrderBook`; symbol routing now lives in `SubmitOrderAction` and `Exchange`.

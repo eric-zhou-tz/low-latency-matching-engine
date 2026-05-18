@@ -18,6 +18,19 @@ namespace {
             .quantity = action.quantity};
 }
 
+/**
+ * @brief Wraps a single cancel result in the exchange event stream type.
+ */
+[[nodiscard]] std::vector<Event> make_single_event_stream(const CancelResult& result) {
+    // Keep Exchange::process stable while OrderBook::cancel returns one event directly.
+    return {std::visit(
+        [](const auto& event) {
+            // Convert the concrete cancel payload into the wider event variant.
+            return Event{event};
+        },
+        result)};
+}
+
 } // namespace
 
 /**
@@ -42,7 +55,7 @@ std::vector<Event> Exchange::process(const Action& action) {
 std::vector<Event> Exchange::process_action(const SubmitOrderAction& action) {
     // Enforce one live owner per order id so the exchange-level cancel index is unambiguous.
     if (order_to_book_.contains(action.id)) {
-        return {RejectedEvent{"duplicate order id " + std::to_string(action.id)}};
+        return {RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = action.id}};
     }
 
     // Create the symbol book on first use, then submit to that stable book pointer.
@@ -82,21 +95,21 @@ std::vector<Event> Exchange::process_action(const CancelOrderAction& action) {
     // Missing ids are rejected at the exchange boundary without probing symbol books.
     const auto found = order_to_book_.find(action.order_id);
     if (found == order_to_book_.end()) {
-        return {RejectedEvent{"unknown order id " + std::to_string(action.order_id)}};
+        return {RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = action.order_id}};
     }
 
     // Route directly to the saved owning book.
-    auto events = found->second->cancel(action.order_id);
+    const auto result = found->second->cancel(action.order_id);
 
     // A successful cancel removes the order from both the book and exchange indexes.
-    if (!std::holds_alternative<RejectedEvent>(events.front())) {
+    if (!std::holds_alternative<RejectedEvent>(result)) {
         order_to_book_.erase(found);
-        return events;
+        return make_single_event_stream(result);
     }
 
     // If the book rejects, the exchange index was stale; erase it to restore consistency.
     order_to_book_.erase(found);
-    return events;
+    return make_single_event_stream(result);
 }
 
 /**
@@ -107,13 +120,13 @@ std::vector<Event> Exchange::process_action(const PrintBookAction&) const {
     std::vector<Event> events;
     if (books_by_symbol_.empty()) {
         // Preserve a useful response even before any book has been created.
-        events.emplace_back(AcceptedEvent{"book: empty"});
+        events.emplace_back(BookSnapshotEvent{"book: empty"});
         return events;
     }
 
     // Emit one compact snapshot per symbol book.
     for (const auto& [symbol, book] : books_by_symbol_) {
-        events.emplace_back(AcceptedEvent{"book " + symbol + ": " + book->snapshot()});
+        events.emplace_back(BookSnapshotEvent{"book " + symbol + ": " + book->snapshot()});
     }
 
     // Return snapshots in the symbol map iteration order for now.

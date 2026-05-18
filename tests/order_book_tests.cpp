@@ -66,8 +66,7 @@ int main() {
     assert(std::holds_alternative<matching_engine::RejectedEvent>(duplicate.front()));
 
     const auto cancelled = book.cancel(order.id);
-    assert(cancelled.size() == 1);
-    assert(std::holds_alternative<matching_engine::CanceledEvent>(cancelled.front()));
+    assert(std::holds_alternative<matching_engine::CanceledEvent>(cancelled));
 
     // Build a mixed book to verify price priority and FIFO ordering in snapshots.
     matching_engine::OrderBook ranked_book;
@@ -102,8 +101,7 @@ int main() {
            position_of(snapshot, "[5 SELL 110x8]"));
 
     const auto cancelled_best_bid = ranked_book.cancel(2);
-    assert(cancelled_best_bid.size() == 1);
-    assert(std::holds_alternative<matching_engine::CanceledEvent>(cancelled_best_bid.front()));
+    assert(std::holds_alternative<matching_engine::CanceledEvent>(cancelled_best_bid));
 
     // After canceling the best bid, the next same-price order keeps priority.
     const auto after_cancel = ranked_book.snapshot();

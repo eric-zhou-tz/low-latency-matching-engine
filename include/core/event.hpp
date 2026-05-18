@@ -26,7 +26,7 @@ struct TradeEvent {
  * @brief Event emitted when an action is accepted by the exchange.
  */
 struct AcceptedEvent {
-    std::string message;
+    std::uint64_t order_id{};
 };
 
 /**
@@ -37,16 +37,56 @@ struct CanceledEvent {
 };
 
 /**
+ * @brief Machine-readable reason for rejecting an action.
+ */
+enum class RejectReason {
+    DuplicateOrderId,
+    UnknownOrderId,
+};
+
+/**
  * @brief Event emitted when an action cannot be applied.
  */
 struct RejectedEvent {
-    std::string reason;
+    RejectReason reason{};
+    std::uint64_t order_id{};
+};
+
+/**
+ * @brief Event emitted for command-line book snapshot output.
+ */
+struct BookSnapshotEvent {
+    std::string message;
 };
 
 /**
  * @brief Sum type for all events currently emitted by the engine.
  */
-using Event = std::variant<TradeEvent, AcceptedEvent, CanceledEvent, RejectedEvent>;
+using Event = std::variant<TradeEvent, AcceptedEvent, CanceledEvent, RejectedEvent, BookSnapshotEvent>;
+
+/**
+ * @brief Single-event result type for order cancellation.
+ */
+using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
+
+/**
+ * @brief Converts a rejection code into stable display text.
+ *
+ * @param reason Machine-readable rejection reason.
+ * @return Human-readable reason prefix.
+ */
+[[nodiscard]] inline std::string reject_reason_text(RejectReason reason) {
+    // Keep display strings outside the matching hot path.
+    switch (reason) {
+    case RejectReason::DuplicateOrderId:
+        return "duplicate order id";
+    case RejectReason::UnknownOrderId:
+        return "unknown order id";
+    }
+
+    // Return a defensive fallback for future enum additions.
+    return "unknown rejection";
+}
 
 /**
  * @brief Formats an event for command-line display.
@@ -72,8 +112,8 @@ using Event = std::variant<TradeEvent, AcceptedEvent, CanceledEvent, RejectedEve
          * @brief Formats an acceptance event.
          */
         [[nodiscard]] std::string operator()(const AcceptedEvent& accepted) const {
-            // Prefix the exchange-provided message with the event type.
-            return "ACCEPTED " + accepted.message;
+            // Build the user-facing text only when rendering output.
+            return "ACCEPTED accepted order " + std::to_string(accepted.order_id);
         }
 
         /**
@@ -88,8 +128,17 @@ using Event = std::variant<TradeEvent, AcceptedEvent, CanceledEvent, RejectedEve
          * @brief Formats a rejection event.
          */
         [[nodiscard]] std::string operator()(const RejectedEvent& rejected) const {
-            // Preserve the rejection reason supplied by the failing operation.
-            return "REJECTED " + rejected.reason;
+            // Combine the structured reason and id at the presentation boundary.
+            return "REJECTED " + reject_reason_text(rejected.reason) + " " +
+                   std::to_string(rejected.order_id);
+        }
+
+        /**
+         * @brief Formats a book snapshot event.
+         */
+        [[nodiscard]] std::string operator()(const BookSnapshotEvent& snapshot) const {
+            // Snapshot text is intentionally presentation-oriented and not a hot-path event.
+            return "ACCEPTED " + snapshot.message;
         }
     };
 

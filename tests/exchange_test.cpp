@@ -75,10 +75,10 @@ void expect_canceled(const std::vector<Event>& events, std::uint64_t order_id) {
  * @brief Verifies a one-event rejection response.
  */
 void expect_rejected(const std::vector<Event>& events, const std::string& reason) {
-    // Rejection reason text is part of the command-line observable behavior.
+    // Rejection text is formatted at the presentation boundary now.
     ASSERT_EQ(events.size(), 1U);
     ASSERT_TRUE(std::holds_alternative<RejectedEvent>(events.front()));
-    EXPECT_EQ(std::get<RejectedEvent>(events.front()).reason, reason);
+    EXPECT_EQ(matching_engine::format_event(events.front()), "REJECTED " + reason);
 }
 
 } // namespace

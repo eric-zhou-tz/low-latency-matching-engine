@@ -30,12 +30,12 @@ void expect_accepted(const Event& event) {
     EXPECT_TRUE(std::holds_alternative<AcceptedEvent>(event));
 }
 
-void expect_rejected(const Event& event) {
+void expect_rejected(const auto& event) {
     // Verify the event variant represents a rejected action.
     EXPECT_TRUE(std::holds_alternative<RejectedEvent>(event));
 }
 
-void expect_canceled(const Event& event, std::uint64_t order_id) {
+void expect_canceled(const auto& event, std::uint64_t order_id) {
     // Check both the event type and the id that was canceled.
     ASSERT_TRUE(std::holds_alternative<CanceledEvent>(event));
     EXPECT_EQ(std::get<CanceledEvent>(event).order_id, order_id);
@@ -208,8 +208,7 @@ TEST(OrderBookTest, CancelRestingBuyOrderSucceeds) {
     const auto events = book.cancel(50);
 
     // The cancel event should reference the id and remove it from the snapshot.
-    ASSERT_EQ(events.size(), 1U);
-    expect_canceled(events.front(), 50);
+    expect_canceled(events, 50);
     EXPECT_EQ(book.snapshot().find("[50 BUY 100x10]"), std::string::npos);
 }
 
@@ -221,8 +220,7 @@ TEST(OrderBookTest, CancelRestingSellOrderSucceeds) {
     const auto events = book.cancel(51);
 
     // The cancel event should reference the id and remove it from the snapshot.
-    ASSERT_EQ(events.size(), 1U);
-    expect_canceled(events.front(), 51);
+    expect_canceled(events, 51);
     EXPECT_EQ(book.snapshot().find("[51 SELL 102x7]"), std::string::npos);
 }
 
@@ -232,8 +230,7 @@ TEST(OrderBookTest, CancelUnknownOrderIsRejected) {
 
     const auto events = book.cancel(60);
 
-    ASSERT_EQ(events.size(), 1U);
-    expect_rejected(events.front());
+    expect_rejected(events);
 }
 
 TEST(OrderBookTest, CancelRemovesEmptyPriceLevel) {
@@ -245,8 +242,7 @@ TEST(OrderBookTest, CancelRemovesEmptyPriceLevel) {
     const auto events = book.cancel(70);
 
     // The canceled level should disappear while the lower bid remains.
-    ASSERT_EQ(events.size(), 1U);
-    expect_canceled(events.front(), 70);
+    expect_canceled(events, 70);
 
     const auto snapshot = book.snapshot();
     EXPECT_EQ(snapshot.find("[70 BUY 100x10]"), std::string::npos);
@@ -262,8 +258,7 @@ TEST(OrderBookTest, CancelPreservesFifoPriorityOfRemainingOrders) {
     submit_accepted(book, make_order(82, Side::Buy, 100, 5));
 
     const auto cancel_events = book.cancel(81);
-    ASSERT_EQ(cancel_events.size(), 1U);
-    expect_canceled(cancel_events.front(), 81);
+    expect_canceled(cancel_events, 81);
 
     // Matching should skip the canceled order and preserve the remaining FIFO order.
     const auto match_events = book.submit(make_order(83, Side::Sell, 100, 8));
@@ -293,8 +288,7 @@ TEST(OrderBookTest, CancelAfterPartialFillRemovesOnlyRemainingQuantity) {
     // Canceling the incoming order should remove only its remaining quantity.
     const auto cancel_events = book.cancel(91);
 
-    ASSERT_EQ(cancel_events.size(), 1U);
-    expect_canceled(cancel_events.front(), 91);
+    expect_canceled(cancel_events, 91);
     EXPECT_EQ(book.snapshot().find("[91 BUY 101x3]"), std::string::npos);
     EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
 }
@@ -310,8 +304,7 @@ TEST(OrderBookTest, CopiedBookRebuildsCancelLocations) {
     const auto copy_cancel = copy.cancel(93);
 
     // Canceling in the copy should succeed without touching the original book.
-    ASSERT_EQ(copy_cancel.size(), 1U);
-    expect_canceled(copy_cancel.front(), 93);
+    expect_canceled(copy_cancel, 93);
     EXPECT_EQ(copy.snapshot().find("[93 BUY 100x5]"), std::string::npos);
     EXPECT_NE(original.snapshot().find("[93 BUY 100x5]"), std::string::npos);
 }
@@ -328,12 +321,10 @@ TEST(OrderBookTest, FullyFilledOrdersCannotBeCanceled) {
 
     // Neither side should be cancelable after the full fill.
     const auto resting_cancel = book.cancel(100);
-    ASSERT_EQ(resting_cancel.size(), 1U);
-    expect_rejected(resting_cancel.front());
+    expect_rejected(resting_cancel);
 
     const auto incoming_cancel = book.cancel(101);
-    ASSERT_EQ(incoming_cancel.size(), 1U);
-    expect_rejected(incoming_cancel.front());
+    expect_rejected(incoming_cancel);
 }
 
 TEST(OrderBookTest, SnapshotPreservesBookOrdering) {
