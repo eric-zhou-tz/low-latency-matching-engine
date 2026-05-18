@@ -18,7 +18,8 @@ enum class Side {
  */
 enum class TimeInForce {
     GoodTilCancel,
-    ImmediateOrCancel
+    ImmediateOrCancel,
+    FillOrKill
 };
 
 /**
@@ -53,11 +54,21 @@ struct Order {
  * @brief Converts a time-in-force policy to a stable display string.
  *
  * @param time_in_force Lifetime policy to format.
- * @return "GTC" for resting limits and "IOC" for immediate-or-cancel limits.
+ * @return Stable protocol label for the time-in-force policy.
  */
 [[nodiscard]] constexpr const char* to_string(TimeInForce time_in_force) noexcept {
     // Keep the protocol labels in one place for parser tests and diagnostics.
-    return time_in_force == TimeInForce::ImmediateOrCancel ? "IOC" : "GTC";
+    switch (time_in_force) {
+    case TimeInForce::GoodTilCancel:
+        return "GTC";
+    case TimeInForce::ImmediateOrCancel:
+        return "IOC";
+    case TimeInForce::FillOrKill:
+        return "FOK";
+    }
+
+    // Return the default resting policy label for defensive future enum changes.
+    return "GTC";
 }
 
 } // namespace matching_engine

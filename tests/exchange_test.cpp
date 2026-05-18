@@ -236,6 +236,21 @@ TEST(ExchangeTest, IocRemainderDoesNotEnterCancelIndex) {
     expect_accepted(events);
 }
 
+TEST(ExchangeTest, FokRejectDoesNotEnterCancelIndex) {
+    // Seed insufficient crossing liquidity for a FOK buy.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(41, "AAPL", Side::Sell, 100, 3), events);
+    expect_accepted(events);
+
+    submit(exchange, make_submit(42, "AAPL", Side::Buy, 101, 8, TimeInForce::FillOrKill), events);
+
+    // The FOK order rejects before acceptance and should not become cancelable.
+    expect_rejected(events, "insufficient liquidity 42");
+    cancel(exchange, 42, events);
+    expect_rejected(events, "unknown order id 42");
+}
+
 TEST(ExchangeTest, MarketOrderTradesAndDoesNotEnterCancelIndex) {
     // Seed less ask liquidity than the market buy wants.
     Exchange exchange;

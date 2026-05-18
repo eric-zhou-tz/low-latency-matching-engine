@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.4.1 - FOK + IOC Orders
+
+- Added fill-or-kill limit order support through the existing `SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity> [GTC|IOC|FOK]` command.
+- Added `TimeInForce::FillOrKill` and parser support for the `FOK` flag while preserving existing GTC default and IOC behavior.
+- Moved limit-order acceptance emission out of `prepare_incoming_order()` so FOK orders can reject before acceptance when full execution is unavailable.
+- Added an order-book FOK preflight that scans crossing opposite-side price levels using aggregate level volume before mutating book state.
+- Ensured rejected FOK orders do not partially fill, do not rest, and do not enter the exchange cancel index.
+- Expanded parser, order-book, and exchange unit coverage for FOK parsing, full multi-level fills, insufficient-liquidity rejection, and cancel-index behavior.
+
 ## v0.4.0 - Market Orders
 
 - Added first-class market order support through the new `MARKET <id> <symbol> <BUY|SELL> <quantity>` command.

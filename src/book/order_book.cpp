@@ -96,10 +96,20 @@ OrderBook::~OrderBook() {
  * queue, preserving FIFO priority at that price level.
  */
 void OrderBook::submit(Order order, std::vector<Event>& out) {
-    // Validate and accept the order before entering the shared matching path.
+    // Validate the order before any matching policy can mutate book state.
     if (!prepare_incoming_order(order, out)) {
         return;
     }
+
+    // FOK orders must be fully executable before any book state is mutated.
+    if (order.time_in_force == TimeInForce::FillOrKill && !can_fully_fill(order)) {
+        out.push_back(
+            RejectedEvent{.reason = RejectReason::InsufficientLiquidity, .order_id = order.id});
+        return;
+    }
+
+    // Acceptance is emitted first; any trades or remainder events follow in order.
+    out.push_back(AcceptedEvent{.order_id = order.id});
 
     // Route to the opposite side of the book based on the incoming side.
     if (order.side == Side::Buy) {
@@ -122,10 +132,13 @@ void OrderBook::submit(Order order, std::vector<Event>& out) {
  * unmatched remainder produces a rejection event instead of resting.
  */
 void OrderBook::submit_market(Order order, std::vector<Event>& out) {
-    // Validate and accept the order before entering the shared matching path.
+    // Validate the order before entering the shared matching path.
     if (!prepare_incoming_order(order, out)) {
         return;
     }
+
+    // Acceptance is emitted before the market order attempts to sweep liquidity.
+    out.push_back(AcceptedEvent{.order_id = order.id});
 
     // Use a sentinel crossing price so the existing matcher sweeps all opposite liquidity.
     if (order.side == Side::Buy) {
@@ -266,7 +279,7 @@ void OrderBook::add_resting_order(const Order& order) {
 }
 
 /**
- * @brief Resets incoming order links and emits the initial submit event.
+ * @brief Resets incoming order links and rejects duplicate live ids.
  */
 bool OrderBook::prepare_incoming_order(Order& order, std::vector<Event>& out) const {
     // Reuse caller-owned storage so hot paths avoid repeated vector allocation churn.
@@ -282,9 +295,46 @@ bool OrderBook::prepare_incoming_order(Order& order, std::vector<Event>& out) co
         return false;
     }
 
-    // Acceptance is emitted first; any trades or remainder events follow in order.
-    out.push_back(AcceptedEvent{.order_id = order.id});
     return true;
+}
+
+/**
+ * @brief Checks whether crossing liquidity can completely fill an order.
+ */
+bool OrderBook::can_fully_fill(const Order& order) const {
+    // Track only the quantity still needed so the check can stop early.
+    std::uint64_t remaining = order.quantity;
+
+    if (order.side == Side::Buy) {
+        // Walk asks from best to worse while prices cross the buy limit.
+        for (const auto& [price, level] : asks_) {
+            if (price > order.price) {
+                break;
+            }
+
+            // Use aggregate level volume so the preflight avoids scanning FIFO orders.
+            if (level.total_volume >= remaining) {
+                return true;
+            }
+            remaining -= level.total_volume;
+        }
+    } else {
+        // Walk bids from best to worse while prices cross the sell limit.
+        for (const auto& [price, level] : bids_) {
+            if (price < order.price) {
+                break;
+            }
+
+            // Use aggregate level volume so the preflight avoids scanning FIFO orders.
+            if (level.total_volume >= remaining) {
+                return true;
+            }
+            remaining -= level.total_volume;
+        }
+    }
+
+    // Not enough crossing liquidity was visible to fill the whole order.
+    return false;
 }
 
 /**

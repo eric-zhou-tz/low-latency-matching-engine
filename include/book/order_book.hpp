@@ -165,6 +165,14 @@ private:
     [[nodiscard]] bool prepare_incoming_order(Order& order, std::vector<Event>& out) const;
 
     /**
+     * @brief Checks whether a limit order can execute its full quantity now.
+     *
+     * @param order Incoming limit order to test against opposite-side liquidity.
+     * @return True when crossing price levels hold enough visible quantity.
+     */
+    [[nodiscard]] bool can_fully_fill(const Order& order) const;
+
+    /**
      * @brief Matches an incoming buy order against resting asks.
      *
      * @param incoming Mutable incoming order whose remaining quantity is reduced.

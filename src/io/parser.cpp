@@ -38,6 +38,9 @@ namespace {
     if (token == "IOC") {
         return TimeInForce::ImmediateOrCancel;
     }
+    if (token == "FOK") {
+        return TimeInForce::FillOrKill;
+    }
     // Unknown flags make the SUBMIT command malformed.
     return std::nullopt;
 }

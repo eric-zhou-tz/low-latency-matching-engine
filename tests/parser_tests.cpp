@@ -48,6 +48,20 @@ TEST(ParserTest, ParsesIocSubmitOrderCommand) {
     EXPECT_EQ(action.time_in_force, TimeInForce::ImmediateOrCancel);
 }
 
+TEST(ParserTest, ParsesFokSubmitOrderCommand) {
+    // Parse a SUBMIT command with an explicit fill-or-kill flag.
+    Parser parser;
+
+    const auto submit = parser.parse_line("SUBMIT 4 AAPL BUY 100 10 FOK");
+    ASSERT_TRUE(submit.has_value());
+    ASSERT_TRUE(std::holds_alternative<SubmitOrderAction>(*submit));
+
+    // Verify the optional flag is carried into the submit action.
+    const auto& action = std::get<SubmitOrderAction>(*submit);
+    EXPECT_EQ(action.id, 4U);
+    EXPECT_EQ(action.time_in_force, TimeInForce::FillOrKill);
+}
+
 TEST(ParserTest, ParsesCancelOrderCommand) {
     // Parse a simple cancel command with an order id.
     Parser parser;
@@ -88,6 +102,6 @@ TEST(ParserTest, RejectsUnknownSubmitTimeInForce) {
     // Unknown trailing flags should not be silently accepted.
     Parser parser;
 
-    const auto invalid = parser.parse_line("SUBMIT 4 AAPL BUY 100 10 FOK");
+    const auto invalid = parser.parse_line("SUBMIT 5 AAPL BUY 100 10 DAY");
     EXPECT_FALSE(invalid.has_value());
 }

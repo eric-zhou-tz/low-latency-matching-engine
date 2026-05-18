@@ -273,6 +273,62 @@ TEST(OrderBookTest, IocLimitOrderTradesAndCancelsRemainder) {
     expect_rejected(book.cancel(482));
 }
 
+TEST(OrderBookTest, FokLimitOrderRejectsWithoutPartialFillWhenInsufficientLiquidity) {
+    // Seed less crossing ask liquidity than the FOK buy requires.
+    OrderBook book;
+    submit_accepted(book, make_order(483, Side::Sell, 100, 3));
+    std::vector<Event> events;
+
+    book.submit(make_order(484, Side::Buy, 101, 8, TimeInForce::FillOrKill), events);
+
+    // The FOK order should reject before acceptance and leave the book untouched.
+    ASSERT_EQ(events.size(), 1U);
+    expect_rejected(events.front(), RejectReason::InsufficientLiquidity, 484);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_NE(snapshot.find("[483 SELL 100x3]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[484 BUY"), std::string::npos);
+}
+
+TEST(OrderBookTest, FokLimitOrderFullyFillsAcrossPriceLevels) {
+    // Seed enough crossing ask liquidity across multiple prices for a FOK buy.
+    OrderBook book;
+    submit_accepted(book, make_order(485, Side::Sell, 100, 3));
+    submit_accepted(book, make_order(486, Side::Sell, 101, 5));
+    std::vector<Event> events;
+
+    book.submit(make_order(487, Side::Buy, 101, 8, TimeInForce::FillOrKill), events);
+
+    // The FOK order passes the preflight, accepts, and consumes all required liquidity.
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 485, 487, 100, 3);
+    expect_trade(events[2], 486, 487, 101, 5);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_NE(snapshot.find("orders=0"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[487 BUY"), std::string::npos);
+}
+
+TEST(OrderBookTest, FokSellRejectsWhenBestBidVolumeBelowLimitIsNotCrossing) {
+    // Only the higher bid crosses the sell limit; lower-priced volume should not count.
+    OrderBook book;
+    submit_accepted(book, make_order(488, Side::Buy, 101, 3));
+    submit_accepted(book, make_order(489, Side::Buy, 99, 10));
+    std::vector<Event> events;
+
+    book.submit(make_order(490, Side::Sell, 100, 8, TimeInForce::FillOrKill), events);
+
+    // The FOK sell must reject without consuming the partial crossing bid.
+    ASSERT_EQ(events.size(), 1U);
+    expect_rejected(events.front(), RejectReason::InsufficientLiquidity, 490);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_NE(snapshot.find("[488 BUY 101x3]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[489 BUY 99x10]"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[490 SELL"), std::string::npos);
+}
+
 TEST(OrderBookTest, MarketBuyFullyFillsAgainstBestAsk) {
     // Seed one ask so the market buy can fill entirely at the best ask.
     OrderBook book;
