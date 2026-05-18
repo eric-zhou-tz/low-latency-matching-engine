@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.4.0 - Market Orders
+
+- Added first-class market order support through the new `MARKET <id> <symbol> <BUY|SELL> <quantity>` command.
+- Added `MarketOrderAction` and routed market submissions through `Exchange` into a market-specific order-book path.
+- Implemented market buy and sell matching that sweeps available opposite-side liquidity in price-time priority order.
+- Ensured market orders never rest on the book; any unfilled remainder expires after available liquidity is consumed.
+- Added rejection behavior for market orders that cannot fully fill because of insufficient opposite-side liquidity.
+- Expanded parser and order-book unit coverage for market command parsing, full fills, multi-level sweeps, partial fills, and empty-book expiration.
+- Updated the README feature list and supported command reference for market orders.
+- No benchmark refresh was recorded for this release entry.
+
 ## v0.3.9 - Perf Counter Instrumentation + EC2 Validation
 
 - Added lightweight EC2 `perf stat` instrumentation for the amortized batch latency benchmark workflow.
