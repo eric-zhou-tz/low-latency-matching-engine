@@ -80,6 +80,10 @@ add_executable(order_book_invariant_tests tests/invariants/order_book_invariant_
 target_link_libraries(order_book_invariant_tests PRIVATE engine GTest::gtest_main)
 gtest_discover_tests(order_book_invariant_tests)
 
+add_executable(order_book_regression_tests tests/regression/order_book_regression_tests.cpp)
+target_link_libraries(order_book_regression_tests PRIVATE engine GTest::gtest_main)
+gtest_discover_tests(order_book_regression_tests)
+
 if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
     FetchContent_Declare(
         googlebenchmark

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.5.2 - Invariants + Regression
+
+- Added deterministic order-book invariant tests that validate randomized operation streams preserve uncrossed books, order-id index consistency, FIFO uniqueness, price-level volume totals, empty-level cleanup, best-price ordering, and live quantity accounting.
+- Added focused regression tests under `tests/regression/` for FOK rejection atomicity, IOC and market non-resting remainders, partial-fill cancel cleanup, empty price-level removal, FIFO matching at one price, best-price traversal, and multi-symbol exchange isolation.
+- Wired `order_book_invariant_tests` and `order_book_regression_tests` into CMake and CTest as dedicated GoogleTest executables.
+- Verified the full local CTest suite passes with 121 GoogleTest cases, including 8 focused regression cases.
+
 ## v0.5.1 - Golden Replay Tests
 
 - Added a golden replay test suite that runs fixture command tapes through the public CLI pipeline: parser, exchange, order book, and event formatter.
