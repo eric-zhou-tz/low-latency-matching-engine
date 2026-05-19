@@ -4,6 +4,8 @@
 namespace matching_engine {
 
 using OrderId = std::uint64_t;
+using Price = std::int64_t;
+using Quantity = std::uint64_t;
 
 /**
  * @brief Side of an order.
@@ -30,10 +32,10 @@ enum class TimeInForce {
  * struct because OrderBook already owns orders for exactly one symbol.
  */
 struct Order {
-    std::uint64_t id{};
+    OrderId id{};
     Side side{Side::Buy};
-    std::int64_t price{};
-    std::uint64_t quantity{};
+    Price price{};
+    Quantity quantity{};
     TimeInForce time_in_force{TimeInForce::GoodTilCancel};
     Order* prev{};
     Order* next{};

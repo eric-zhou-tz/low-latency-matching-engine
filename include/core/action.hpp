@@ -45,6 +45,18 @@ struct CancelOrderAction {
 };
 
 /**
+ * @brief Action describing a request to modify a resting order.
+ *
+ * Modification is routed by order id because the exchange-level live index
+ * already knows which symbol book owns each cancelable order.
+ */
+struct ModifyOrderAction {
+    OrderId order_id{};
+    Price new_price{};
+    Quantity new_quantity{};
+};
+
+/**
  * @brief Action requesting a human-readable snapshot of the current book.
  */
 struct PrintBookAction {};
@@ -52,6 +64,11 @@ struct PrintBookAction {};
 /**
  * @brief Sum type for every command accepted by the exchange.
  */
-using Action = std::variant<SubmitOrderAction, MarketOrderAction, CancelOrderAction, PrintBookAction>;
+using Action =
+    std::variant<SubmitOrderAction,
+                 MarketOrderAction,
+                 CancelOrderAction,
+                 ModifyOrderAction,
+                 PrintBookAction>;
 
 } // namespace matching_engine

@@ -16,7 +16,10 @@ using matching_engine::CanceledEvent;
 using matching_engine::Event;
 using matching_engine::Exchange;
 using matching_engine::MarketOrderAction;
+using matching_engine::ModifyOrderAction;
+using matching_engine::ModifiedEvent;
 using matching_engine::RejectedEvent;
+using matching_engine::ReplacedEvent;
 using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
 using matching_engine::TimeInForce;
@@ -76,6 +79,18 @@ void cancel(Exchange& exchange, std::uint64_t order_id, std::vector<Event>& out)
 }
 
 /**
+ * @brief Modifies an order through the public exchange API.
+ */
+void modify(Exchange& exchange,
+            std::uint64_t order_id,
+            std::int64_t new_price,
+            std::uint64_t new_quantity,
+            std::vector<Event>& out) {
+    // Route modification through Exchange so the exchange-level index is exercised.
+    exchange.process(Action{ModifyOrderAction{order_id, new_price, new_quantity}}, out);
+}
+
+/**
  * @brief Verifies the first event is an acceptance.
  */
 void expect_accepted(const std::vector<Event>& events) {
@@ -119,6 +134,27 @@ void expect_trade(const Event& event,
     EXPECT_EQ(trade.incoming_order_id, incoming_order_id);
     EXPECT_EQ(trade.price, price);
     EXPECT_EQ(trade.quantity, quantity);
+}
+
+/**
+ * @brief Verifies a one-event in-place modify response.
+ */
+void expect_modified(const std::vector<Event>& events, std::uint64_t order_id) {
+    // Safe quantity reductions should surface as ModifiedEvent values.
+    ASSERT_EQ(events.size(), 1U);
+    ASSERT_TRUE(std::holds_alternative<ModifiedEvent>(events.front()));
+    EXPECT_EQ(std::get<ModifiedEvent>(events.front()).order_id, order_id);
+}
+
+/**
+ * @brief Verifies a replace response starts with ReplacedEvent.
+ */
+void expect_replaced(const std::vector<Event>& events, std::uint64_t order_id) {
+    // Replacement may be followed by trades, so only the first event is fixed.
+    ASSERT_FALSE(events.empty());
+    ASSERT_TRUE(std::holds_alternative<ReplacedEvent>(events.front()));
+    EXPECT_EQ(std::get<ReplacedEvent>(events.front()).old_order_id, order_id);
+    EXPECT_EQ(std::get<ReplacedEvent>(events.front()).new_order_id, order_id);
 }
 
 } // namespace
@@ -295,4 +331,84 @@ TEST(ExchangeTest, IocOrderTradesAndDoesNotRestRemainder) {
     expect_rejected(events, "unknown order id 61");
     submit(exchange, make_submit(61, "MSFT", Side::Sell, 200, 1), events);
     expect_accepted(events);
+}
+
+TEST(ExchangeTest, ModifyReductionKeepsExchangeIndexCancelable) {
+    // Rest a GTC order, reduce it in place, then cancel it through the exchange index.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(70, "AAPL", Side::Buy, 100, 10), events);
+    expect_accepted(events);
+
+    modify(exchange, 70, 100, 4, events);
+    expect_modified(events, 70);
+
+    cancel(exchange, 70, events);
+    expect_canceled(events, 70);
+}
+
+TEST(ExchangeTest, ReplacementModifyKeepsIndexWhenRemainderRests) {
+    // Increase quantity so the order is cancel-replaced but remains resting.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(80, "AAPL", Side::Buy, 100, 5), events);
+    expect_accepted(events);
+
+    modify(exchange, 80, 100, 7, events);
+    expect_replaced(events, 80);
+
+    cancel(exchange, 80, events);
+    expect_canceled(events, 80);
+}
+
+TEST(ExchangeTest, ReplacementModifyFullyExecutedLeavesNoIndex) {
+    // Modify a passive bid to cross exactly all available ask liquidity.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(90, "AAPL", Side::Sell, 99, 4), events);
+    expect_accepted(events);
+    submit(exchange, make_submit(91, "AAPL", Side::Buy, 98, 4), events);
+    expect_accepted(events);
+
+    modify(exchange, 91, 100, 4, events);
+
+    // A fully executed replacement should remove both the modified and resting ids.
+    ASSERT_EQ(events.size(), 2U);
+    expect_replaced(events, 91);
+    expect_trade(events[1], 90, 91, 99, 4);
+    cancel(exchange, 91, events);
+    expect_rejected(events, "unknown order id 91");
+    submit(exchange, make_submit(91, "MSFT", Side::Sell, 200, 1), events);
+    expect_accepted(events);
+}
+
+TEST(ExchangeTest, ModifyUnknownAndNonRestingOrdersReject) {
+    // Unknown ids should be rejected before touching any symbol book.
+    Exchange exchange;
+    std::vector<Event> events;
+
+    modify(exchange, 404, 100, 5, events);
+    expect_rejected(events, "unknown order id 404");
+
+    submit(exchange,
+           make_submit(100, "AAPL", Side::Buy, 100, 5, TimeInForce::ImmediateOrCancel),
+           events);
+    expect_accepted(events);
+    modify(exchange, 100, 100, 4, events);
+    expect_rejected(events, "unknown order id 100");
+}
+
+TEST(ExchangeTest, ReplacementModifyDoesNotEmitCancelAcceptPair) {
+    // Replacement should be atomic from the event stream perspective.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(110, "AAPL", Side::Buy, 100, 5), events);
+    expect_accepted(events);
+
+    modify(exchange, 110, 101, 5, events);
+
+    ASSERT_EQ(events.size(), 1U);
+    expect_replaced(events, 110);
+    EXPECT_FALSE(std::holds_alternative<CanceledEvent>(events.front()));
+    EXPECT_FALSE(std::holds_alternative<AcceptedEvent>(events.front()));
 }

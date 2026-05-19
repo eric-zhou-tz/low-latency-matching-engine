@@ -12,10 +12,12 @@ namespace {
 using matching_engine::AcceptedEvent;
 using matching_engine::CanceledEvent;
 using matching_engine::Event;
+using matching_engine::ModifiedEvent;
 using matching_engine::Order;
 using matching_engine::OrderBook;
 using matching_engine::RejectedEvent;
 using matching_engine::RejectReason;
+using matching_engine::ReplacedEvent;
 using matching_engine::Side;
 using matching_engine::TimeInForce;
 using matching_engine::TradeEvent;
@@ -66,6 +68,39 @@ void expect_canceled(const matching_engine::CancelResult& result, std::uint64_t 
     // Cancel success materializes one direct result.
     ASSERT_TRUE(std::holds_alternative<CanceledEvent>(result));
     EXPECT_EQ(std::get<CanceledEvent>(result).order_id, order_id);
+}
+
+void expect_modified(const Event& event,
+                     std::uint64_t order_id,
+                     std::int64_t old_price,
+                     std::int64_t new_price,
+                     std::uint64_t old_quantity,
+                     std::uint64_t new_quantity) {
+    // A safe quantity reduction should be reported as an in-place modification.
+    ASSERT_TRUE(std::holds_alternative<ModifiedEvent>(event));
+    const auto& modified = std::get<ModifiedEvent>(event);
+    EXPECT_EQ(modified.order_id, order_id);
+    EXPECT_EQ(modified.old_price, old_price);
+    EXPECT_EQ(modified.new_price, new_price);
+    EXPECT_EQ(modified.old_quantity, old_quantity);
+    EXPECT_EQ(modified.new_quantity, new_quantity);
+}
+
+void expect_replaced(const Event& event,
+                     std::uint64_t order_id,
+                     std::int64_t old_price,
+                     std::int64_t new_price,
+                     std::uint64_t old_quantity,
+                     std::uint64_t new_quantity) {
+    // Cancel-replace modifies should be reported without public cancel/accept events.
+    ASSERT_TRUE(std::holds_alternative<ReplacedEvent>(event));
+    const auto& replaced = std::get<ReplacedEvent>(event);
+    EXPECT_EQ(replaced.old_order_id, order_id);
+    EXPECT_EQ(replaced.new_order_id, order_id);
+    EXPECT_EQ(replaced.old_price, old_price);
+    EXPECT_EQ(replaced.new_price, new_price);
+    EXPECT_EQ(replaced.old_quantity, old_quantity);
+    EXPECT_EQ(replaced.new_quantity, new_quantity);
 }
 
 void expect_trade(const Event& event,
@@ -573,6 +608,147 @@ TEST(OrderBookTest, FullyFilledOrdersCannotBeCanceled) {
 
     const auto incoming_cancel = book.cancel(101);
     expect_rejected(incoming_cancel);
+}
+
+TEST(OrderBookTest, ReduceQuantityModifyPreservesFifoPriority) {
+    // Seed two same-price bids so queue order is observable after modification.
+    OrderBook book;
+    submit_accepted(book, make_order(600, Side::Buy, 100, 5));
+    submit_accepted(book, make_order(601, Side::Buy, 100, 5));
+    std::vector<Event> events;
+
+    book.modify(600, 100, 3, events);
+
+    // Reducing quantity in place should not move the older order behind its peer.
+    ASSERT_EQ(events.size(), 1U);
+    expect_modified(events.front(), 600, 100, 100, 5, 3);
+
+    book.submit(make_order(602, Side::Sell, 100, 4), events);
+
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 600, 602, 100, 3);
+    expect_trade(events[2], 601, 602, 100, 1);
+}
+
+TEST(OrderBookTest, IncreaseQuantityModifyLosesFifoPriority) {
+    // Seed two same-price bids, then increase the older order's visible quantity.
+    OrderBook book;
+    submit_accepted(book, make_order(610, Side::Buy, 100, 5));
+    submit_accepted(book, make_order(611, Side::Buy, 100, 5));
+    std::vector<Event> events;
+
+    book.modify(610, 100, 7, events);
+
+    // Increasing quantity is cancel-replace and should move the order to the tail.
+    ASSERT_EQ(events.size(), 1U);
+    expect_replaced(events.front(), 610, 100, 100, 5, 7);
+
+    book.submit(make_order(612, Side::Sell, 100, 6), events);
+
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 611, 612, 100, 5);
+    expect_trade(events[2], 610, 612, 100, 1);
+}
+
+TEST(OrderBookTest, PriceChangeModifyLosesFifoPriority) {
+    // Move a lower bid up to a price level that already has resting liquidity.
+    OrderBook book;
+    submit_accepted(book, make_order(620, Side::Buy, 100, 5));
+    submit_accepted(book, make_order(621, Side::Buy, 101, 5));
+    std::vector<Event> events;
+
+    book.modify(620, 101, 5, events);
+
+    // Price changes are cancel-replace and should join the new level behind old orders.
+    ASSERT_EQ(events.size(), 1U);
+    expect_replaced(events.front(), 620, 100, 101, 5, 5);
+
+    book.submit(make_order(622, Side::Sell, 101, 6), events);
+
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 621, 622, 101, 5);
+    expect_trade(events[2], 620, 622, 101, 1);
+}
+
+TEST(OrderBookTest, ModifyUnknownOrderRejects) {
+    // Unknown ids cannot be modified because only resting orders have queue state.
+    OrderBook book;
+    std::vector<Event> events;
+
+    book.modify(630, 100, 5, events);
+
+    ASSERT_EQ(events.size(), 1U);
+    expect_rejected(events.front(), RejectReason::UnknownOrderId, 630);
+}
+
+TEST(OrderBookTest, ModifyInvalidPriceOrQuantityRejectsWithoutChangingOrder) {
+    // Seed a live order so invalid modify input can be rejected before mutation.
+    OrderBook book;
+    submit_accepted(book, make_order(635, Side::Buy, 100, 5));
+    std::vector<Event> events;
+
+    book.modify(635, 0, 4, events);
+
+    // Invalid prices should reject and leave the original resting quantity intact.
+    ASSERT_EQ(events.size(), 1U);
+    expect_rejected(events.front(), RejectReason::InvalidOrder, 635);
+    EXPECT_NE(book.snapshot().find("[635 BUY 100x5]"), std::string::npos);
+
+    book.modify(635, 100, 0, events);
+
+    // Empty replacement quantities should also leave the live order untouched.
+    ASSERT_EQ(events.size(), 1U);
+    expect_rejected(events.front(), RejectReason::InvalidOrder, 635);
+    EXPECT_NE(book.snapshot().find("[635 BUY 100x5]"), std::string::npos);
+}
+
+TEST(OrderBookTest, ModifyNonRestingOrderRejects) {
+    // Fill an order completely so neither side remains in the book-local index.
+    OrderBook book;
+    submit_accepted(book, make_order(640, Side::Sell, 100, 5));
+    std::vector<Event> events;
+    book.submit(make_order(641, Side::Buy, 100, 5), events);
+    ASSERT_EQ(events.size(), 2U);
+
+    book.modify(640, 101, 5, events);
+
+    // Fully filled orders are no longer resting and should reject as unknown.
+    ASSERT_EQ(events.size(), 1U);
+    expect_rejected(events.front(), RejectReason::UnknownOrderId, 640);
+}
+
+TEST(OrderBookTest, ReplacementModifyCanMatchAndRestRemainder) {
+    // Make a passive bid, then modify it to cross the current best ask.
+    OrderBook book;
+    submit_accepted(book, make_order(650, Side::Sell, 99, 4));
+    submit_accepted(book, make_order(651, Side::Buy, 98, 5));
+    std::vector<Event> events;
+
+    book.modify(651, 100, 7, events);
+
+    // Replace emits replacement semantics, then reuses normal matching and resting.
+    ASSERT_EQ(events.size(), 2U);
+    expect_replaced(events.front(), 651, 98, 100, 5, 7);
+    expect_trade(events[1], 650, 651, 99, 4);
+    EXPECT_NE(book.snapshot().find("[651 BUY 100x3]"), std::string::npos);
+}
+
+TEST(OrderBookTest, ReplacementModifyDoesNotEmitCancelAcceptPair) {
+    // Trigger cancel-replace with a same-price quantity increase.
+    OrderBook book;
+    submit_accepted(book, make_order(660, Side::Buy, 100, 5));
+    std::vector<Event> events;
+
+    book.modify(660, 100, 6, events);
+
+    // The observable event stream should stay atomic from the client's perspective.
+    ASSERT_EQ(events.size(), 1U);
+    expect_replaced(events.front(), 660, 100, 100, 5, 6);
+    EXPECT_FALSE(std::holds_alternative<CanceledEvent>(events.front()));
+    EXPECT_FALSE(std::holds_alternative<AcceptedEvent>(events.front()));
 }
 
 TEST(OrderBookTest, SnapshotPreservesBookOrdering) {
