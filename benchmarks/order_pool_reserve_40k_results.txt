@@ -1,0 +1,17 @@
+---------------------------------------------------------------------------------------------------------------
+Benchmark                                                     Time             CPU   Iterations UserCounters...
+---------------------------------------------------------------------------------------------------------------
+BM_MixedSubmitCancelReserveSweep/100000/40000           6268721 ns      6270154 ns           97 items_per_second=15.9486M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000           6109028 ns      6110169 ns           97 items_per_second=16.3662M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000           6480397 ns      6479711 ns           97 items_per_second=15.4328M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000           6390483 ns      6390627 ns           97 items_per_second=15.6479M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000           5938601 ns      5940029 ns           97 items_per_second=16.8349M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000           6737241 ns      6737243 ns           97 items_per_second=14.8429M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000           6600358 ns      6599954 ns           97 items_per_second=15.1516M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000           6262330 ns      6263365 ns           97 items_per_second=15.9659M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000           6748228 ns      6747996 ns           97 items_per_second=14.8192M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000           6392222 ns      6392346 ns           97 items_per_second=15.6437M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000_mean      6392761 ns      6393159 ns           10 items_per_second=15.6654M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000_median    6391353 ns      6391486 ns           10 items_per_second=15.6458M/s max_live_orders=40.003k order_id_max_load_factor=0.8 reserve_capacity=40k
+BM_MixedSubmitCancelReserveSweep/100000/40000_stddev     261400 ns       260758 ns           10 items_per_second=644.703k/s max_live_orders=314.168u order_id_max_load_factor=6.28288n reserve_capacity=314.144u
+BM_MixedSubmitCancelReserveSweep/100000/40000_cv           4.09 %          4.08 %            10 items_per_second=4.12% max_live_orders=0.00% order_id_max_load_factor=0.00% reserve_capacity=0.00%

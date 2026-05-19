@@ -8,18 +8,18 @@
 namespace matching_engine {
 
 /**
- * @brief Creates an empty book and reserves order lookup capacity.
+ * @brief Creates an empty book and applies a reserve-capacity tuning hint.
  */
-OrderBook::OrderBook(std::size_t expected_order_capacity) {
-    reserve_order_capacity(expected_order_capacity);
+OrderBook::OrderBook(std::size_t reserve_order_capacity) {
+    this->reserve_order_capacity(reserve_order_capacity);
 }
 
 /**
- * @brief Creates an empty book with tuned order lookup density.
+ * @brief Creates an empty book with tuned lookup density and reserve capacity.
  */
-OrderBook::OrderBook(std::size_t expected_order_capacity, float order_id_max_load_factor) {
+OrderBook::OrderBook(std::size_t reserve_order_capacity, float order_id_max_load_factor) {
     set_order_id_max_load_factor(order_id_max_load_factor);
-    reserve_order_capacity(expected_order_capacity);
+    this->reserve_order_capacity(reserve_order_capacity);
 }
 
 /**
@@ -284,12 +284,14 @@ OrderBook::DebugSnapshot OrderBook::debug_snapshot() const {
 }
 
 /**
- * @brief Reserves live order-id lookup capacity.
+ * @brief Reserves lookup and pool storage from a caller-provided tuning hint.
  */
-void OrderBook::reserve_order_capacity(std::size_t expected_order_capacity) {
-    orders_by_id_.reserve(expected_order_capacity);
+void OrderBook::reserve_order_capacity(std::size_t reserve_order_capacity) {
+    // Reserve sizing is a cache/locality tuning knob, not a count of operations processed.
+    orders_by_id_.reserve(reserve_order_capacity);
 
-    order_pool_.reserve(expected_order_capacity);
+    // Over-reserving can spread hot structures over more memory and slow steady-state matching.
+    order_pool_.reserve(reserve_order_capacity);
 }
 
 /**

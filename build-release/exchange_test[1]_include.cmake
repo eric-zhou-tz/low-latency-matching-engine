@@ -1,0 +1,5 @@
+if(EXISTS "/Users/ericzhou/Desktop/Productivity/Projects/Serious/MatchingEngine/build-release/exchange_test[1]_tests.cmake")
+  include("/Users/ericzhou/Desktop/Productivity/Projects/Serious/MatchingEngine/build-release/exchange_test[1]_tests.cmake")
+else()
+  add_test(exchange_test_NOT_BUILT exchange_test_NOT_BUILT)
+endif()

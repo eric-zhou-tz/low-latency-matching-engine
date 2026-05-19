@@ -141,16 +141,16 @@ Current benchmark coverage includes:
 
 Latest EC2 Release hot-path highlights:
 
-- 100,000-order insert: `11.1651M items/s`
-- 100,000-order crossing match: `17.0147M items/s`
-- 100,000 random cancel: `7.9446M items/s`
-- 100,000 unknown cancel: `112.096M items/s`
-- 100,000 mixed submit/cancel/match: `13.6514M items/s`
+- 100,000-order insert: `11.49M items/s`
+- 100,000-order crossing match: `17.14M items/s`
+- 100,000 random cancel: `8.483M items/s`
+- 100,000 unknown cancel: `115.7M items/s`
+- 100,000 mixed submit/cancel/match: `18.24M items/s`
 
 Latest EC2 Release end-to-end CLI-style highlights:
 
-- 100,000 command parse/process/format: `1.07919M commands/s`
-- 100,000 command replay scenario: `1.09662M commands/s`
+- 100,000 command parse/process/format: `1.0589M commands/s`
+- 100,000 command replay scenario: `1.0229M commands/s`
 
 End-to-end results include parser, exchange, OrderBook, and event-formatting
 overhead. They should not be compared directly to OrderBook hot-path

@@ -32,19 +32,19 @@ public:
     OrderBook() = default;
 
     /**
-     * @brief Creates an empty order book with reserved order-id capacity.
+     * @brief Creates an empty order book with reserved order capacity.
      *
-     * @param expected_order_capacity Expected number of live resting orders.
+     * @param reserve_order_capacity Caller-selected preallocation hint.
      */
-    explicit OrderBook(std::size_t expected_order_capacity);
+    explicit OrderBook(std::size_t reserve_order_capacity);
 
     /**
      * @brief Creates an empty order book with tuned order-id lookup density.
      *
-     * @param expected_order_capacity Expected number of live resting orders.
+     * @param reserve_order_capacity Caller-selected preallocation hint.
      * @param order_id_max_load_factor Maximum load factor for the order-id map.
      */
-    OrderBook(std::size_t expected_order_capacity, float order_id_max_load_factor);
+    OrderBook(std::size_t reserve_order_capacity, float order_id_max_load_factor);
 
     /**
      * @brief Copies a book and rebuilds intrusive order links.
@@ -166,11 +166,11 @@ public:
     [[nodiscard]] DebugSnapshot debug_snapshot() const;
 
     /**
-     * @brief Reserves live order-id lookup capacity for expected book depth.
+     * @brief Reserves order-id lookup and order-pool capacity.
      *
-     * @param expected_order_capacity Expected number of live resting orders.
+     * @param reserve_order_capacity Caller-selected preallocation hint.
      */
-    void reserve_order_capacity(std::size_t expected_order_capacity);
+    void reserve_order_capacity(std::size_t reserve_order_capacity);
 
     /**
      * @brief Sets the order-id lookup load factor for future reservations.

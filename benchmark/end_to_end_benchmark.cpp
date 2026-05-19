@@ -4,6 +4,7 @@
 
 #include <benchmark/benchmark.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -178,12 +179,18 @@ void run_end_to_end_script(const std::vector<std::string>& commands,
  */
 void BM_EndToEnd_ParseProcessFormat(benchmark::State& state) {
     const auto command_count = state.range(0);
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. Submit/cancel/modify-heavy workloads usually have
+    // far fewer concurrent live orders than total messages, so mixed and
+    // end-to-end use 10% as the current benchmark-tuned proxy.
+    const auto reserve_order_capacity =
+        std::max<std::size_t>(1024, static_cast<std::size_t>(command_count) / 10);
     const auto commands = make_parse_process_format_script(command_count);
 
     for (auto _ : state) {
         state.PauseTiming();
         matching_engine::Parser parser;
-        matching_engine::Exchange exchange;
+        matching_engine::Exchange exchange{reserve_order_capacity};
         std::vector<matching_engine::Event> events;
         std::string formatted_output;
         events.reserve(8);
@@ -202,12 +209,18 @@ void BM_EndToEnd_ParseProcessFormat(benchmark::State& state) {
  */
 void BM_EndToEnd_ReplayScenario(benchmark::State& state) {
     const auto command_count = state.range(0);
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. Submit/cancel/modify-heavy workloads usually have
+    // far fewer concurrent live orders than total messages, so mixed and
+    // end-to-end use 10% as the current benchmark-tuned proxy.
+    const auto reserve_order_capacity =
+        std::max<std::size_t>(1024, static_cast<std::size_t>(command_count) / 10);
     const auto commands = make_replay_script(command_count);
 
     for (auto _ : state) {
         state.PauseTiming();
         matching_engine::Parser parser;
-        matching_engine::Exchange exchange;
+        matching_engine::Exchange exchange{reserve_order_capacity};
         std::vector<matching_engine::Event> events;
         std::string formatted_output;
         events.reserve(8);

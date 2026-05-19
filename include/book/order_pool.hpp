@@ -64,13 +64,13 @@ public:
     OrderPool& operator=(const OrderPool&) = delete;
 
     /**
-     * @brief Allocates raw storage for an expected number of live orders.
+     * @brief Allocates raw storage from a caller-selected reserve hint.
      *
-     * @param expected_order_capacity Expected number of simultaneously resting orders.
+     * @param reserve_order_capacity Caller-selected preallocation hint.
      */
-    void reserve(std::size_t expected_order_capacity) {
+    void reserve(std::size_t reserve_order_capacity) {
         const std::size_t required_blocks =
-            (expected_order_capacity + kBlockSize - 1) / kBlockSize;
+            (reserve_order_capacity + kBlockSize - 1) / kBlockSize;
 
         blocks_.reserve(required_blocks);
 

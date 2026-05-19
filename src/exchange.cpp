@@ -29,6 +29,14 @@ namespace {
 } // namespace
 
 /**
+ * @brief Creates an exchange that reserves capacity for each new symbol book.
+ */
+Exchange::Exchange(std::size_t reserve_order_capacity)
+    : reserve_order_capacity_{reserve_order_capacity} {
+    // Store the per-book hint so each symbol book can reserve on first use.
+}
+
+/**
  * @brief Applies an action and writes the events produced by the exchange.
  *
  * The exchange currently supports one book per symbol and keeps a live order
@@ -168,7 +176,8 @@ OrderBook* Exchange::get_or_create_book(const std::string& symbol) {
         return found->second.get();
     }
 
-    auto book = std::make_unique<OrderBook>();
+    auto book = reserve_order_capacity_ > 0 ? std::make_unique<OrderBook>(reserve_order_capacity_)
+                                            : std::make_unique<OrderBook>();
     OrderBook* raw_book = book.get();
     books_by_symbol_.emplace(symbol, std::move(book));
     return raw_book;

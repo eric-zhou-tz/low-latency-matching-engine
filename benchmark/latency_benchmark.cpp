@@ -461,8 +461,11 @@ template <typename Operation>
                                                      std::size_t sample_count,
                                                      std::size_t warmup_batches) {
     const auto total_operations = (sample_count + warmup_batches) * batch_size;
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. Submit-only latency rests every submitted order.
+    const auto reserve_order_capacity = total_operations;
     const auto orders = make_passive_orders(total_operations);
-    OrderBook book{total_operations};
+    OrderBook book{reserve_order_capacity};
     std::vector<matching_engine::Event> events;
     events.reserve(8);
 
@@ -485,9 +488,13 @@ template <typename Operation>
                                                      std::size_t sample_count,
                                                      std::size_t warmup_batches) {
     const auto total_operations = (sample_count + warmup_batches) * batch_size;
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. This match-only benchmark has one resting order per
+    // incoming crossing order, so total_operations is the resting-order count.
+    const auto reserve_order_capacity = total_operations;
     const auto resting_orders = make_resting_asks(total_operations);
     const auto crossing_orders = make_crossing_buys(total_operations);
-    OrderBook book{total_operations};
+    OrderBook book{reserve_order_capacity};
     std::vector<matching_engine::Event> events;
     events.reserve(8);
     preload_book(book, resting_orders);
@@ -513,8 +520,12 @@ template <typename Operation>
                                              std::size_t sample_count,
                                              std::size_t warmup_batches) {
     const auto total_operations = (sample_count + warmup_batches) * batch_size;
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. Cancel-only latency preloads one live order for each
+    // cancel operation.
+    const auto reserve_order_capacity = total_operations;
     const auto resting_orders = make_same_price_resting_buys(total_operations);
-    OrderBook book{total_operations};
+    OrderBook book{reserve_order_capacity};
     preload_book(book, resting_orders);
 
     return measure_batches(batch_size, sample_count, warmup_batches, [&](std::size_t index) {
@@ -535,8 +546,13 @@ template <typename Operation>
                                             std::size_t sample_count,
                                             std::size_t warmup_batches) {
     const auto total_operations = (sample_count + warmup_batches) * batch_size;
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. Submit/cancel/modify-heavy workloads usually have
+    // far fewer concurrent live orders than total messages, so mixed and
+    // end-to-end use 10% as the current benchmark-tuned proxy.
+    const auto reserve_order_capacity = std::max<std::size_t>(1024, total_operations / 10);
     const auto operations = make_mixed_operations(total_operations);
-    OrderBook book{total_operations};
+    OrderBook book{reserve_order_capacity};
     std::vector<matching_engine::Event> events;
     events.reserve(8);
 

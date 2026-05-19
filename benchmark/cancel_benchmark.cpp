@@ -173,14 +173,17 @@ void preload_book(OrderBook& book, const std::vector<Order>& resting_orders) {
  */
 void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_t>& cancel_ids) {
     const auto order_count = state.range(0);
-    const auto expected_order_capacity = static_cast<std::size_t>(order_count);
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. Cancel-only workloads preload one live order for
+    // each cancel operation.
+    const auto reserve_order_capacity = static_cast<std::size_t>(order_count);
     const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
     const auto resting_orders = make_same_price_resting_buys(order_count);
     std::optional<OrderBook> book;
 
     for (auto _ : state) {
         state.PauseTiming();
-        book.emplace(expected_order_capacity, order_id_max_load_factor);
+        book.emplace(reserve_order_capacity, order_id_max_load_factor);
         preload_book(*book, resting_orders);
         state.ResumeTiming();
 
@@ -408,7 +411,12 @@ void BM_CancelUnknown(benchmark::State& state) {
  */
 void BM_MixedSubmitCancel(benchmark::State& state) {
     const auto operation_count = state.range(0);
-    const auto expected_order_capacity = static_cast<std::size_t>(operation_count);
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. Submit/cancel/modify-heavy workloads usually have
+    // far fewer concurrent live orders than total messages, so mixed and
+    // end-to-end use 10% as the current benchmark-tuned proxy.
+    const auto reserve_order_capacity =
+        std::max<std::size_t>(1024, static_cast<std::size_t>(operation_count) / 10);
     const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
     const auto operations = make_mixed_operations(operation_count);
     std::optional<OrderBook> book;
@@ -417,7 +425,9 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
 
     for (auto _ : state) {
         state.PauseTiming();
-        book.emplace(expected_order_capacity, order_id_max_load_factor);
+        // Apply the mixed-workload reserve proxy during setup so timing covers
+        // operation processing rather than allocation policy.
+        book.emplace(reserve_order_capacity, order_id_max_load_factor);
         state.ResumeTiming();
 
         for (const auto& operation : operations) {
@@ -461,7 +471,12 @@ BENCHMARK(BM_MixedSubmitCancel)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 BENCHMARK(BM_MixedSubmitCancelReserveSweep)
     ->Args({100'000, 0})
     ->Args({100'000, 1'000})
+    ->Args({100'000, 8'192})
     ->Args({100'000, 10'000})
+    ->Args({100'000, 16'384})
+    ->Args({100'000, 32'768})
+    ->Args({100'000, 40'000})
+    ->Args({100'000, 65'536})
     ->Args({100'000, 100'000})
     ->Args({100'000, 1'000'000})
     ->Args({100'000, 10'000'000});

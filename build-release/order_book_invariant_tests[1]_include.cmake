@@ -1,0 +1,5 @@
+if(EXISTS "/Users/ericzhou/Desktop/Productivity/Projects/Serious/MatchingEngine/build-release/order_book_invariant_tests[1]_tests.cmake")
+  include("/Users/ericzhou/Desktop/Productivity/Projects/Serious/MatchingEngine/build-release/order_book_invariant_tests[1]_tests.cmake")
+else()
+  add_test(order_book_invariant_tests_NOT_BUILT order_book_invariant_tests_NOT_BUILT)
+endif()

@@ -44,7 +44,9 @@ constexpr std::uint64_t kQuantity = 1;
  */
 void BM_RestingLimitOrderInsert(benchmark::State& state) {
     const auto order_count = state.range(0);
-    const auto expected_order_capacity = static_cast<std::size_t>(order_count);
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. Submit-only workloads rest every submitted order.
+    const auto reserve_order_capacity = static_cast<std::size_t>(order_count);
     const auto orders = make_passive_orders(order_count);
     std::optional<OrderBook> book;
     std::vector<matching_engine::Event> events;
@@ -52,7 +54,7 @@ void BM_RestingLimitOrderInsert(benchmark::State& state) {
 
     for (auto _ : state) {
         state.PauseTiming();
-        book.emplace(expected_order_capacity);
+        book.emplace(reserve_order_capacity);
         state.ResumeTiming();
 
         for (const auto& order : orders) {

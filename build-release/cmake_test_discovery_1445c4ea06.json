@@ -1,0 +1,87 @@
+{
+  "tests": 15,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "ParserTest",
+      "tests": 15,
+      "testsuite": [
+        {
+          "name": "ParsesSubmitOrderCommand",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 20
+        },
+        {
+          "name": "ParsesIocSubmitOrderCommand",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 36
+        },
+        {
+          "name": "ParsesFokSubmitOrderCommand",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 48
+        },
+        {
+          "name": "ParsesCancelOrderCommand",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 60
+        },
+        {
+          "name": "ParsesModifyOrderCommand",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 69
+        },
+        {
+          "name": "ParsesMarketOrderCommand",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 82
+        },
+        {
+          "name": "ParsesPrintBookCommand",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 96
+        },
+        {
+          "name": "RejectsMalformedSubmitOrderCommand",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 105
+        },
+        {
+          "name": "RejectsSubmitOrderCommandWithExtraTokens",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 112
+        },
+        {
+          "name": "RejectsUnknownSubmitTimeInForce",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 119
+        },
+        {
+          "name": "RejectsMarketOrderCommandWithBadSideOrQuantity",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 126
+        },
+        {
+          "name": "RejectsMarketOrderCommandWithExtraTokens",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 133
+        },
+        {
+          "name": "RejectsCancelOrderCommandWithExtraTokens",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 139
+        },
+        {
+          "name": "RejectsModifyOrderCommandWithExtraTokensOrZeroQuantity",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 145
+        },
+        {
+          "name": "RejectsPrintBookCommandWithExtraTokens",
+          "file": "\/Users\/ericzhou\/Desktop\/Productivity\/Projects\/Serious\/MatchingEngine\/tests\/parser_tests.cpp",
+          "line": 152
+        }
+      ]
+    }
+  ]
+}

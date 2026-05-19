@@ -11,11 +11,11 @@ automatically by CMake or CI until that workflow is added intentionally.
 - Kernel: `7.0.0-1004-aws`
 - CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
 - Compiler: GCC/G++ 15.2.0
-- Commit: `c3e1468` plus local end-to-end benchmark changes
+- Commit: `e1eb134` plus local reserve-order-capacity rule changes
 - Build type: `Release`
 - Release flags: `-O3 -DNDEBUG`
 - Correctness tests: 121/121 passed before benchmark execution
-- Run date: `2026-05-19T07:28:53Z`
+- Run date: `2026-05-19T18:55:58Z`
 - Command: `THROUGHPUT_REPETITIONS=5 LATENCY_TRIALS=5 benchmarks/run_ec2_benchmarks.sh`
 
 ## Workloads
@@ -58,12 +58,12 @@ Latest EC2 median results:
 
 | Benchmark | Commands | CPU Time | Throughput |
 | --- | ---: | ---: | ---: |
-| `BM_EndToEnd_ParseProcessFormat/1000` | 1,000 | 641101 ns | 1.55982M commands/s |
-| `BM_EndToEnd_ParseProcessFormat/10000` | 10,000 | 6840502 ns | 1.46188M commands/s |
-| `BM_EndToEnd_ParseProcessFormat/100000` | 100,000 | 92662402 ns | 1.07919M commands/s |
-| `BM_EndToEnd_ReplayScenario/1000` | 1,000 | 848701 ns | 1.17827M commands/s |
-| `BM_EndToEnd_ReplayScenario/10000` | 10,000 | 8429845 ns | 1.18626M commands/s |
-| `BM_EndToEnd_ReplayScenario/100000` | 100,000 | 91189243 ns | 1.09662M commands/s |
+| `BM_EndToEnd_ParseProcessFormat/1000` | 1,000 | 658470 ns | 1.5187M commands/s |
+| `BM_EndToEnd_ParseProcessFormat/10000` | 10,000 | 7114647 ns | 1.4056M commands/s |
+| `BM_EndToEnd_ParseProcessFormat/100000` | 100,000 | 94438475 ns | 1.0589M commands/s |
+| `BM_EndToEnd_ReplayScenario/1000` | 1,000 | 849665 ns | 1.1769M commands/s |
+| `BM_EndToEnd_ReplayScenario/10000` | 10,000 | 8532050 ns | 1.1721M commands/s |
+| `BM_EndToEnd_ReplayScenario/100000` | 100,000 | 97765103 ns | 1.0229M commands/s |
 
 Artifact files:
 
@@ -109,27 +109,30 @@ warmup batches.
 
 | Benchmark | Workload Size | Batch Size | Samples / Trial | Trials | p50 ns/op | p95 ns/op | p99 ns/op | Max ns/op |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `RestingLimitOrderInsert` | 73,728 | 64 | 1,024 | 5 | 82.34 | 97.17 | 128.77 | 563.98 |
-| `RestingLimitOrderInsert` | 294,912 | 256 | 1,024 | 5 | 120.09 | 144.84 | 170.54 | 495.33 |
-| `RestingLimitOrderInsert` | 1,179,648 | 1,024 | 1,024 | 5 | 172.94 | 186.19 | 215.46 | 308.96 |
-| `CrossingLimitOrderMatch` | 73,728 | 64 | 1,024 | 5 | 57.83 | 73.36 | 90.30 | 237.39 |
-| `CrossingLimitOrderMatch` | 294,912 | 256 | 1,024 | 5 | 105.89 | 133.25 | 152.50 | 232.49 |
-| `CrossingLimitOrderMatch` | 1,179,648 | 1,024 | 1,024 | 5 | 158.30 | 258.01 | 287.69 | 398.37 |
-| `CancelFront` | 73,728 | 64 | 1,024 | 5 | 32.45 | 43.28 | 49.28 | 293.56 |
-| `CancelFront` | 294,912 | 256 | 1,024 | 5 | 40.60 | 62.47 | 92.24 | 144.64 |
-| `CancelFront` | 1,179,648 | 1,024 | 1,024 | 5 | 147.17 | 214.60 | 226.87 | 248.27 |
-| `CancelBack` | 73,728 | 64 | 1,024 | 5 | 32.03 | 39.78 | 45.69 | 196.05 |
-| `CancelBack` | 294,912 | 256 | 1,024 | 5 | 46.14 | 53.89 | 85.55 | 134.26 |
-| `CancelBack` | 1,179,648 | 1,024 | 1,024 | 5 | 140.07 | 152.10 | 158.23 | 219.41 |
-| `CancelRandom` | 73,728 | 64 | 1,024 | 5 | 94.36 | 132.17 | 165.12 | 296.20 |
-| `CancelRandom` | 294,912 | 256 | 1,024 | 5 | 327.02 | 367.54 | 394.09 | 456.16 |
-| `CancelRandom` | 1,179,648 | 1,024 | 1,024 | 5 | 503.23 | 529.29 | 546.41 | 705.53 |
-| `CancelUnknown` | 73,728 | 64 | 1,024 | 5 | 10.06 | 14.77 | 17.41 | 154.77 |
-| `CancelUnknown` | 294,912 | 256 | 1,024 | 5 | 14.15 | 31.48 | 36.27 | 88.09 |
-| `CancelUnknown` | 1,179,648 | 1,024 | 1,024 | 5 | 36.09 | 41.39 | 48.89 | 64.81 |
-| `MixedSubmitCancel` | 73,728 | 64 | 1,024 | 5 | 82.52 | 98.55 | 112.86 | 270.34 |
-| `MixedSubmitCancel` | 294,912 | 256 | 1,024 | 5 | 136.82 | 160.03 | 194.10 | 269.84 |
-| `MixedSubmitCancel` | 1,179,648 | 1,024 | 1,024 | 5 | 182.27 | 197.60 | 215.71 | 306.39 |
+| `RestingLimitOrderInsert` | 73,728 | 64 | 1,024 | 5 | 92.27 | 132.97 | 180.62 | 563.64 |
+| `RestingLimitOrderInsert` | 294,912 | 256 | 1,024 | 5 | 150.12 | 173.35 | 197.67 | 233.14 |
+| `RestingLimitOrderInsert` | 1,179,648 | 1,024 | 1,024 | 5 | 171.95 | 188.18 | 226.67 | 418.26 |
+| `CrossingLimitOrderMatch` | 73,728 | 64 | 1,024 | 5 | 58.84 | 76.27 | 103.72 | 245.70 |
+| `CrossingLimitOrderMatch` | 294,912 | 256 | 1,024 | 5 | 110.45 | 141.38 | 169.14 | 226.87 |
+| `CrossingLimitOrderMatch` | 1,179,648 | 1,024 | 1,024 | 5 | 162.80 | 259.52 | 284.31 | 335.36 |
+| `CancelFront` | 73,728 | 64 | 1,024 | 5 | 33.23 | 43.58 | 48.91 | 226.52 |
+| `CancelFront` | 294,912 | 256 | 1,024 | 5 | 41.36 | 74.93 | 91.09 | 147.35 |
+| `CancelFront` | 1,179,648 | 1,024 | 1,024 | 5 | 148.07 | 216.25 | 231.86 | 246.89 |
+| `CancelBack` | 73,728 | 64 | 1,024 | 5 | 33.05 | 40.47 | 46.88 | 193.39 |
+| `CancelBack` | 294,912 | 256 | 1,024 | 5 | 45.98 | 58.81 | 81.52 | 150.88 |
+| `CancelBack` | 1,179,648 | 1,024 | 1,024 | 5 | 139.94 | 152.27 | 158.94 | 235.31 |
+| `CancelRandom` | 73,728 | 64 | 1,024 | 5 | 89.84 | 130.50 | 159.16 | 412.25 |
+| `CancelRandom` | 294,912 | 256 | 1,024 | 5 | 338.02 | 380.86 | 402.86 | 497.50 |
+| `CancelRandom` | 1,179,648 | 1,024 | 1,024 | 5 | 497.07 | 523.03 | 582.65 | 845.81 |
+| `CancelUnknown` | 73,728 | 64 | 1,024 | 5 | 10.56 | 15.59 | 18.27 | 144.44 |
+| `CancelUnknown` | 294,912 | 256 | 1,024 | 5 | 12.41 | 28.29 | 32.39 | 72.28 |
+| `CancelUnknown` | 1,179,648 | 1,024 | 1,024 | 5 | 36.36 | 40.29 | 47.53 | 66.69 |
+| `MixedSubmitCancel` | 73,728 | 64 | 1,024 | 5 | 45.81 | 80.83 | 128.08 | 2220.33 |
+| `MixedSubmitCancel` | 294,912 | 256 | 1,024 | 5 | 97.36 | 127.50 | 179.64 | 7987.60 |
+| `MixedSubmitCancel` | 1,179,648 | 1,024 | 1,024 | 5 | 144.72 | 172.43 | 193.47 | 10604.05 |
+
+The mixed latency run had large max outliers in this EC2 pass, so p50/p95/p99
+are more representative than the max column for that workload.
 
 ## Hardware Performance Counters
 
@@ -202,9 +205,9 @@ benchmark rows are tracked in `docs/benchmark_history.md`.
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_RestingLimitOrderInsert/1000` | 35726 ns | 27.9908M items/s |
-| `BM_RestingLimitOrderInsert/10000` | 342625 ns | 29.1864M items/s |
-| `BM_RestingLimitOrderInsert/100000` | 8956498 ns | 11.1651M items/s |
+| `BM_RestingLimitOrderInsert/1000` | 34674 ns | 28.84M items/s |
+| `BM_RestingLimitOrderInsert/10000` | 338965 ns | 29.50M items/s |
+| `BM_RestingLimitOrderInsert/100000` | 8699497 ns | 11.49M items/s |
 
 Artifact files:
 
@@ -215,9 +218,9 @@ Artifact files:
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_CrossingLimitOrderMatch/1000` | 34845 ns | 28.6985M items/s |
-| `BM_CrossingLimitOrderMatch/10000` | 342823 ns | 29.1696M items/s |
-| `BM_CrossingLimitOrderMatch/100000` | 5877256 ns | 17.0147M items/s |
+| `BM_CrossingLimitOrderMatch/1000` | 34914 ns | 28.64M items/s |
+| `BM_CrossingLimitOrderMatch/10000` | 345913 ns | 28.91M items/s |
+| `BM_CrossingLimitOrderMatch/100000` | 5834668 ns | 17.14M items/s |
 
 Artifact files:
 
@@ -228,8 +231,8 @@ Artifact files:
 
 The results in this section are the latest recorded Linux EC2 cancel benchmarks.
 They describe the flat hash-map lookup refactor, where `orders_by_id_` uses
-`ankerl::unordered_dense::map<std::uint64_t, Order*>` and benchmark setup
-reserves expected live-order capacity before preload.
+`ankerl::unordered_dense::map<std::uint64_t, Order*>` and benchmark setup uses
+workload-specific reserve-capacity hints before preload.
 
 Architecture update:
 
@@ -265,7 +268,8 @@ Run metadata:
 - Reusable submit event-buffer base: `523506d` plus local reusable-submit-buffer changes
 - Amortized batch latency base: `6f581de` plus local latency benchmark changes
 - Perf-counter instrumentation base: `dca7f50` plus local perf-counter instrumentation changes
-- End-to-end benchmark base: `c3e1468` plus local end-to-end benchmark changes
+- End-to-end benchmark base: `c3e1468` plus local end-to-end/reserve-capacity benchmark changes
+- Reserve-capacity rule base: `e1eb134` plus local reserve-order-capacity rule changes
 - Refactor host: AWS EC2 `t3.small`
 - Correctness tests: 121/121 passed before benchmark execution
 
@@ -273,64 +277,21 @@ Latest full cancel artifact run:
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_CancelFront/1000` | 18121 ns | 55.1853M items/s |
-| `BM_CancelFront/10000` | 168776 ns | 59.25M items/s |
-| `BM_CancelFront/100000` | 4120772 ns | 24.2673M items/s |
-| `BM_CancelBack/1000` | 17371 ns | 57.5679M items/s |
-| `BM_CancelBack/10000` | 164979 ns | 60.6139M items/s |
-| `BM_CancelBack/100000` | 3948901 ns | 25.3235M items/s |
-| `BM_CancelRandom/1000` | 19771 ns | 50.5804M items/s |
-| `BM_CancelRandom/10000` | 273750 ns | 36.5296M items/s |
-| `BM_CancelRandom/100000` | 12587167 ns | 7.9446M items/s |
-| `BM_CancelUnknown/1000` | 7077 ns | 141.306M items/s |
-| `BM_CancelUnknown/10000` | 57867 ns | 172.809M items/s |
-| `BM_CancelUnknown/100000` | 892094 ns | 112.096M items/s |
-| `BM_MixedSubmitCancel/1000` | 30503 ns | 32.7834M items/s |
-| `BM_MixedSubmitCancel/10000` | 301858 ns | 33.1281M items/s |
-| `BM_MixedSubmitCancel/100000` | 7325240 ns | 13.6514M items/s |
-
-Order pool reserve sweep:
-
-This focused EC2 run keeps the mixed submit/cancel/match operation stream fixed
-at 100,000 operations and varies only the explicit setup-time reserve capacity
-used for the order-id map and `OrderPool`. A reserve capacity of `0` constructs
-the book without calling `reserve_order_capacity`. Setup allocation remains
-outside the timed benchmark loop, but the resulting memory layout and table
-sizes affect the measured hot path. The benchmark observed a peak live depth of
-about 40,003 resting orders.
-
-Command:
-
-```bash
-taskset -c 0 ./build-release/cancel_reserve_sweep_benchmark \
-  --benchmark_filter=BM_MixedSubmitCancelReserveSweep \
-  --benchmark_repetitions=5 \
-  --benchmark_out=benchmarks/order_pool_reserve_sweep_results.json \
-  --benchmark_out_format=json
-```
-
-| Reserve Capacity | Max Live Orders | Median CPU Time | Median Throughput | Best Throughput | Worst Throughput | Jitter |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 0 | 40,003 | 5468915 ns | 18.2852M items/s | 18.8156M items/s | 17.798M items/s | 2.27% CPU CV |
-| 1,000 | 40,003 | 5137813 ns | 19.4635M items/s | 19.7882M items/s | 18.2701M items/s | 3.28% CPU CV |
-| 10,000 | 40,003 | 5001246 ns | 19.995M items/s | 20.3507M items/s | 18.187M items/s | 4.74% CPU CV |
-| 100,000 | 40,003 | 6900086 ns | 14.4926M items/s | 15.1359M items/s | 13.2397M items/s | 5.37% CPU CV |
-| 1,000,000 | 40,003 | 16091381 ns | 6.21451M items/s | 6.29124M items/s | 6.06895M items/s | 1.57% CPU CV |
-| 10,000,000 | 40,003 | 19414420 ns | 5.15081M items/s | 5.27851M items/s | 4.09862M items/s | 11.44% CPU CV |
-
-Conclusion: the mixed submit/cancel regression looks like over-reservation and
-cache/TLB footprint damage, not underallocation. No reserve, 1,000 reserve, and
-10,000 reserve all beat the current 100,000-operation reserve policy despite
-allocating some blocks during the timed stream. The 100,000 reserve point is
-both slower and much noisier, while 1,000,000 and 10,000,000 collapse
-throughput. Do not treat this as a production policy change yet; a separate
-change should evaluate a better default reserve heuristic against the other
-OrderBook microbenchmarks.
-
-Artifact files:
-
-- `benchmarks/order_pool_reserve_sweep_results.txt`
-- `benchmarks/order_pool_reserve_sweep_results.json`
+| `BM_CancelFront/1000` | 18375 ns | 54.42M items/s |
+| `BM_CancelFront/10000` | 169100 ns | 59.14M items/s |
+| `BM_CancelFront/100000` | 3285726 ns | 30.43M items/s |
+| `BM_CancelBack/1000` | 17343 ns | 57.66M items/s |
+| `BM_CancelBack/10000` | 165130 ns | 60.56M items/s |
+| `BM_CancelBack/100000` | 3192502 ns | 31.32M items/s |
+| `BM_CancelRandom/1000` | 19915 ns | 50.21M items/s |
+| `BM_CancelRandom/10000` | 268060 ns | 37.31M items/s |
+| `BM_CancelRandom/100000` | 11788407 ns | 8.483M items/s |
+| `BM_CancelUnknown/1000` | 7110 ns | 140.7M items/s |
+| `BM_CancelUnknown/10000` | 57751 ns | 173.2M items/s |
+| `BM_CancelUnknown/100000` | 864176 ns | 115.7M items/s |
+| `BM_MixedSubmitCancel/1000` | 30646 ns | 32.63M items/s |
+| `BM_MixedSubmitCancel/10000` | 331720 ns | 30.15M items/s |
+| `BM_MixedSubmitCancel/100000` | 5482014 ns | 18.24M items/s |
 
 Separate paired 3-second comparison run:
 
@@ -379,9 +340,9 @@ refactor, and dense lookup refactor:
 
 | Benchmark | Deque Throughput | Iterator Throughput | Intrusive Throughput | Latest Throughput |
 | --- | ---: | ---: | ---: | ---: |
-| `BM_CancelFront/100000` | 12.0807M items/s | 10.6954M items/s | 14.5193M items/s | 33.9001M items/s |
-| `BM_CancelBack/100000` | 7.02396k items/s | 10.8996M items/s | 14.7098M items/s | 35.7337M items/s |
-| `BM_CancelRandom/100000` | 6.73904k items/s | 1.68836M items/s | 2.53093M items/s | 10.3807M items/s |
+| `BM_CancelFront/100000` | 12.0807M items/s | 10.6954M items/s | 14.5193M items/s | 30.43M items/s |
+| `BM_CancelBack/100000` | 7.02396k items/s | 10.8996M items/s | 14.7098M items/s | 31.32M items/s |
+| `BM_CancelRandom/100000` | 6.73904k items/s | 1.68836M items/s | 2.53093M items/s | 8.483M items/s |
 
 Artifact files:
 
@@ -398,12 +359,15 @@ submit and match benchmarks without constructing and destroying a vector for
 every submitted order.
 
 The latest run keeps the existing Google Benchmark throughput suite intact,
-refreshes amortized batch latency artifacts for the same hot paths, and adds a
-`perf stat` counter probe. The deepest crossing-match workload measured
-20.41M items/s, while deepest mixed submit/cancel/match measured 18.798M
-items/s. The perf probe did not expose the requested hardware PMU events on
-this `t3.small` KVM host, so the counter artifacts document the unsupported
-event set instead of reporting cache or branch statistics.
+uses `reserve_order_capacity = max(1024, operation_count / 10)` for the mixed
+submit/cancel workload, and refreshes amortized batch latency artifacts for the
+same hot paths. The deepest crossing-match workload measured 17.14M items/s,
+while deepest mixed submit/cancel/match measured 18.24M items/s by median. The
+mixed 100,000-operation throughput repetitions were noisy, so the median is more
+representative than the mean for that workload. The most recent `perf` probe
+still did not expose the requested hardware PMU events on this `t3.small` KVM
+host, so the counter artifacts document the unsupported event set instead of
+reporting cache or branch statistics.
 
 Future benchmark iterations should add workloads with wider price distributions
 and deeper books before drawing stronger conclusions about tree-structure costs.

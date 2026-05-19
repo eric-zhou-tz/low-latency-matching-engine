@@ -1,21 +1,32 @@
-date=2026-05-19T07:28:53Z
-git_commit=c3e1468ac6fd6c757dcf48883a21708bfb66b54f
+date=2026-05-19T18:55:58Z
+git_commit=e1eb1347126b72fde25894ecc4064478422891d4
 git_status=dirty
- M CMakeLists.txt
- M benchmarks/benchmark_environment.txt
- M benchmarks/cancel_results.json
- M benchmarks/cancel_results.txt
- M benchmarks/insert_results.json
- M benchmarks/insert_results.txt
- M benchmarks/latency_results.json
- M benchmarks/latency_results.txt
- M benchmarks/match_results.json
- M benchmarks/match_results.txt
- M benchmarks/run_ec2_benchmarks.sh
-?? benchmark/end_to_end_benchmark.cpp
-?? benchmarks/end_to_end_results.json
-?? benchmarks/end_to_end_results.txt
-?? build-release/
+M  BENCHMARKS.md
+M  README.md
+M  benchmark/cancel_benchmark.cpp
+M  benchmark/end_to_end_benchmark.cpp
+M  benchmark/insert_benchmark.cpp
+M  benchmark/latency_benchmark.cpp
+M  benchmark/match_benchmark.cpp
+MM benchmarks/benchmark_environment.txt
+M  benchmarks/cancel_results.json
+M  benchmarks/cancel_results.txt
+M  benchmarks/end_to_end_results.json
+M  benchmarks/end_to_end_results.txt
+M  benchmarks/insert_results.json
+M  benchmarks/insert_results.txt
+M  benchmarks/latency_results.json
+M  benchmarks/latency_results.txt
+M  benchmarks/match_results.json
+M  benchmarks/match_results.txt
+M  docs/ARCHITECTURE.md
+M  docs/CHANGELOG.md
+M  docs/benchmark_history.md
+M  include/book/order_book.hpp
+M  include/book/order_pool.hpp
+M  include/exchange.hpp
+M  src/book/order_book.cpp
+M  src/exchange.cpp
 ec2_instance_type=t3.small
 uname=Linux ip-172-31-44-213 7.0.0-1004-aws #4-Ubuntu SMP PREEMPT Mon Apr 13 13:14:24 UTC 2026 x86_64 GNU/Linux
 build_type=Release

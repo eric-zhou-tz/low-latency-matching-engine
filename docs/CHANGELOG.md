@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.6.1 - Preallocation Based on Max Live Orders
+
+- Renamed benchmark and order-book preallocation identifiers from `expected_order_capacity` to `reserve_order_capacity` to make the capacity value explicit as a tuning hint.
+- Changed the mixed submit/cancel benchmark reserve policy to `max(1024, operation_count / 10)` after EC2 reserve sweeps showed reserving the full operation count hurt throughput through cache/locality footprint effects.
+- Documented peak live orders versus total operations in the architecture notes and clarified why reserve sizing is decoupled from operation count.
+- Refreshed the full EC2 Release benchmark suite on `t3.small`; 121/121 correctness tests passed before benchmark execution and the 100,000-operation mixed submit/cancel benchmark measured 18.241M items/s by median.
+
 ## v0.6.0 - End-to-End Benchmarks
 
 - Added Google Benchmark coverage for full public-boundary CLI-style overhead: in-memory input lines, parser, exchange routing, order-book mutation, and event formatting.

@@ -69,7 +69,10 @@ void preload_book(OrderBook& book, const std::vector<Order>& resting_orders) {
  */
 void BM_CrossingLimitOrderMatch(benchmark::State& state) {
     const auto order_count = state.range(0);
-    const auto expected_order_capacity = static_cast<std::size_t>(order_count);
+    // Reserve capacity is sized to expected peak live/resting orders, not total
+    // processed operations. This match-only benchmark has one resting order per
+    // incoming crossing order, so order_count is the resting-order count.
+    const auto reserve_order_capacity = static_cast<std::size_t>(order_count);
     const auto resting_orders = make_resting_asks(order_count);
     const auto crossing_orders = make_crossing_buys(order_count);
     std::optional<OrderBook> book;
@@ -78,7 +81,7 @@ void BM_CrossingLimitOrderMatch(benchmark::State& state) {
 
     for (auto _ : state) {
         state.PauseTiming();
-        book.emplace(expected_order_capacity);
+        book.emplace(reserve_order_capacity);
         preload_book(*book, resting_orders);
         state.ResumeTiming();
 

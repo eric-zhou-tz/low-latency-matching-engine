@@ -1,0 +1,5 @@
+if(EXISTS "/Users/ericzhou/Desktop/Productivity/Projects/Serious/MatchingEngine/build-release/golden_replay_tests[1]_tests.cmake")
+  include("/Users/ericzhou/Desktop/Productivity/Projects/Serious/MatchingEngine/build-release/golden_replay_tests[1]_tests.cmake")
+else()
+  add_test(golden_replay_tests_NOT_BUILT golden_replay_tests_NOT_BUILT)
+endif()

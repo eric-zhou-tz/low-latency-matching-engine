@@ -6,6 +6,7 @@
 
 #include <ankerl/unordered_dense.h>
 
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>
@@ -20,6 +21,18 @@ namespace matching_engine {
  */
 class Exchange {
 public:
+    /**
+     * @brief Creates an exchange with default book allocation behavior.
+     */
+    Exchange() = default;
+
+    /**
+     * @brief Creates an exchange whose new books reserve live-order capacity.
+     *
+     * @param reserve_order_capacity Preallocation hint for each created book.
+     */
+    explicit Exchange(std::size_t reserve_order_capacity);
+
     /**
      * @brief Applies one action to the exchange.
      *
@@ -89,6 +102,9 @@ private:
 
     // only live resting orders are present here; IOC, FOK rejects, and market orders never rest.
     ankerl::unordered_dense::map<OrderId, OrderBook*> order_to_book_;
+
+    // per-book reserve hint used by benchmarks that model expected live order depth.
+    std::size_t reserve_order_capacity_{};
 };
 
 } // namespace matching_engine

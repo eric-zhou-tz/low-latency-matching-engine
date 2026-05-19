@@ -121,6 +121,37 @@ OrderPool order_pool_;
 
 `OrderPool` allocates contiguous blocks of order slots and reuses canceled or filled slots through an internal free list. `OrderBook` owns the pool, while `OrderQueue` and `orders_by_id_` only hold raw non-owning pointers into that pool.
 
+### Reserve Capacity Tuning
+
+Reserve capacity is a preallocation hint for `orders_by_id_` and `OrderPool`, not
+the total number of operations a benchmark or replay will process. The important
+runtime footprint is closer to peak live resting orders:
+
+```text
+live_orders = accepted_resting_orders - filled_resting_orders - canceled_orders
+```
+
+A stream with 100,000 commands can have far fewer than 100,000 live orders if it
+contains cancels and fills. The mixed submit/cancel benchmark, for example,
+peaks around 40,003 live resting orders even though it processes 100,000
+operations.
+
+EC2 reserve sweeps showed that reserving the full operation count significantly
+hurt mixed-workload throughput. The extra preallocated hash-table and pool
+footprint appears to damage cache/TLB locality more than it helps by avoiding
+later growth. For that workload, reserve sizing behaved like a cache/locality
+tuning parameter, with small reserves around 8,192 to 16,384, and roughly 10% of
+the operation count, outperforming both no reserve and large reserves near or
+above peak live depth.
+
+Current benchmark reserve rules are workload-specific:
+
+- Submit-only and cancel-only: reserve exactly `order_count`.
+- Match-only: reserve `resting_order_count`, or `order_count` when the benchmark
+  only exposes that single count.
+- Mixed submit/cancel/match: reserve `max(1024, order_count / 10)`.
+- End-to-end parse/process/format: reserve `max(1024, command_count / 10)`.
+
 Balanced trees are used because they provide deterministic ordered price levels, efficient insertion/removal, and direct access to the current best price. Intrusive FIFO queues are used because the exchange priority rule within a price level is arrival order, not order ID or quantity, while embedded links keep cancel removal O(1) with lower allocator overhead than node-based standard containers.
 
 Together, these structures implement price-time priority:
