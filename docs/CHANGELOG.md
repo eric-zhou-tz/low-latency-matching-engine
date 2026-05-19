@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v0.5.0 - Unit Test complete
+## v0.5.0 - Unit Tests
 
 - Audited the parser, order-book, and exchange test suites for semantic coverage gaps across current engine behavior.
 - Expanded order-book GoogleTest coverage for duplicate-order rejection details, partial-fill cancelability, exact FOK fills, exact market fills without remainder rejection, and fully filled replacement-modify outcomes.

@@ -219,18 +219,11 @@ private:
      */
     void match_sell_order(Order& incoming, std::vector<Event>& out);
 
-    // Bids and asks live in separate maps because each side has a different
-    // notion of "best": highest buy price versus lowest sell price.
-    //
-    // Bids use std::greater<> so begin() points at the highest price. Asks keep
-    // the default ascending order so begin() points at the lowest price.
-    //
-    // Each price level is an intrusive FIFO queue. Orders are stored in an
-    // OrderPool and linked by raw pointers, avoiding std::list node allocation
-    // while preserving stable FIFO order and O(1) cancel unlink by order id.
+    // keep bids and asks in separate maps because each side has the opposite best-price rule.
     std::map<Price, OrderQueue, std::greater<Price>> bids_;
     std::map<Price, OrderQueue> asks_;
 
+    // order ids point at intrusive nodes owned by the pool, giving cancels direct unlink targets.
     ankerl::unordered_dense::map<std::uint64_t, Order*> orders_by_id_;
     OrderPool order_pool_;
 };

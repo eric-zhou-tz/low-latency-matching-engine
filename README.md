@@ -47,6 +47,15 @@ Matching Engine
 Trade / Accept / Reject Events
 ```
 
+Text parsing is used for CLI/testing convenience and is intentionally separated
+from the matching core. Benchmarks measure the typed matching core directly
+unless otherwise stated; internally, matching operates on action and order value
+types rather than raw text commands.
+
+`Exchange` handles multi-symbol simulation and routing, while `OrderBook` is the
+latency-sensitive matching core. Production systems often route using integer
+symbol IDs, symbol partitioning, or both.
+
 Internally, the matching core emits structured domain events rather than
 preformatted strings. Submissions write into caller-owned `std::vector<Event>`
 buffers because one order can produce multiple fills, while cancellation returns
@@ -152,7 +161,9 @@ Detailed benchmark results and methodology are available in
 ## Linux Development
 
 The repository includes Docker workflows for Linux validation and reproducible
-development environments.
+development environments. Docker is used for reproducible Linux builds and
+validation, not as the source of published latency measurements; benchmark
+numbers come from native Release builds on Linux/EC2.
 
 Build Linux test container:
 

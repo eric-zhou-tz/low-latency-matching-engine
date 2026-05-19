@@ -19,11 +19,9 @@ constexpr std::int64_t kBestPassiveAsk = 101;
 constexpr std::uint64_t kQuantity = 1;
 
 [[nodiscard]] std::vector<Order> make_passive_orders(std::int64_t count) {
-    // Preallocate so vector growth does not add noise to benchmark setup.
     std::vector<Order> orders;
     orders.reserve(static_cast<std::size_t>(count));
 
-    // Alternate sides at non-crossing prices so every order rests.
     for (std::int64_t index = 0; index < count; ++index) {
         const bool is_buy = index % 2 == 0;
         const auto price_offset = index % 5;
@@ -34,7 +32,6 @@ constexpr std::uint64_t kQuantity = 1;
                                .quantity = kQuantity});
     }
 
-    // Return the prepared passive workload.
     return orders;
 }
 
@@ -46,7 +43,6 @@ constexpr std::uint64_t kQuantity = 1;
  * price levels without parser, file, stdin, or logging overhead.
  */
 void BM_RestingLimitOrderInsert(benchmark::State& state) {
-    // Use the benchmark argument as the number of orders inserted per iteration.
     const auto order_count = state.range(0);
     const auto expected_order_capacity = static_cast<std::size_t>(order_count);
     const auto orders = make_passive_orders(order_count);
@@ -54,32 +50,25 @@ void BM_RestingLimitOrderInsert(benchmark::State& state) {
     std::vector<matching_engine::Event> events;
     events.reserve(8);
 
-    // Google Benchmark controls the number of repetitions.
     for (auto _ : state) {
-        // Create a fresh book outside the timed insert section.
         state.PauseTiming();
         book.emplace(expected_order_capacity);
         state.ResumeTiming();
 
-        // Measure only non-crossing submit and append behavior.
         for (const auto& order : orders) {
-            // Reuse the event buffer while still materializing accepted events.
             book->submit(order, events);
             benchmark::DoNotOptimize(events.data());
             benchmark::DoNotOptimize(events.size());
         }
 
-        // Keep the compiler from optimizing away book mutations.
         benchmark::ClobberMemory();
         benchmark::DoNotOptimize(*book);
 
-        // Destroy the populated book outside the measured section.
         state.PauseTiming();
         book.reset();
         state.ResumeTiming();
     }
 
-    // Report throughput in accepted resting orders.
     state.SetItemsProcessed(state.iterations() * order_count);
 }
 

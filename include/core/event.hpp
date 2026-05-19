@@ -107,7 +107,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
  * @return Human-readable reason prefix.
  */
 [[nodiscard]] inline std::string reject_reason_text(RejectReason reason) {
-    // Keep display strings outside the matching hot path.
     switch (reason) {
     case RejectReason::DuplicateOrderId:
         return "duplicate order id";
@@ -119,7 +118,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
         return "invalid order";
     }
 
-    // Return a defensive fallback for future enum additions.
     return "unknown rejection";
 }
 
@@ -135,7 +133,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
          * @brief Formats a trade event.
          */
         [[nodiscard]] std::string operator()(const TradeEvent& trade) const {
-            // Build a compact execution line with both order ids and fill details.
             std::ostringstream output;
             output << "TRADE resting=" << trade.resting_order_id
                    << " incoming=" << trade.incoming_order_id << " price=" << trade.price
@@ -147,7 +144,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
          * @brief Formats an acceptance event.
          */
         [[nodiscard]] std::string operator()(const AcceptedEvent& accepted) const {
-            // Build the user-facing text only when rendering output.
             return "ACCEPTED accepted order " + std::to_string(accepted.order_id);
         }
 
@@ -155,7 +151,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
          * @brief Formats a cancel event.
          */
         [[nodiscard]] std::string operator()(const CanceledEvent& canceled) const {
-            // Include the canceled id so command-line users can confirm the target.
             return "CANCELED order_id=" + std::to_string(canceled.order_id);
         }
 
@@ -163,7 +158,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
          * @brief Formats an in-place modify event.
          */
         [[nodiscard]] std::string operator()(const ModifiedEvent& modified) const {
-            // Report the before/after state without allocating in the matching core.
             std::ostringstream output;
             output << "MODIFIED order_id=" << modified.order_id
                    << " old_price=" << modified.old_price << " new_price=" << modified.new_price
@@ -176,7 +170,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
          * @brief Formats a cancel-replace modify event.
          */
         [[nodiscard]] std::string operator()(const ReplacedEvent& replaced) const {
-            // Keep replace output explicit even when the replacement reuses the same id.
             std::ostringstream output;
             output << "REPLACED old_order_id=" << replaced.old_order_id
                    << " new_order_id=" << replaced.new_order_id
@@ -190,7 +183,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
          * @brief Formats a rejection event.
          */
         [[nodiscard]] std::string operator()(const RejectedEvent& rejected) const {
-            // Combine the structured reason and id at the presentation boundary.
             return "REJECTED " + reject_reason_text(rejected.reason) + " " +
                    std::to_string(rejected.order_id);
         }
@@ -199,12 +191,10 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
          * @brief Formats a book snapshot event.
          */
         [[nodiscard]] std::string operator()(const BookSnapshotEvent& snapshot) const {
-            // Snapshot text is intentionally presentation-oriented and not a hot-path event.
             return "ACCEPTED " + snapshot.message;
         }
     };
 
-    // Let std::visit choose the formatter overload for the active event type.
     return std::visit(Formatter{}, event);
 }
 

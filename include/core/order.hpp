@@ -48,7 +48,6 @@ struct Order {
  * @return "BUY" for bids and "SELL" for asks.
  */
 [[nodiscard]] constexpr const char* to_string(Side side) noexcept {
-    // Keep formatting stable for snapshots, events, and tests.
     return side == Side::Buy ? "BUY" : "SELL";
 }
 
@@ -59,7 +58,6 @@ struct Order {
  * @return Stable protocol label for the time-in-force policy.
  */
 [[nodiscard]] constexpr const char* to_string(TimeInForce time_in_force) noexcept {
-    // Keep the protocol labels in one place for parser tests and diagnostics.
     switch (time_in_force) {
     case TimeInForce::GoodTilCancel:
         return "GTC";
@@ -69,7 +67,6 @@ struct Order {
         return "FOK";
     }
 
-    // Return the default resting policy label for defensive future enum changes.
     return "GTC";
 }
 

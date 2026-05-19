@@ -83,7 +83,7 @@ struct LatencyResult {
  */
 template <typename T>
 void do_not_optimize(const T& value) {
-    // Use a compiler barrier when available so hot-path calls remain observable.
+    // compiler barriers keep measured hot-path work observable without adding runtime calls.
 #if defined(__GNUC__) || defined(__clang__)
     asm volatile("" : : "g"(&value) : "memory");
 #else
@@ -95,7 +95,7 @@ void do_not_optimize(const T& value) {
  * @brief Prevents memory operations from being moved across a measurement edge.
  */
 void clobber_memory() {
-    // Keep writes inside the timed batch visible before reading the clock again.
+    // force writes from the measured batch to remain before the ending timestamp.
 #if defined(__GNUC__) || defined(__clang__)
     asm volatile("" : : : "memory");
 #else
@@ -111,7 +111,6 @@ void clobber_memory() {
  * @return Parsed positive value or the fallback.
  */
 [[nodiscard]] std::size_t parse_positive_size(std::string_view value, std::size_t fallback) {
-    // Parse through strtoull so invalid input can fall back without exceptions.
     char* end = nullptr;
     const std::string text{value};
     const auto parsed = std::strtoull(text.c_str(), &end, 10);
@@ -119,7 +118,6 @@ void clobber_memory() {
         return fallback;
     }
 
-    // Cast after validation because benchmark sizes are bounded by memory anyway.
     return static_cast<std::size_t>(parsed);
 }
 
@@ -133,7 +131,6 @@ void clobber_memory() {
 [[nodiscard]] Options parse_options(int argc, char** argv) {
     Options options;
 
-    // Keep the command-line surface intentionally small and deterministic.
     for (int index = 1; index < argc; ++index) {
         const std::string_view arg{argv[index]};
         if (arg.starts_with("--output-dir=")) {
@@ -150,7 +147,6 @@ void clobber_memory() {
         }
     }
 
-    // Return the normalized runner options.
     return options;
 }
 
@@ -164,7 +160,6 @@ void clobber_memory() {
     std::vector<Order> orders;
     orders.reserve(count);
 
-    // Alternate sides across a few stable price levels so warmup creates the levels.
     for (std::size_t index = 0; index < count; ++index) {
         const bool is_buy = index % 2 == 0;
         const auto price_offset = static_cast<std::int64_t>(index % 5);
@@ -175,7 +170,6 @@ void clobber_memory() {
                                .quantity = kQuantity});
     }
 
-    // Return the pre-generated order stream used by timed batches.
     return orders;
 }
 
@@ -189,7 +183,6 @@ void clobber_memory() {
     std::vector<Order> orders;
     orders.reserve(count);
 
-    // Same-price asks make each aggressive buy consume exactly one resting order.
     for (std::size_t index = 0; index < count; ++index) {
         orders.push_back(Order{.id = static_cast<std::uint64_t>(index + 1),
                                .side = Side::Sell,
@@ -197,7 +190,6 @@ void clobber_memory() {
                                .quantity = kQuantity});
     }
 
-    // Return the liquidity preload.
     return orders;
 }
 
@@ -211,7 +203,6 @@ void clobber_memory() {
     std::vector<Order> orders;
     orders.reserve(count);
 
-    // Use ids outside the resting range so duplicate checks never reject.
     for (std::size_t index = 0; index < count; ++index) {
         orders.push_back(Order{.id = kIncomingIdBase + static_cast<std::uint64_t>(index),
                                .side = Side::Buy,
@@ -219,7 +210,6 @@ void clobber_memory() {
                                .quantity = kQuantity});
     }
 
-    // Return the prepared aggressive stream.
     return orders;
 }
 
@@ -233,7 +223,6 @@ void clobber_memory() {
     std::vector<Order> orders;
     orders.reserve(count);
 
-    // One price level makes front/back/random cancel positions explicit.
     for (std::size_t index = 0; index < count; ++index) {
         orders.push_back(Order{.id = static_cast<std::uint64_t>(index + 1),
                                .side = Side::Buy,
@@ -241,7 +230,6 @@ void clobber_memory() {
                                .quantity = kQuantity});
     }
 
-    // Return the cancel preload stream.
     return orders;
 }
 
@@ -255,12 +243,10 @@ void clobber_memory() {
     std::vector<std::uint64_t> ids;
     ids.reserve(count);
 
-    // Ascending ids match insertion order at the single price level.
     for (std::size_t index = 0; index < count; ++index) {
         ids.push_back(static_cast<std::uint64_t>(index + 1));
     }
 
-    // Return the front-cancel stream.
     return ids;
 }
 
@@ -274,12 +260,10 @@ void clobber_memory() {
     std::vector<std::uint64_t> ids;
     ids.reserve(count);
 
-    // Descending ids target the newest remaining order each time.
     for (std::size_t remaining = count; remaining > 0; --remaining) {
         ids.push_back(static_cast<std::uint64_t>(remaining));
     }
 
-    // Return the back-cancel stream.
     return ids;
 }
 
@@ -292,11 +276,9 @@ void clobber_memory() {
 [[nodiscard]] std::vector<std::uint64_t> make_random_cancel_ids(std::size_t count) {
     auto ids = make_front_cancel_ids(count);
 
-    // Use a fixed seed so random-cancel locality is comparable across runs.
     std::mt19937 rng{kCancelShuffleSeed};
     std::ranges::shuffle(ids, rng);
 
-    // Return the deterministic random cancel stream.
     return ids;
 }
 
@@ -310,12 +292,10 @@ void clobber_memory() {
     std::vector<std::uint64_t> ids;
     ids.reserve(count);
 
-    // Keep rejected ids far away from generated live order ids.
     for (std::size_t index = 0; index < count; ++index) {
         ids.push_back(kUnknownOrderIdBase + static_cast<std::uint64_t>(index));
     }
 
-    // Return the unknown-cancel stream.
     return ids;
 }
 
@@ -327,7 +307,6 @@ void clobber_memory() {
  * @return Non-crossing limit order.
  */
 [[nodiscard]] Order make_mixed_resting_order(std::uint64_t order_id, Side side) {
-    // Price the two sides apart so normal inserts remain passive.
     const auto price = side == Side::Buy ? kRestingBid : kRestingAsk;
     return Order{.id = order_id, .side = side, .price = price, .quantity = kQuantity};
 }
@@ -339,7 +318,6 @@ void clobber_memory() {
  * @return Crossing buy limit order.
  */
 [[nodiscard]] Order make_mixed_crossing_buy(std::uint64_t order_id) {
-    // Price above the passive ask to exercise the match path.
     return Order{.id = order_id, .side = Side::Buy, .price = kCrossingBuy, .quantity = kQuantity};
 }
 
@@ -353,12 +331,10 @@ void clobber_memory() {
     std::vector<MixedOperation> operations;
     operations.reserve(count);
 
-    // Track cancelable buys because aggressive buys only consume resting asks.
     std::deque<std::uint64_t> cancelable_buy_ids;
     std::uint64_t next_resting_id = 1;
     std::uint64_t next_crossing_id = kMixedCrossingIdBase;
 
-    // Repeat the existing benchmark mix: seven inserts, two cancels, one match.
     for (std::size_t index = 0; index < count; ++index) {
         const auto slot = index % 10;
         if (slot < 7) {
@@ -384,7 +360,6 @@ void clobber_memory() {
         }
     }
 
-    // Return the fully prepared mixed workload.
     return operations;
 }
 
@@ -398,7 +373,6 @@ void preload_book(OrderBook& book, const std::vector<Order>& orders) {
     std::vector<matching_engine::Event> events;
     events.reserve(8);
 
-    // Build the starting state outside measured batches.
     for (const auto& order : orders) {
         book.submit(order, events);
         do_not_optimize(events.data());
@@ -414,7 +388,6 @@ void preload_book(OrderBook& book, const std::vector<Order>& orders) {
  * @return Selected sample value.
  */
 [[nodiscard]] double percentile_value(const std::vector<double>& sorted_samples, double percentile) {
-    // Convert the requested percentile to a stable nearest-rank index.
     const auto rank = std::ceil(percentile * static_cast<double>(sorted_samples.size()));
     const auto index = static_cast<std::size_t>(
         std::clamp(rank, 1.0, static_cast<double>(sorted_samples.size())) - 1.0);
@@ -428,10 +401,8 @@ void preload_book(OrderBook& book, const std::vector<Order>& orders) {
  * @return p50, p95, p99, and max values.
  */
 [[nodiscard]] Percentiles summarize_samples(std::vector<double> samples) {
-    // Sort after measurement so percentile work is not inside timed batches.
     std::ranges::sort(samples);
 
-    // Report the requested latency summary over amortized batch samples.
     return Percentiles{.p50 = percentile_value(samples, 0.50),
                        .p95 = percentile_value(samples, 0.95),
                        .p99 = percentile_value(samples, 0.99),
@@ -457,14 +428,12 @@ template <typename Operation>
     samples.reserve(sample_count);
     std::size_t operation_index = 0;
 
-    // Run warmup batches first so one-time cache and level-creation effects settle.
     for (std::size_t batch = 0; batch < warmup_batches; ++batch) {
         for (std::size_t offset = 0; offset < batch_size; ++offset) {
             operation(operation_index++);
         }
     }
 
-    // Record one amortized ns/op sample per timed batch.
     for (std::size_t sample = 0; sample < sample_count; ++sample) {
         const auto start = Clock::now();
         for (std::size_t offset = 0; offset < batch_size; ++offset) {
@@ -477,7 +446,6 @@ template <typename Operation>
         samples.push_back(static_cast<double>(elapsed_ns) / static_cast<double>(batch_size));
     }
 
-    // Summarize samples outside the measured operation loop.
     return summarize_samples(std::move(samples));
 }
 
@@ -498,7 +466,6 @@ template <typename Operation>
     std::vector<matching_engine::Event> events;
     events.reserve(8);
 
-    // Submit pre-generated orders into one pre-reserved book.
     return measure_batches(batch_size, sample_count, warmup_batches, [&](std::size_t index) {
         book.submit(orders[index], events);
         do_not_optimize(events.data());
@@ -525,7 +492,6 @@ template <typename Operation>
     events.reserve(8);
     preload_book(book, resting_orders);
 
-    // Submit pre-generated aggressive buys against preloaded liquidity.
     return measure_batches(batch_size, sample_count, warmup_batches, [&](std::size_t index) {
         book.submit(crossing_orders[index], events);
         do_not_optimize(events.data());
@@ -551,7 +517,6 @@ template <typename Operation>
     OrderBook book{total_operations};
     preload_book(book, resting_orders);
 
-    // Cancel pre-generated ids from the preloaded book.
     return measure_batches(batch_size, sample_count, warmup_batches, [&](std::size_t index) {
         const auto result = book.cancel(cancel_ids[index]);
         do_not_optimize(result);
@@ -575,7 +540,6 @@ template <typename Operation>
     std::vector<matching_engine::Event> events;
     events.reserve(8);
 
-    // Dispatch the prepared exchange-style stream without allocating per operation.
     return measure_batches(batch_size, sample_count, warmup_batches, [&](std::size_t index) {
         const auto& operation = operations[index];
         if (operation.kind == MixedOperationKind::Cancel) {
@@ -602,7 +566,6 @@ template <typename Operation>
                                              std::size_t batch_size,
                                              std::size_t sample_count,
                                              std::size_t warmup_batches) {
-    // Keep workload dispatch outside the measured operation loops.
     if (benchmark_name == "RestingLimitOrderInsert") {
         return run_resting_insert_latency(batch_size, sample_count, warmup_batches);
     }
@@ -630,7 +593,6 @@ template <typename Operation>
                                   warmup_batches);
     }
 
-    // MixedSubmitCancel is the only remaining registered workload.
     return run_mixed_latency(batch_size, sample_count, warmup_batches);
 }
 
@@ -648,7 +610,6 @@ template <typename Operation>
     std::vector<LatencyResult> results;
     results.reserve(std::size(workloads) * std::size(batch_sizes) * options.trial_count);
 
-    // Run in a fixed order so text and JSON artifacts are easy to diff.
     for (std::size_t trial = 1; trial <= options.trial_count; ++trial) {
         for (const auto workload : workloads) {
             for (const auto batch_size : batch_sizes) {
@@ -665,7 +626,6 @@ template <typename Operation>
         }
     }
 
-    // Return the completed artifact rows.
     return results;
 }
 
@@ -692,7 +652,6 @@ void write_text_results(const std::filesystem::path& path,
     output << std::string(126, '-') << '\n';
     output << std::fixed << std::setprecision(2);
 
-    // Emit one stable row per workload, batch size, and trial.
     for (const auto& result : results) {
         output << std::left << std::setw(28) << result.benchmark_name << std::right
                << std::setw(14) << result.workload_size << std::setw(10) << result.batch_size
@@ -722,7 +681,6 @@ void write_json_results(const std::filesystem::path& path,
     output << "  \"unit\": \"ns/op over fixed-size timed batches\",\n";
     output << "  \"results\": [\n";
 
-    // Write stable objects with required fields and the trial number.
     for (std::size_t index = 0; index < results.size(); ++index) {
         const auto& result = results[index];
         output << "    {\n";
@@ -757,12 +715,10 @@ int latency_main(int argc, char** argv) {
     const auto options = parse_options(argc, argv);
     std::filesystem::create_directories(options.output_dir);
 
-    // Run all registered latency workloads before writing artifacts.
     const auto results = run_all_latency_benchmarks(options);
     write_text_results(options.output_dir / "latency_results.txt", options, results);
     write_json_results(options.output_dir / "latency_results.json", options, results);
 
-    // Print artifact paths so scripts have a clear terminal breadcrumb.
     std::cout << "Wrote " << (options.output_dir / "latency_results.txt") << '\n';
     std::cout << "Wrote " << (options.output_dir / "latency_results.json") << '\n';
     return 0;
@@ -774,6 +730,5 @@ int latency_main(int argc, char** argv) {
  * @brief Program entry point.
  */
 int main(int argc, char** argv) {
-    // Keep main tiny so benchmark logic remains testable by inspection.
     return latency_main(argc, argv);
 }

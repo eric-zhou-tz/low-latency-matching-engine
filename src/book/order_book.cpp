@@ -11,7 +11,6 @@ namespace matching_engine {
  * @brief Creates an empty book and reserves order lookup capacity.
  */
 OrderBook::OrderBook(std::size_t expected_order_capacity) {
-    // Size the flat id index up front to avoid rehashing during known-depth setup.
     reserve_order_capacity(expected_order_capacity);
 }
 
@@ -19,7 +18,6 @@ OrderBook::OrderBook(std::size_t expected_order_capacity) {
  * @brief Creates an empty book with tuned order lookup density.
  */
 OrderBook::OrderBook(std::size_t expected_order_capacity, float order_id_max_load_factor) {
-    // Apply the requested density before reserve so bucket sizing uses it.
     set_order_id_max_load_factor(order_id_max_load_factor);
     reserve_order_capacity(expected_order_capacity);
 }
@@ -28,7 +26,6 @@ OrderBook::OrderBook(std::size_t expected_order_capacity, float order_id_max_loa
  * @brief Copies price levels and rebuilds intrusive links for the new book.
  */
 OrderBook::OrderBook(const OrderBook& other) {
-    // Copy live orders into fresh storage so raw pointers never alias the source.
     copy_from(other);
 }
 
@@ -36,16 +33,13 @@ OrderBook::OrderBook(const OrderBook& other) {
  * @brief Copies price levels and rebuilds intrusive links for the new book.
  */
 OrderBook& OrderBook::operator=(const OrderBook& other) {
-    // Guard self-assignment so current raw pointers are not discarded needlessly.
     if (this == &other) {
         return *this;
     }
 
-    // Drop old storage before rebuilding this book from the source queues.
     clear();
     copy_from(other);
 
-    // Return this object so assignment can be chained normally.
     return *this;
 }
 
@@ -57,26 +51,22 @@ OrderBook::OrderBook(OrderBook&& other) noexcept
       asks_(std::move(other.asks_)),
       orders_by_id_(std::move(other.orders_by_id_)),
       order_pool_(std::move(other.order_pool_)) {
-    // Raw order pointers remain valid because OrderPool transfers ownership of storage.
 }
 
 /**
  * @brief Moves a book and preserves pointers into transferred order blocks.
  */
 OrderBook& OrderBook::operator=(OrderBook&& other) noexcept {
-    // Avoid clearing after self-move; otherwise the source and destination match.
     if (this == &other) {
         return *this;
     }
 
-    // Release current state before taking ownership of the other book's blocks.
     clear();
     bids_ = std::move(other.bids_);
     asks_ = std::move(other.asks_);
     orders_by_id_ = std::move(other.orders_by_id_);
     order_pool_ = std::move(other.order_pool_);
 
-    // Return this object so assignment can be chained normally.
     return *this;
 }
 
@@ -84,7 +74,6 @@ OrderBook& OrderBook::operator=(OrderBook&& other) noexcept {
  * @brief Destroys all owned order storage.
  */
 OrderBook::~OrderBook() {
-    // Release maps first, then destroy the arena slots they pointed into.
     clear();
 }
 
@@ -96,22 +85,19 @@ OrderBook::~OrderBook() {
  * queue, preserving FIFO priority at that price level.
  */
 void OrderBook::submit(Order order, std::vector<Event>& out) {
-    // Validate the order before any matching policy can mutate book state.
     if (!prepare_incoming_order(order, out)) {
         return;
     }
 
-    // FOK orders must be fully executable before any book state is mutated.
+    // fok must prove full execution before acceptance so partial fills cannot leak.
     if (order.time_in_force == TimeInForce::FillOrKill && !can_fully_fill(order)) {
         out.push_back(
             RejectedEvent{.reason = RejectReason::InsufficientLiquidity, .order_id = order.id});
         return;
     }
 
-    // Acceptance is emitted first; any trades or remainder events follow in order.
     out.push_back(AcceptedEvent{.order_id = order.id});
 
-    // Run the canonical matching and resting flow after submit-specific events.
     execute_incoming_order(order, out);
 }
 
@@ -123,15 +109,13 @@ void OrderBook::submit(Order order, std::vector<Event>& out) {
  * unmatched remainder produces a rejection event instead of resting.
  */
 void OrderBook::submit_market(Order order, std::vector<Event>& out) {
-    // Validate the order before entering the shared matching path.
     if (!prepare_incoming_order(order, out)) {
         return;
     }
 
-    // Acceptance is emitted before the market order attempts to sweep liquidity.
     out.push_back(AcceptedEvent{.order_id = order.id});
 
-    // Use a sentinel crossing price so the existing matcher sweeps all opposite liquidity.
+    // market orders use sentinel prices to reuse the same crossing loops but never rest.
     if (order.side == Side::Buy) {
         order.price = std::numeric_limits<Price>::max();
         match_buy_order(order, out);
@@ -140,7 +124,6 @@ void OrderBook::submit_market(Order order, std::vector<Event>& out) {
         match_sell_order(order, out);
     }
 
-    // Market orders never rest; any remaining quantity expires as insufficient liquidity.
     if (order.quantity > 0) {
         out.push_back(
             RejectedEvent{.reason = RejectReason::InsufficientLiquidity, .order_id = order.id});
@@ -155,13 +138,11 @@ void OrderBook::submit_market(Order order, std::vector<Event>& out) {
  * rewiring and does not allocate or scan through same-price orders.
  */
 CancelResult OrderBook::cancel(OrderId order_id) {
-    // Look up the live order pointer so cancellation can unlink it directly.
     Order* order = find_resting_order(order_id);
     if (order == nullptr) {
         return RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = order_id};
     }
 
-    // Reuse the internal removal path so cancel and replace update queues identically.
     remove_resting_order(order);
     return CanceledEvent{.order_id = order_id};
 }
@@ -173,39 +154,32 @@ void OrderBook::modify(OrderId order_id,
                        Price new_price,
                        Quantity new_quantity,
                        std::vector<Event>& out) {
-    // Reuse caller-owned storage so direct book callers get one clean response.
     out.clear();
 
-    // Modifies are only valid for orders currently resting in this book.
     Order* existing = find_resting_order(order_id);
     if (existing == nullptr) {
         out.push_back(RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = order_id});
         return;
     }
 
-    // Reject non-positive prices and empty quantities before touching live state.
     if (new_price <= 0 || new_quantity == 0) {
         out.push_back(RejectedEvent{.reason = RejectReason::InvalidOrder, .order_id = order_id});
         return;
     }
 
-    // Capture the old visible state because replacement removes the node.
     const Price old_price = existing->price;
     const Quantity old_quantity = existing->quantity;
     const Side side = existing->side;
 
     if (new_price == old_price && new_quantity < old_quantity) {
-        // Quantity reductions are safe in place and keep the order's FIFO slot.
+        // a pure size reduction preserves the order's FIFO priority.
         const Quantity reduced_by = old_quantity - new_quantity;
         if (side == Side::Buy) {
-            // Keep the aggregate bid level volume aligned with the order mutation.
             bids_.find(old_price)->second.total_volume -= reduced_by;
         } else {
-            // Keep the aggregate ask level volume aligned with the order mutation.
             asks_.find(old_price)->second.total_volume -= reduced_by;
         }
 
-        // Update the live order after the level accounting succeeds.
         existing->quantity = new_quantity;
         out.push_back(ModifiedEvent{.order_id = order_id,
                                     .old_price = old_price,
@@ -215,7 +189,7 @@ void OrderBook::modify(OrderId order_id,
         return;
     }
 
-    // Increasing size or changing price creates a fresh priority position.
+    // size increases and price changes are cancel-replace operations that lose FIFO priority.
     Order replacement{.id = order_id,
                       .side = side,
                       .price = new_price,
@@ -223,7 +197,6 @@ void OrderBook::modify(OrderId order_id,
                       .time_in_force = TimeInForce::GoodTilCancel};
     remove_resting_order(existing);
 
-    // Emit replace semantics without exposing an internal cancel plus accept pair.
     out.push_back(ReplacedEvent{.old_order_id = order_id,
                                 .new_order_id = order_id,
                                 .old_price = old_price,
@@ -231,7 +204,6 @@ void OrderBook::modify(OrderId order_id,
                                 .old_quantity = old_quantity,
                                 .new_quantity = new_quantity});
 
-    // Reuse the same matching and resting implementation as normal submissions.
     execute_incoming_order(replacement, out);
 }
 
@@ -239,7 +211,6 @@ void OrderBook::modify(OrderId order_id,
  * @brief Checks whether an order id is currently live in this book.
  */
 bool OrderBook::contains_order(std::uint64_t order_id) const {
-    // Ask the book-local id index because it is the source of truth for live orders.
     return orders_by_id_.contains(order_id);
 }
 
@@ -247,11 +218,9 @@ bool OrderBook::contains_order(std::uint64_t order_id) const {
  * @brief Produces a compact representation of resting orders.
  */
 std::string OrderBook::snapshot() const {
-    // Start with the live-order count for a quick summary.
     std::ostringstream output;
     output << "orders=" << orders_by_id_.size();
 
-    // Print bids in book priority order: highest price, then FIFO within level.
     for (const auto& [_, level] : bids_) {
         for (const Order* order = level.head; order != nullptr; order = order->next) {
             output << " [" << order->id << ' ' << to_string(order->side) << ' ' << order->price
@@ -259,7 +228,6 @@ std::string OrderBook::snapshot() const {
         }
     }
 
-    // Print asks in book priority order: lowest price, then FIFO within level.
     for (const auto& [_, level] : asks_) {
         for (const Order* order = level.head; order != nullptr; order = order->next) {
             output << " [" << order->id << ' ' << to_string(order->side) << ' ' << order->price
@@ -267,7 +235,6 @@ std::string OrderBook::snapshot() const {
         }
     }
 
-    // Return the accumulated single-line representation.
     return output.str();
 }
 
@@ -275,10 +242,8 @@ std::string OrderBook::snapshot() const {
  * @brief Reserves live order-id lookup capacity.
  */
 void OrderBook::reserve_order_capacity(std::size_t expected_order_capacity) {
-    // Keep the requested capacity with the id index because cancels start here.
     orders_by_id_.reserve(expected_order_capacity);
 
-    // Preallocate order slots so known-depth runs avoid arena growth on insert.
     order_pool_.reserve(expected_order_capacity);
 }
 
@@ -286,7 +251,6 @@ void OrderBook::reserve_order_capacity(std::size_t expected_order_capacity) {
  * @brief Updates the max load factor used by the order-id map.
  */
 void OrderBook::set_order_id_max_load_factor(float order_id_max_load_factor) {
-    // Forward the tuning knob to the dense hash map before future reservations.
     orders_by_id_.max_load_factor(order_id_max_load_factor);
 }
 
@@ -294,19 +258,15 @@ void OrderBook::set_order_id_max_load_factor(float order_id_max_load_factor) {
  * @brief Appends an order to the appropriate price level.
  */
 void OrderBook::add_resting_order(const Order& order) {
-    // Store the order once, then use its embedded links for FIFO membership.
     Order* stored_order = order_pool_.create(order);
     if (order.side == Side::Buy) {
-        // Append to the bid level tail so older same-price orders stay ahead.
         auto& level = bids_[order.price];
         level.push_back(stored_order);
     } else {
-        // Append to the ask level tail so older same-price orders stay ahead.
         auto& level = asks_[order.price];
         level.push_back(stored_order);
     }
 
-    // Remember the exact order node so future cancels can unlink without scans.
     orders_by_id_.emplace(stored_order->id, stored_order);
 }
 
@@ -314,13 +274,11 @@ void OrderBook::add_resting_order(const Order& order) {
  * @brief Finds the live resting order for an id.
  */
 Order* OrderBook::find_resting_order(OrderId order_id) const {
-    // The id map is authoritative for book-local live resting orders.
     const auto found = orders_by_id_.find(order_id);
     if (found == orders_by_id_.end()) {
         return nullptr;
     }
 
-    // Return the stored node so callers can mutate or unlink it directly.
     return found->second;
 }
 
@@ -328,33 +286,27 @@ Order* OrderBook::find_resting_order(OrderId order_id) const {
  * @brief Unlinks and releases one resting order.
  */
 void OrderBook::remove_resting_order(Order* order) {
-    // Preserve side and price before unlinking clears the intrusive node links.
     const auto side = order->side;
     const auto price = order->price;
 
     if (side == Side::Buy) {
-        // Find the bid level and unlink the raw order node in constant time.
         auto level = bids_.find(price);
         if (level != bids_.end()) {
             level->second.remove(order);
-            // Drop empty levels so best-price lookup stays clean.
             if (level->second.empty()) {
                 bids_.erase(level);
             }
         }
     } else {
-        // Find the ask level and unlink the raw order node in constant time.
         auto level = asks_.find(price);
         if (level != asks_.end()) {
             level->second.remove(order);
-            // Drop empty levels so best-price lookup stays clean.
             if (level->second.empty()) {
                 asks_.erase(level);
             }
         }
     }
 
-    // Remove the id index and recycle storage after queue state is correct.
     orders_by_id_.erase(order->id);
     order_pool_.release(order);
 }
@@ -363,14 +315,11 @@ void OrderBook::remove_resting_order(Order* order) {
  * @brief Resets incoming order links and rejects duplicate live ids.
  */
 bool OrderBook::prepare_incoming_order(Order& order, std::vector<Event>& out) const {
-    // Reuse caller-owned storage so hot paths avoid repeated vector allocation churn.
     out.clear();
 
-    // Incoming stack orders should never inherit intrusive links from callers.
     order.prev = nullptr;
     order.next = nullptr;
 
-    // Reject duplicate ids before matching so each live order id stays unique.
     if (orders_by_id_.contains(order.id)) {
         out.push_back(RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = order.id});
         return false;
@@ -383,30 +332,27 @@ bool OrderBook::prepare_incoming_order(Order& order, std::vector<Event>& out) co
  * @brief Checks whether crossing liquidity can completely fill an order.
  */
 bool OrderBook::can_fully_fill(const Order& order) const {
-    // Track only the quantity still needed so the check can stop early.
     std::uint64_t remaining = order.quantity;
 
     if (order.side == Side::Buy) {
-        // Walk asks from best to worse while prices cross the buy limit.
         for (const auto& [price, level] : asks_) {
             if (price > order.price) {
                 break;
             }
 
-            // Use aggregate level volume so the preflight avoids scanning FIFO orders.
+            // aggregate level volume avoids scanning FIFO orders during fok preflight.
             if (level.total_volume >= remaining) {
                 return true;
             }
             remaining -= level.total_volume;
         }
     } else {
-        // Walk bids from best to worse while prices cross the sell limit.
         for (const auto& [price, level] : bids_) {
             if (price < order.price) {
                 break;
             }
 
-            // Use aggregate level volume so the preflight avoids scanning FIFO orders.
+            // aggregate level volume avoids scanning FIFO orders during fok preflight.
             if (level.total_volume >= remaining) {
                 return true;
             }
@@ -414,7 +360,6 @@ bool OrderBook::can_fully_fill(const Order& order) const {
         }
     }
 
-    // Not enough crossing liquidity was visible to fill the whole order.
     return false;
 }
 
@@ -422,14 +367,12 @@ bool OrderBook::can_fully_fill(const Order& order) const {
  * @brief Executes the shared limit-order match and rest path.
  */
 void OrderBook::execute_incoming_order(Order order, std::vector<Event>& out) {
-    // Route to the opposite side of the book based on the incoming side.
     if (order.side == Side::Buy) {
         match_buy_order(order, out);
     } else {
         match_sell_order(order, out);
     }
 
-    // If matching did not fully fill a GTC order, leave the remainder resting.
     if (order.quantity > 0 && order.time_in_force == TimeInForce::GoodTilCancel) {
         add_resting_order(order);
     }
@@ -439,12 +382,10 @@ void OrderBook::execute_incoming_order(Order order, std::vector<Event>& out) {
  * @brief Clears all price levels, indexes, and arena storage.
  */
 void OrderBook::clear() noexcept {
-    // Drop index and levels before destroying the order slots they point into.
     bids_.clear();
     asks_.clear();
     orders_by_id_.clear();
 
-    // Reset pooled storage after all raw pointers have been removed.
     order_pool_.clear();
 }
 
@@ -452,13 +393,10 @@ void OrderBook::clear() noexcept {
  * @brief Copies live resting orders from another book.
  */
 void OrderBook::copy_from(const OrderBook& other) {
-    // Preserve the source lookup density before sizing this book's id index.
     set_order_id_max_load_factor(other.orders_by_id_.max_load_factor());
 
-    // Reserve the same live count so cloning avoids hash rehashes and pool growth.
     reserve_order_capacity(other.orders_by_id_.size());
 
-    // Copy bids in price-priority order and preserve FIFO links within levels.
     for (const auto& [price, source_level] : other.bids_) {
         auto& target_level = bids_[price];
         for (const Order* source = source_level.head; source != nullptr; source = source->next) {
@@ -468,7 +406,6 @@ void OrderBook::copy_from(const OrderBook& other) {
         }
     }
 
-    // Copy asks in price-priority order and preserve FIFO links within levels.
     for (const auto& [price, source_level] : other.asks_) {
         auto& target_level = asks_[price];
         for (const Order* source = source_level.head; source != nullptr; source = source->next) {
@@ -486,39 +423,33 @@ void OrderBook::copy_from(const OrderBook& other) {
  * to back preserves FIFO price-time priority.
  */
 void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& out) {
-    // Keep trading while the buy still has quantity and there is sell liquidity.
     while (incoming.quantity > 0 && !asks_.empty()) {
-        // The best ask is the lowest ask price because asks_ is ascending.
         auto best_ask = asks_.begin();
         if (best_ask->first > incoming.price) {
-            // The best sell is too expensive, so no further asks can cross.
             break;
         }
 
-        // Match against the oldest resting order at the best price.
         auto& resting_orders = best_ask->second;
         Order* resting = resting_orders.front();
         const auto trade_quantity = std::min(incoming.quantity, resting->quantity);
 
-        // Trades execute at the resting order's price.
+        // executions price at the resting order, preserving exchange-style maker priority.
         out.push_back(TradeEvent{.resting_order_id = resting->id,
                                  .incoming_order_id = incoming.id,
                                  .price = resting->price,
                                  .quantity = trade_quantity});
 
-        // Reduce both orders and the aggregate level volume by the fill.
         incoming.quantity -= trade_quantity;
         resting->quantity -= trade_quantity;
         resting_orders.total_volume -= trade_quantity;
 
-        // Fully filled resting orders leave the id index, FIFO queue, and arena.
         if (resting->quantity == 0) {
+            // filled resting orders leave the id index before their pool slot is recycled.
             orders_by_id_.erase(resting->id);
             resting_orders.pop_front();
             order_pool_.release(resting);
         }
 
-        // Remove the price level when its queue has been exhausted.
         if (resting_orders.empty()) {
             asks_.erase(best_ask);
         }
@@ -531,39 +462,33 @@ void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& out) {
  * Bids are sorted descending, so begin() is always the highest-priced bid.
  */
 void OrderBook::match_sell_order(Order& incoming, std::vector<Event>& out) {
-    // Keep trading while the sell still has quantity and there is buy liquidity.
     while (incoming.quantity > 0 && !bids_.empty()) {
-        // The best bid is the highest bid price because bids_ is descending.
         auto best_bid = bids_.begin();
         if (best_bid->first < incoming.price) {
-            // The best buy is too cheap, so no further bids can cross.
             break;
         }
 
-        // Match against the oldest resting order at the best price.
         auto& resting_orders = best_bid->second;
         Order* resting = resting_orders.front();
         const auto trade_quantity = std::min(incoming.quantity, resting->quantity);
 
-        // Trades execute at the resting order's price.
+        // executions price at the resting order, preserving exchange-style maker priority.
         out.push_back(TradeEvent{.resting_order_id = resting->id,
                                  .incoming_order_id = incoming.id,
                                  .price = resting->price,
                                  .quantity = trade_quantity});
 
-        // Reduce both orders and the aggregate level volume by the fill.
         incoming.quantity -= trade_quantity;
         resting->quantity -= trade_quantity;
         resting_orders.total_volume -= trade_quantity;
 
-        // Fully filled resting orders leave the id index, FIFO queue, and arena.
         if (resting->quantity == 0) {
+            // filled resting orders leave the id index before their pool slot is recycled.
             orders_by_id_.erase(resting->id);
             resting_orders.pop_front();
             order_pool_.release(resting);
         }
 
-        // Remove the price level when its queue has been exhausted.
         if (resting_orders.empty()) {
             bids_.erase(best_bid);
         }

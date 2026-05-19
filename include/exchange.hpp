@@ -84,12 +84,10 @@ private:
      */
     void remove_filled_resting_orders_from_index(const std::vector<Event>& events);
 
-    // Books are heap-owned so OrderBook* values stored in order_to_book_ remain
-    // stable even when the symbol map rehashes or moves unique_ptr elements.
+    // heap-owned books keep order-to-book routes stable across symbol-map growth.
     ankerl::unordered_dense::map<std::string, std::unique_ptr<OrderBook>> books_by_symbol_;
 
-    // Live cancel routing starts here: order id to the single-symbol book that
-    // owns the resting order.
+    // only live resting orders are present here; IOC, FOK rejects, and market orders never rest.
     ankerl::unordered_dense::map<OrderId, OrderBook*> order_to_book_;
 };
 

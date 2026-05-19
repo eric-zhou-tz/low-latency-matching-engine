@@ -20,11 +20,9 @@ constexpr std::uint64_t kQuantity = 1;
 constexpr std::uint64_t kIncomingIdBase = 1'000'000'000;
 
 [[nodiscard]] std::vector<Order> make_resting_asks(std::int64_t count) {
-    // Preallocate so vector growth does not add noise to benchmark setup.
     std::vector<Order> orders;
     orders.reserve(static_cast<std::size_t>(count));
 
-    // Create identical passive asks that incoming buys can consume one by one.
     for (std::int64_t index = 0; index < count; ++index) {
         orders.push_back(Order{.id = static_cast<std::uint64_t>(index + 1),
                                .side = Side::Sell,
@@ -32,16 +30,13 @@ constexpr std::uint64_t kIncomingIdBase = 1'000'000'000;
                                .quantity = kQuantity});
     }
 
-    // Return by value and let move elision keep setup simple.
     return orders;
 }
 
 [[nodiscard]] std::vector<Order> make_crossing_buys(std::int64_t count) {
-    // Preallocate the incoming order stream used inside timed iterations.
     std::vector<Order> orders;
     orders.reserve(static_cast<std::size_t>(count));
 
-    // Use ids far away from resting ids so duplicate checks never fire.
     for (std::int64_t index = 0; index < count; ++index) {
         orders.push_back(Order{.id = kIncomingIdBase + static_cast<std::uint64_t>(index),
                                .side = Side::Buy,
@@ -49,7 +44,6 @@ constexpr std::uint64_t kIncomingIdBase = 1'000'000'000;
                                .quantity = kQuantity});
     }
 
-    // Return the prepared aggressive buy workload.
     return orders;
 }
 
@@ -57,10 +51,8 @@ void preload_book(OrderBook& book, const std::vector<Order>& resting_orders) {
     std::vector<matching_engine::Event> events;
     events.reserve(8);
 
-    // Insert all resting liquidity before the timed matching section.
     for (const auto& order : resting_orders) {
         book.submit(order, events);
-        // Prevent the compiler from discarding submit work during setup.
         benchmark::DoNotOptimize(events.data());
         benchmark::DoNotOptimize(events.size());
     }
@@ -76,7 +68,6 @@ void preload_book(OrderBook& book, const std::vector<Order>& resting_orders) {
  * which measures orders that do not trade and instead remain on the book.
  */
 void BM_CrossingLimitOrderMatch(benchmark::State& state) {
-    // Use the benchmark argument as both resting depth and incoming order count.
     const auto order_count = state.range(0);
     const auto expected_order_capacity = static_cast<std::size_t>(order_count);
     const auto resting_orders = make_resting_asks(order_count);
@@ -85,33 +76,26 @@ void BM_CrossingLimitOrderMatch(benchmark::State& state) {
     std::vector<matching_engine::Event> events;
     events.reserve(8);
 
-    // Google Benchmark controls the number of repetitions.
     for (auto _ : state) {
-        // Reset and preload the book outside the measured hot path.
         state.PauseTiming();
         book.emplace(expected_order_capacity);
         preload_book(*book, resting_orders);
         state.ResumeTiming();
 
-        // Measure only the crossing submit path.
         for (const auto& order : crossing_orders) {
-            // Reuse the event buffer while still storing the acceptance and trade.
             book->submit(order, events);
             benchmark::DoNotOptimize(events.data());
             benchmark::DoNotOptimize(events.size());
         }
 
-        // Keep the compiler from optimizing away book mutations.
         benchmark::ClobberMemory();
         benchmark::DoNotOptimize(*book);
 
-        // Destroy the consumed book outside the measured section.
         state.PauseTiming();
         book.reset();
         state.ResumeTiming();
     }
 
-    // Report throughput in matched incoming orders.
     state.SetItemsProcessed(state.iterations() * order_count);
 }
 
