@@ -110,7 +110,8 @@ void Exchange::process_action(const CancelOrderAction& action, std::vector<Event
     // Missing ids are rejected at the exchange boundary without probing symbol books.
     const auto found = order_to_book_.find(action.order_id);
     if (found == order_to_book_.end()) {
-        out.push_back(RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = action.order_id});
+        out.push_back(
+            RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = action.order_id});
         return;
     }
 
@@ -131,6 +132,38 @@ void Exchange::process_action(const CancelOrderAction& action, std::vector<Event
 
     // If the book rejects, the exchange index was stale; erase it to restore consistency.
     order_to_book_.erase(found);
+}
+
+/**
+ * @brief Routes modification directly to the book that owns the order.
+ */
+void Exchange::process_action(const ModifyOrderAction& action, std::vector<Event>& out) {
+    // Missing ids are rejected at the exchange boundary without probing symbol books.
+    const auto found = order_to_book_.find(action.order_id);
+    if (found == order_to_book_.end()) {
+        out.push_back(
+            RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = action.order_id});
+        return;
+    }
+
+    // Route the modify to the owning book without going through public submit/cancel APIs.
+    OrderBook* book = found->second;
+    book->modify(action.order_id, action.new_price, action.new_quantity, out);
+
+    // Replacement matching may fully consume previously resting opposite-side orders.
+    remove_filled_resting_orders_from_index(out);
+
+    // The modified id remains indexed only if a live GTC remainder is still resting.
+    const auto current = order_to_book_.find(action.order_id);
+    if (book->contains_order(action.order_id)) {
+        order_to_book_[action.order_id] = book;
+        return;
+    }
+
+    // Full replacement fills, rejected stale routes, and non-resting outcomes clear the route.
+    if (current != order_to_book_.end()) {
+        order_to_book_.erase(current);
+    }
 }
 
 /**

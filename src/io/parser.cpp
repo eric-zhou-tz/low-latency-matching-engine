@@ -120,6 +120,24 @@ std::optional<Action> Parser::parse_line(const std::string& line) const {
         return CancelOrderAction{order_id};
     }
 
+    if (command == "MODIFY") {
+        // Read the replacement fields; the exchange routes by the original order id.
+        ModifyOrderAction action;
+        input >> action.order_id >> action.new_price >> action.new_quantity;
+        if (!input || action.new_quantity == 0) {
+            return std::nullopt;
+        }
+
+        // Reject extra tokens so malformed commands do not silently pass.
+        std::string extra_token;
+        if (input >> extra_token) {
+            return std::nullopt;
+        }
+
+        // Return the typed modify action for exchange-level routing.
+        return action;
+    }
+
     if (command == "PRINT") {
         // PRINT carries no payload; the exchange will snapshot known books.
         return PrintBookAction{};

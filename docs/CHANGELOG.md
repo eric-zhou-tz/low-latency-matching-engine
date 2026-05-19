@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.4.2 - Modify Order Action
+
+- Added native `ModifyOrderAction` support with `MODIFY <order_id> <new_price> <new_quantity>` parsing and exchange routing by the live order-id index.
+- Added `ModifiedEvent` for same-price quantity reductions that preserve FIFO priority, and `ReplacedEvent` for cancel-replace modifications that lose priority.
+- Implemented order-book modify semantics for resting GTC orders: reduced quantity mutates in place, while price changes and quantity increases remove the old resting order and execute the replacement through the shared matching/resting path.
+- Refactored limit-order execution into reusable internal helpers so submit and modify share one matching and resting implementation without routing modify through public submit/cancel APIs.
+- Kept IOC, FOK, market, fully filled, and unknown orders out of modify/cancel routing by maintaining the exchange-level `order_to_book_` index after replacement fills and non-resting outcomes.
+- Expanded parser, order-book, and exchange GoogleTest coverage for FIFO preservation/loss, unknown and non-resting modify rejection, replacement matching, exchange index consistency, fully executed replacements, invalid modify input, and atomic modify event streams without cancel/accept pairs.
+
 ## v0.4.1 - FOK + IOC Orders
 
 - Added fill-or-kill limit order support through the existing `SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity> [GTC|IOC|FOK]` command.
