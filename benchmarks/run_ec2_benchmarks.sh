@@ -109,6 +109,12 @@ run_pinned "$BUILD_DIR/cancel_benchmark" \
     --benchmark_out_format=json \
     | tee "$OUTPUT_DIR/cancel_results.txt"
 
+run_pinned "$BUILD_DIR/end_to_end_benchmark" \
+    --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
+    --benchmark_out="$OUTPUT_DIR/end_to_end_results.json" \
+    --benchmark_out_format=json \
+    | tee "$OUTPUT_DIR/end_to_end_results.txt"
+
 run_pinned "$BUILD_DIR/latency_benchmark" \
     --output-dir="$OUTPUT_DIR" \
     --samples="$LATENCY_SAMPLES" \

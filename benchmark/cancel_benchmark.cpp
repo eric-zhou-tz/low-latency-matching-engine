@@ -38,6 +38,11 @@ struct MixedOperation {
     std::uint64_t cancel_id{};
 };
 
+struct MixedWorkload {
+    std::vector<MixedOperation> operations;
+    std::size_t max_live_orders{};
+};
+
 /**
  * @brief Reads the benchmark order-id load factor tuning knob.
  *
@@ -230,43 +235,140 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
  * @param operation_count Number of operations to generate.
  * @return Mixed operation stream for one benchmark iteration.
  */
-[[nodiscard]] std::vector<MixedOperation> make_mixed_operations(std::int64_t operation_count) {
-    std::vector<MixedOperation> operations;
-    operations.reserve(static_cast<std::size_t>(operation_count));
+[[nodiscard]] MixedWorkload make_mixed_workload(std::int64_t operation_count) {
+    // Build both the deterministic stream and its peak live depth in one pass.
+    MixedWorkload workload;
+    workload.operations.reserve(static_cast<std::size_t>(operation_count));
 
+    // Track cancelable buys because crossing buys only consume passive asks.
     std::deque<std::uint64_t> cancelable_buy_ids;
     std::uint64_t next_resting_id = 1;
     std::uint64_t next_crossing_id = kMixedCrossingIdBase;
+    std::size_t live_orders = 0;
 
     for (std::int64_t index = 0; index < operation_count; ++index) {
         const auto slot = index % 10;
 
         if (slot < 7) {
+            // Seven slots per cycle add passive liquidity without crossing.
             const bool make_buy = slot == 1 || slot == 3 || slot == 5 || slot == 6;
             const auto side = make_buy ? Side::Buy : Side::Sell;
             auto order = make_mixed_resting_order(next_resting_id++, side);
 
+            // Only buys are canceled later, so crossing orders cannot consume cancel targets.
             if (side == Side::Buy) {
                 cancelable_buy_ids.push_back(order.id);
             }
 
-            operations.push_back(MixedOperation{.kind = MixedOperationKind::RestingInsert,
-                                                .order = order,
-                                                .cancel_id = 0});
+            workload.operations.push_back(MixedOperation{.kind = MixedOperationKind::RestingInsert,
+                                                         .order = order,
+                                                         .cancel_id = 0});
+            ++live_orders;
         } else if (slot < 9) {
+            // Two slots per cycle remove known-live buy ids from the book.
             const auto order_id = cancelable_buy_ids.front();
             cancelable_buy_ids.pop_front();
-            operations.push_back(MixedOperation{.kind = MixedOperationKind::Cancel,
-                                                .order = {},
-                                                .cancel_id = order_id});
+            workload.operations.push_back(MixedOperation{.kind = MixedOperationKind::Cancel,
+                                                         .order = {},
+                                                         .cancel_id = order_id});
+            --live_orders;
         } else {
-            operations.push_back(MixedOperation{.kind = MixedOperationKind::CrossingOrder,
-                                                .order = make_mixed_crossing_buy(next_crossing_id++),
-                                                .cancel_id = 0});
+            // One slot per cycle consumes one passive ask through the matching path.
+            workload.operations.push_back(
+                MixedOperation{.kind = MixedOperationKind::CrossingOrder,
+                               .order = make_mixed_crossing_buy(next_crossing_id++),
+                               .cancel_id = 0});
+            --live_orders;
         }
+
+        // Peak live depth lets the reserve sweep compare capacity against actual demand.
+        workload.max_live_orders = std::max(workload.max_live_orders, live_orders);
     }
 
-    return operations;
+    return workload;
+}
+
+/**
+ * @brief Builds only the mixed operations for benchmarks that do not need metadata.
+ *
+ * @param operation_count Number of operations to generate.
+ * @return Mixed operation stream for one benchmark iteration.
+ */
+[[nodiscard]] std::vector<MixedOperation> make_mixed_operations(std::int64_t operation_count) {
+    // Preserve the original helper surface for the baseline mixed benchmark.
+    return make_mixed_workload(operation_count).operations;
+}
+
+/**
+ * @brief Constructs a book for reserve-sweep experiments.
+ *
+ * @param reserve_capacity Explicit reserve size; zero means no reserve call.
+ * @param order_id_max_load_factor Hash-table density to use for the run.
+ * @return Empty book configured for the benchmark trial.
+ */
+[[nodiscard]] OrderBook make_mixed_sweep_book(std::size_t reserve_capacity,
+                                              float order_id_max_load_factor) {
+    // Construct manually so reserve_capacity zero really means no explicit reserve call.
+    OrderBook book;
+    book.set_order_id_max_load_factor(order_id_max_load_factor);
+
+    // Nonzero sweep points reserve both the hash index and order pool before timing.
+    if (reserve_capacity > 0) {
+        book.reserve_order_capacity(reserve_capacity);
+    }
+
+    return book;
+}
+
+/**
+ * @brief Runs the mixed workload with a caller-selected reserve capacity.
+ *
+ * @param state Google Benchmark state.
+ * @param reserve_capacity Explicit reserve size; zero means no reserve call.
+ */
+void run_mixed_submit_cancel_with_reserve(benchmark::State& state,
+                                          std::size_t reserve_capacity) {
+    // Generate deterministic input and metadata outside the timed benchmark loop.
+    const auto operation_count = state.range(0);
+    const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
+    const auto workload = make_mixed_workload(operation_count);
+    std::optional<OrderBook> book;
+    std::vector<matching_engine::Event> events;
+    events.reserve(8);
+
+    for (auto _ : state) {
+        // Keep reserve allocation and book construction out of the measured path.
+        state.PauseTiming();
+        book.emplace(make_mixed_sweep_book(reserve_capacity, order_id_max_load_factor));
+        state.ResumeTiming();
+
+        // Measure the same mixed stream while changing only setup-time reserve capacity.
+        for (const auto& operation : workload.operations) {
+            if (operation.kind == MixedOperationKind::Cancel) {
+                auto result = book->cancel(operation.cancel_id);
+                benchmark::DoNotOptimize(result);
+            } else {
+                book->submit(operation.order, events);
+                benchmark::DoNotOptimize(events.data());
+                benchmark::DoNotOptimize(events.size());
+            }
+        }
+
+        // Keep book mutations and event writes observable to the optimizer.
+        benchmark::ClobberMemory();
+        benchmark::DoNotOptimize(*book);
+
+        // Destroy the remaining book state outside the measured section.
+        state.PauseTiming();
+        book.reset();
+        state.ResumeTiming();
+    }
+
+    // Expose sweep metadata directly in Google Benchmark output and JSON artifacts.
+    state.SetItemsProcessed(state.iterations() * operation_count);
+    state.counters["order_id_max_load_factor"] = order_id_max_load_factor;
+    state.counters["reserve_capacity"] = static_cast<double>(reserve_capacity);
+    state.counters["max_live_orders"] = static_cast<double>(workload.max_live_orders);
 }
 
 /**
@@ -341,10 +443,28 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
     state.counters["order_id_max_load_factor"] = order_id_max_load_factor;
 }
 
+/**
+ * @brief Sweeps reserve capacity for the mixed workload without changing engine defaults.
+ */
+void BM_MixedSubmitCancelReserveSweep(benchmark::State& state) {
+    // The second argument is the explicit reserve capacity under investigation.
+    run_mixed_submit_cancel_with_reserve(state, static_cast<std::size_t>(state.range(1)));
+}
+
 BENCHMARK(BM_CancelFront)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 BENCHMARK(BM_CancelBack)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 BENCHMARK(BM_CancelRandom)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 BENCHMARK(BM_CancelUnknown)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 BENCHMARK(BM_MixedSubmitCancel)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+
+#if defined(MATCHING_ENGINE_ENABLE_RESERVE_SWEEP)
+BENCHMARK(BM_MixedSubmitCancelReserveSweep)
+    ->Args({100'000, 0})
+    ->Args({100'000, 1'000})
+    ->Args({100'000, 10'000})
+    ->Args({100'000, 100'000})
+    ->Args({100'000, 1'000'000})
+    ->Args({100'000, 10'000'000});
+#endif
 
 } // namespace

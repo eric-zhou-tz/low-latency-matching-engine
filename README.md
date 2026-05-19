@@ -25,6 +25,7 @@ electronic trading systems.
 - Structured hot-path events with presentation formatting at the boundary
 - GoogleTest unit testing
 - Google Benchmark performance benchmarking
+- End-to-end CLI-style benchmark coverage
 - Linux benchmark validation on EC2
 - Dockerized Linux development workflow
 - Modern CMake-based build system
@@ -48,9 +49,9 @@ Trade / Accept / Reject Events
 ```
 
 Text parsing is used for CLI/testing convenience and is intentionally separated
-from the matching core. Benchmarks measure the typed matching core directly
-unless otherwise stated; internally, matching operates on action and order value
-types rather than raw text commands.
+from the matching core. Most hot-path benchmarks measure the typed matching core
+directly; the dedicated end-to-end benchmarks intentionally include parser,
+exchange, order-book, and event-formatting overhead.
 
 `Exchange` handles multi-symbol simulation and routing, while `OrderBook` is the
 latency-sensitive matching core. Production systems often route using integer
@@ -80,7 +81,7 @@ src/       Engine implementation
   book/    Order book matching and cancel logic
   io/      Parser implementation
 tests/     GoogleTest unit tests
-benchmark/ Google Benchmark microbenchmarks
+benchmark/ Google Benchmark microbenchmarks and end-to-end benchmarks
 examples/  Example order streams
 docs/      Architecture, changelog, benchmark history, and hot-path notes
 ```
@@ -136,14 +137,24 @@ Current benchmark coverage includes:
 - FIFO cancel-order performance
 - Mixed submit/cancel/match workloads
 - Amortized batch latency for matching-engine hot paths
+- End-to-end CLI-style parse/process/format throughput
 
-Latest EC2 Release highlights after adding amortized batch latency benchmarks:
+Latest EC2 Release hot-path highlights:
 
-- 100,000-order insert: `16.0882M items/s`
-- 100,000-order crossing match: `20.5566M items/s`
-- 100,000 random cancel: `10.4114M items/s`
-- 100,000 unknown cancel: `103.564M items/s`
-- 100,000 mixed submit/cancel/match: `18.9449M items/s`
+- 100,000-order insert: `11.1651M items/s`
+- 100,000-order crossing match: `17.0147M items/s`
+- 100,000 random cancel: `7.9446M items/s`
+- 100,000 unknown cancel: `112.096M items/s`
+- 100,000 mixed submit/cancel/match: `13.6514M items/s`
+
+Latest EC2 Release end-to-end CLI-style highlights:
+
+- 100,000 command parse/process/format: `1.07919M commands/s`
+- 100,000 command replay scenario: `1.09662M commands/s`
+
+End-to-end results include parser, exchange, OrderBook, and event-formatting
+overhead. They should not be compared directly to OrderBook hot-path
+microbenchmarks.
 
 Example Release build:
 
@@ -192,7 +203,6 @@ This project emphasizes:
 ## Future Steps
 
 - Evaluate an event sink/callback API for submissions if event-vector allocation remains visible in future profiles.
-- Implement market order support.
-- Formalize the print book action and output contract.
-- Implement trade reports.
-- Perform hot path analysis across matching, canceling, and symbol routing.
+- Formalize the print book action and output contract for non-demo integrations.
+- Add richer trade-report output options at the public boundary.
+- Expand benchmark analysis across parser, symbol routing, formatting, and matching hot paths.

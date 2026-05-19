@@ -11,11 +11,12 @@ automatically by CMake or CI until that workflow is added intentionally.
 - Kernel: `7.0.0-1004-aws`
 - CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
 - Compiler: GCC/G++ 15.2.0
-- Commit: `dca7f50` plus local perf-counter instrumentation changes
+- Commit: `c3e1468` plus local end-to-end benchmark changes
 - Build type: `Release`
 - Release flags: `-O3 -DNDEBUG`
-- Correctness tests: 26/26 passed before benchmark execution
-- Run date: `2026-05-18T17:18:57Z`
+- Correctness tests: 121/121 passed before benchmark execution
+- Run date: `2026-05-19T07:28:53Z`
+- Command: `THROUGHPUT_REPETITIONS=5 LATENCY_TRIALS=5 benchmarks/run_ec2_benchmarks.sh`
 
 ## Workloads
 
@@ -29,9 +30,45 @@ automatically by CMake or CI until that workflow is added intentionally.
 - `latency_benchmark` runs a separate amortized batch latency suite over the
   same hot paths. It is not a Google Benchmark replacement and does not rename
   or replace the throughput benchmark binaries.
+- `end_to_end_benchmark` measures public-boundary CLI-style overhead:
+  in-memory input lines, parser, exchange routing, order-book mutation, and
+  event formatting.
 
-These workloads bypass parser, stdin, file I/O, and logging. Setup/preload work
-is excluded from the measured loop where appropriate.
+The hot-path throughput and latency workloads bypass parser, stdin, file I/O,
+and logging. Setup/preload work is excluded from the measured loop where
+appropriate.
+
+## End-to-end benchmarks
+
+The end-to-end benchmarks measure full public-boundary system overhead:
+
+`input lines -> Parser -> Exchange -> OrderBook -> Event formatting`
+
+They pre-generate deterministic command scripts in memory before timing, avoid
+filesystem I/O inside the timed loop, and include event formatting in the timed
+work. These are parser/exchange/formatter overhead measurements and should not
+be compared directly to OrderBook hot-path microbenchmarks.
+
+`BM_EndToEnd_ParseProcessFormat` uses deterministic non-crossing multi-symbol
+limit-order input to focus on parse, route, accept, and format cost.
+`BM_EndToEnd_ReplayScenario` uses replay-style multi-symbol streams containing
+inserts, crosses, cancels, modifies, market orders, IOC, and FOK commands.
+
+Latest EC2 median results:
+
+| Benchmark | Commands | CPU Time | Throughput |
+| --- | ---: | ---: | ---: |
+| `BM_EndToEnd_ParseProcessFormat/1000` | 1,000 | 641101 ns | 1.55982M commands/s |
+| `BM_EndToEnd_ParseProcessFormat/10000` | 10,000 | 6840502 ns | 1.46188M commands/s |
+| `BM_EndToEnd_ParseProcessFormat/100000` | 100,000 | 92662402 ns | 1.07919M commands/s |
+| `BM_EndToEnd_ReplayScenario/1000` | 1,000 | 848701 ns | 1.17827M commands/s |
+| `BM_EndToEnd_ReplayScenario/10000` | 10,000 | 8429845 ns | 1.18626M commands/s |
+| `BM_EndToEnd_ReplayScenario/100000` | 100,000 | 91189243 ns | 1.09662M commands/s |
+
+Artifact files:
+
+- `benchmarks/end_to_end_results.txt`
+- `benchmarks/end_to_end_results.json`
 
 ## Amortized Batch Latency
 
@@ -72,27 +109,27 @@ warmup batches.
 
 | Benchmark | Workload Size | Batch Size | Samples / Trial | Trials | p50 ns/op | p95 ns/op | p99 ns/op | Max ns/op |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `RestingLimitOrderInsert` | 73,728 | 64 | 1,024 | 5 | 85.70 | 99.62 | 116.05 | 523.14 |
-| `RestingLimitOrderInsert` | 294,912 | 256 | 1,024 | 5 | 118.50 | 132.79 | 164.04 | 212.69 |
-| `RestingLimitOrderInsert` | 1,179,648 | 1,024 | 1,024 | 5 | 181.19 | 195.13 | 211.46 | 315.81 |
-| `CrossingLimitOrderMatch` | 73,728 | 64 | 1,024 | 5 | 50.00 | 62.81 | 80.03 | 218.08 |
-| `CrossingLimitOrderMatch` | 294,912 | 256 | 1,024 | 5 | 82.45 | 117.00 | 135.36 | 243.33 |
-| `CrossingLimitOrderMatch` | 1,179,648 | 1,024 | 1,024 | 5 | 148.87 | 248.35 | 258.39 | 293.79 |
-| `CancelFront` | 73,728 | 64 | 1,024 | 5 | 29.23 | 38.89 | 44.59 | 198.44 |
-| `CancelFront` | 294,912 | 256 | 1,024 | 5 | 36.96 | 56.53 | 74.57 | 112.37 |
-| `CancelFront` | 1,179,648 | 1,024 | 1,024 | 5 | 146.27 | 228.54 | 246.30 | 257.28 |
-| `CancelBack` | 73,728 | 64 | 1,024 | 5 | 28.02 | 35.25 | 39.84 | 187.33 |
-| `CancelBack` | 294,912 | 256 | 1,024 | 5 | 46.86 | 60.96 | 82.38 | 132.33 |
-| `CancelBack` | 1,179,648 | 1,024 | 1,024 | 5 | 141.11 | 152.67 | 159.22 | 198.13 |
-| `CancelRandom` | 73,728 | 64 | 1,024 | 5 | 82.52 | 121.33 | 146.27 | 311.98 |
-| `CancelRandom` | 294,912 | 256 | 1,024 | 5 | 319.20 | 367.16 | 393.31 | 445.71 |
-| `CancelRandom` | 1,179,648 | 1,024 | 1,024 | 5 | 497.65 | 521.81 | 535.16 | 616.75 |
-| `CancelUnknown` | 73,728 | 64 | 1,024 | 5 | 10.20 | 14.50 | 16.66 | 153.48 |
-| `CancelUnknown` | 294,912 | 256 | 1,024 | 5 | 12.33 | 27.82 | 31.81 | 67.04 |
-| `CancelUnknown` | 1,179,648 | 1,024 | 1,024 | 5 | 38.02 | 42.73 | 49.69 | 65.33 |
-| `MixedSubmitCancel` | 73,728 | 64 | 1,024 | 5 | 61.25 | 78.53 | 87.30 | 469.03 |
-| `MixedSubmitCancel` | 294,912 | 256 | 1,024 | 5 | 120.23 | 139.16 | 167.57 | 280.15 |
-| `MixedSubmitCancel` | 1,179,648 | 1,024 | 1,024 | 5 | 167.96 | 183.54 | 198.38 | 312.93 |
+| `RestingLimitOrderInsert` | 73,728 | 64 | 1,024 | 5 | 82.34 | 97.17 | 128.77 | 563.98 |
+| `RestingLimitOrderInsert` | 294,912 | 256 | 1,024 | 5 | 120.09 | 144.84 | 170.54 | 495.33 |
+| `RestingLimitOrderInsert` | 1,179,648 | 1,024 | 1,024 | 5 | 172.94 | 186.19 | 215.46 | 308.96 |
+| `CrossingLimitOrderMatch` | 73,728 | 64 | 1,024 | 5 | 57.83 | 73.36 | 90.30 | 237.39 |
+| `CrossingLimitOrderMatch` | 294,912 | 256 | 1,024 | 5 | 105.89 | 133.25 | 152.50 | 232.49 |
+| `CrossingLimitOrderMatch` | 1,179,648 | 1,024 | 1,024 | 5 | 158.30 | 258.01 | 287.69 | 398.37 |
+| `CancelFront` | 73,728 | 64 | 1,024 | 5 | 32.45 | 43.28 | 49.28 | 293.56 |
+| `CancelFront` | 294,912 | 256 | 1,024 | 5 | 40.60 | 62.47 | 92.24 | 144.64 |
+| `CancelFront` | 1,179,648 | 1,024 | 1,024 | 5 | 147.17 | 214.60 | 226.87 | 248.27 |
+| `CancelBack` | 73,728 | 64 | 1,024 | 5 | 32.03 | 39.78 | 45.69 | 196.05 |
+| `CancelBack` | 294,912 | 256 | 1,024 | 5 | 46.14 | 53.89 | 85.55 | 134.26 |
+| `CancelBack` | 1,179,648 | 1,024 | 1,024 | 5 | 140.07 | 152.10 | 158.23 | 219.41 |
+| `CancelRandom` | 73,728 | 64 | 1,024 | 5 | 94.36 | 132.17 | 165.12 | 296.20 |
+| `CancelRandom` | 294,912 | 256 | 1,024 | 5 | 327.02 | 367.54 | 394.09 | 456.16 |
+| `CancelRandom` | 1,179,648 | 1,024 | 1,024 | 5 | 503.23 | 529.29 | 546.41 | 705.53 |
+| `CancelUnknown` | 73,728 | 64 | 1,024 | 5 | 10.06 | 14.77 | 17.41 | 154.77 |
+| `CancelUnknown` | 294,912 | 256 | 1,024 | 5 | 14.15 | 31.48 | 36.27 | 88.09 |
+| `CancelUnknown` | 1,179,648 | 1,024 | 1,024 | 5 | 36.09 | 41.39 | 48.89 | 64.81 |
+| `MixedSubmitCancel` | 73,728 | 64 | 1,024 | 5 | 82.52 | 98.55 | 112.86 | 270.34 |
+| `MixedSubmitCancel` | 294,912 | 256 | 1,024 | 5 | 136.82 | 160.03 | 194.10 | 269.84 |
+| `MixedSubmitCancel` | 1,179,648 | 1,024 | 1,024 | 5 | 182.27 | 197.60 | 215.71 | 306.39 |
 
 ## Hardware Performance Counters
 
@@ -165,9 +202,9 @@ benchmark rows are tracked in `docs/benchmark_history.md`.
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_RestingLimitOrderInsert/1000` | 34287 ns | 29.6014M items/s |
-| `BM_RestingLimitOrderInsert/10000` | 497681 ns | 20.0948M items/s |
-| `BM_RestingLimitOrderInsert/100000` | 6166983 ns | 16.2208M items/s |
+| `BM_RestingLimitOrderInsert/1000` | 35726 ns | 27.9908M items/s |
+| `BM_RestingLimitOrderInsert/10000` | 342625 ns | 29.1864M items/s |
+| `BM_RestingLimitOrderInsert/100000` | 8956498 ns | 11.1651M items/s |
 
 Artifact files:
 
@@ -178,9 +215,9 @@ Artifact files:
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_CrossingLimitOrderMatch/1000` | 31098 ns | 32.1567M items/s |
-| `BM_CrossingLimitOrderMatch/10000` | 306560 ns | 32.6207M items/s |
-| `BM_CrossingLimitOrderMatch/100000` | 4901451 ns | 20.41M items/s |
+| `BM_CrossingLimitOrderMatch/1000` | 34845 ns | 28.6985M items/s |
+| `BM_CrossingLimitOrderMatch/10000` | 342823 ns | 29.1696M items/s |
+| `BM_CrossingLimitOrderMatch/100000` | 5877256 ns | 17.0147M items/s |
 
 Artifact files:
 
@@ -228,28 +265,72 @@ Run metadata:
 - Reusable submit event-buffer base: `523506d` plus local reusable-submit-buffer changes
 - Amortized batch latency base: `6f581de` plus local latency benchmark changes
 - Perf-counter instrumentation base: `dca7f50` plus local perf-counter instrumentation changes
+- End-to-end benchmark base: `c3e1468` plus local end-to-end benchmark changes
 - Refactor host: AWS EC2 `t3.small`
-- Correctness tests: 26/26 passed before benchmark execution
+- Correctness tests: 121/121 passed before benchmark execution
 
 Latest full cancel artifact run:
 
 | Benchmark | CPU Time | Throughput |
 | --- | ---: | ---: |
-| `BM_CancelFront/1000` | 16524 ns | 60.5168M items/s |
-| `BM_CancelFront/10000` | 158584 ns | 63.2277M items/s |
-| `BM_CancelFront/100000` | 2950841 ns | 33.9001M items/s |
-| `BM_CancelBack/1000` | 16049 ns | 62.31M items/s |
-| `BM_CancelBack/10000` | 148874 ns | 67.1732M items/s |
-| `BM_CancelBack/100000` | 2799016 ns | 35.7337M items/s |
-| `BM_CancelRandom/1000` | 18631 ns | 53.9077M items/s |
-| `BM_CancelRandom/10000` | 231802 ns | 43.1423M items/s |
-| `BM_CancelRandom/100000` | 9649975 ns | 10.3807M items/s |
-| `BM_CancelUnknown/1000` | 8140 ns | 122.848M items/s |
-| `BM_CancelUnknown/10000` | 68333 ns | 146.343M items/s |
-| `BM_CancelUnknown/100000` | 978926 ns | 102.543M items/s |
-| `BM_MixedSubmitCancel/1000` | 26786 ns | 37.333M items/s |
-| `BM_MixedSubmitCancel/10000` | 261513 ns | 38.2455M items/s |
-| `BM_MixedSubmitCancel/100000` | 5322068 ns | 18.798M items/s |
+| `BM_CancelFront/1000` | 18121 ns | 55.1853M items/s |
+| `BM_CancelFront/10000` | 168776 ns | 59.25M items/s |
+| `BM_CancelFront/100000` | 4120772 ns | 24.2673M items/s |
+| `BM_CancelBack/1000` | 17371 ns | 57.5679M items/s |
+| `BM_CancelBack/10000` | 164979 ns | 60.6139M items/s |
+| `BM_CancelBack/100000` | 3948901 ns | 25.3235M items/s |
+| `BM_CancelRandom/1000` | 19771 ns | 50.5804M items/s |
+| `BM_CancelRandom/10000` | 273750 ns | 36.5296M items/s |
+| `BM_CancelRandom/100000` | 12587167 ns | 7.9446M items/s |
+| `BM_CancelUnknown/1000` | 7077 ns | 141.306M items/s |
+| `BM_CancelUnknown/10000` | 57867 ns | 172.809M items/s |
+| `BM_CancelUnknown/100000` | 892094 ns | 112.096M items/s |
+| `BM_MixedSubmitCancel/1000` | 30503 ns | 32.7834M items/s |
+| `BM_MixedSubmitCancel/10000` | 301858 ns | 33.1281M items/s |
+| `BM_MixedSubmitCancel/100000` | 7325240 ns | 13.6514M items/s |
+
+Order pool reserve sweep:
+
+This focused EC2 run keeps the mixed submit/cancel/match operation stream fixed
+at 100,000 operations and varies only the explicit setup-time reserve capacity
+used for the order-id map and `OrderPool`. A reserve capacity of `0` constructs
+the book without calling `reserve_order_capacity`. Setup allocation remains
+outside the timed benchmark loop, but the resulting memory layout and table
+sizes affect the measured hot path. The benchmark observed a peak live depth of
+about 40,003 resting orders.
+
+Command:
+
+```bash
+taskset -c 0 ./build-release/cancel_reserve_sweep_benchmark \
+  --benchmark_filter=BM_MixedSubmitCancelReserveSweep \
+  --benchmark_repetitions=5 \
+  --benchmark_out=benchmarks/order_pool_reserve_sweep_results.json \
+  --benchmark_out_format=json
+```
+
+| Reserve Capacity | Max Live Orders | Median CPU Time | Median Throughput | Best Throughput | Worst Throughput | Jitter |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 | 40,003 | 5468915 ns | 18.2852M items/s | 18.8156M items/s | 17.798M items/s | 2.27% CPU CV |
+| 1,000 | 40,003 | 5137813 ns | 19.4635M items/s | 19.7882M items/s | 18.2701M items/s | 3.28% CPU CV |
+| 10,000 | 40,003 | 5001246 ns | 19.995M items/s | 20.3507M items/s | 18.187M items/s | 4.74% CPU CV |
+| 100,000 | 40,003 | 6900086 ns | 14.4926M items/s | 15.1359M items/s | 13.2397M items/s | 5.37% CPU CV |
+| 1,000,000 | 40,003 | 16091381 ns | 6.21451M items/s | 6.29124M items/s | 6.06895M items/s | 1.57% CPU CV |
+| 10,000,000 | 40,003 | 19414420 ns | 5.15081M items/s | 5.27851M items/s | 4.09862M items/s | 11.44% CPU CV |
+
+Conclusion: the mixed submit/cancel regression looks like over-reservation and
+cache/TLB footprint damage, not underallocation. No reserve, 1,000 reserve, and
+10,000 reserve all beat the current 100,000-operation reserve policy despite
+allocating some blocks during the timed stream. The 100,000 reserve point is
+both slower and much noisier, while 1,000,000 and 10,000,000 collapse
+throughput. Do not treat this as a production policy change yet; a separate
+change should evaluate a better default reserve heuristic against the other
+OrderBook microbenchmarks.
+
+Artifact files:
+
+- `benchmarks/order_pool_reserve_sweep_results.txt`
+- `benchmarks/order_pool_reserve_sweep_results.json`
 
 Separate paired 3-second comparison run:
 

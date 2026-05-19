@@ -120,6 +120,26 @@ if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
             benchmark::benchmark_main
     )
 
+    add_executable(cancel_reserve_sweep_benchmark benchmark/cancel_benchmark.cpp)
+    target_compile_definitions(cancel_reserve_sweep_benchmark
+        PRIVATE
+            MATCHING_ENGINE_ENABLE_RESERVE_SWEEP
+    )
+    target_link_libraries(cancel_reserve_sweep_benchmark
+        PRIVATE
+            engine
+            benchmark::benchmark
+            benchmark::benchmark_main
+    )
+
+    add_executable(end_to_end_benchmark benchmark/end_to_end_benchmark.cpp)
+    target_link_libraries(end_to_end_benchmark
+        PRIVATE
+            engine
+            benchmark::benchmark
+            benchmark::benchmark_main
+    )
+
     add_executable(latency_benchmark benchmark/latency_benchmark.cpp)
     target_link_libraries(latency_benchmark
         PRIVATE

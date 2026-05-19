@@ -10,10 +10,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 107.98,
-      "p95_ns_per_op": 141.67,
-      "p99_ns_per_op": 183.83,
-      "max_ns_per_op": 448.47
+      "p50_ns_per_op": 97.56,
+      "p95_ns_per_op": 142.91,
+      "p99_ns_per_op": 178.02,
+      "max_ns_per_op": 461.11
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -21,10 +21,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 142.36,
-      "p95_ns_per_op": 172.45,
-      "p99_ns_per_op": 204.11,
-      "max_ns_per_op": 880.78
+      "p50_ns_per_op": 136.66,
+      "p95_ns_per_op": 166.16,
+      "p99_ns_per_op": 195.69,
+      "max_ns_per_op": 651.93
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -32,10 +32,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 186.27,
-      "p95_ns_per_op": 199.21,
-      "p99_ns_per_op": 211.46,
-      "max_ns_per_op": 312.87
+      "p50_ns_per_op": 173.96,
+      "p95_ns_per_op": 192.33,
+      "p99_ns_per_op": 215.46,
+      "max_ns_per_op": 290.64
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -43,10 +43,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 49.53,
-      "p95_ns_per_op": 62.81,
-      "p99_ns_per_op": 84.11,
-      "max_ns_per_op": 256.84
+      "p50_ns_per_op": 56.06,
+      "p95_ns_per_op": 70.92,
+      "p99_ns_per_op": 82.75,
+      "max_ns_per_op": 251.06
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -54,10 +54,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 77.40,
-      "p95_ns_per_op": 107.27,
-      "p99_ns_per_op": 130.83,
-      "max_ns_per_op": 214.09
+      "p50_ns_per_op": 87.37,
+      "p95_ns_per_op": 108.89,
+      "p99_ns_per_op": 141.46,
+      "max_ns_per_op": 239.34
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -65,10 +65,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 151.03,
-      "p95_ns_per_op": 250.37,
-      "p99_ns_per_op": 261.03,
-      "max_ns_per_op": 298.53
+      "p50_ns_per_op": 158.30,
+      "p95_ns_per_op": 258.01,
+      "p99_ns_per_op": 281.96,
+      "max_ns_per_op": 398.37
     },
     {
       "benchmark_name": "CancelFront",
@@ -76,10 +76,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 29.39,
-      "p95_ns_per_op": 37.98,
-      "p99_ns_per_op": 43.94,
-      "max_ns_per_op": 198.44
+      "p50_ns_per_op": 31.53,
+      "p95_ns_per_op": 40.30,
+      "p99_ns_per_op": 44.23,
+      "max_ns_per_op": 222.92
     },
     {
       "benchmark_name": "CancelFront",
@@ -87,197 +87,197 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 36.96,
-      "p95_ns_per_op": 65.59,
-      "p99_ns_per_op": 76.01,
-      "max_ns_per_op": 105.80
-    },
-    {
-      "benchmark_name": "CancelFront",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 148.70,
-      "p95_ns_per_op": 229.97,
-      "p99_ns_per_op": 248.99,
-      "max_ns_per_op": 349.11
-    },
-    {
-      "benchmark_name": "CancelBack",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 26.95,
-      "p95_ns_per_op": 34.23,
-      "p99_ns_per_op": 39.44,
-      "max_ns_per_op": 184.30
-    },
-    {
-      "benchmark_name": "CancelBack",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 62.26,
-      "p95_ns_per_op": 98.48,
-      "p99_ns_per_op": 150.43,
-      "max_ns_per_op": 634.36
-    },
-    {
-      "benchmark_name": "CancelBack",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 141.71,
-      "p95_ns_per_op": 153.66,
-      "p99_ns_per_op": 159.84,
-      "max_ns_per_op": 193.07
-    },
-    {
-      "benchmark_name": "CancelRandom",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 74.94,
-      "p95_ns_per_op": 102.55,
-      "p99_ns_per_op": 113.86,
-      "max_ns_per_op": 254.19
-    },
-    {
-      "benchmark_name": "CancelRandom",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 328.39,
-      "p95_ns_per_op": 377.55,
-      "p99_ns_per_op": 404.19,
-      "max_ns_per_op": 518.35
-    },
-    {
-      "benchmark_name": "CancelRandom",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 497.65,
-      "p95_ns_per_op": 522.50,
-      "p99_ns_per_op": 535.16,
-      "max_ns_per_op": 591.82
-    },
-    {
-      "benchmark_name": "CancelUnknown",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 9.92,
-      "p95_ns_per_op": 14.16,
-      "p99_ns_per_op": 16.14,
-      "max_ns_per_op": 18.95
-    },
-    {
-      "benchmark_name": "CancelUnknown",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 12.33,
-      "p95_ns_per_op": 27.82,
-      "p99_ns_per_op": 31.81,
-      "max_ns_per_op": 62.79
-    },
-    {
-      "benchmark_name": "CancelUnknown",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 38.02,
-      "p95_ns_per_op": 42.29,
-      "p99_ns_per_op": 48.94,
-      "max_ns_per_op": 50.92
-    },
-    {
-      "benchmark_name": "MixedSubmitCancel",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 52.91,
-      "p95_ns_per_op": 89.83,
-      "p99_ns_per_op": 127.23,
-      "max_ns_per_op": 240.11
-    },
-    {
-      "benchmark_name": "MixedSubmitCancel",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 111.06,
-      "p95_ns_per_op": 138.57,
-      "p99_ns_per_op": 167.57,
-      "max_ns_per_op": 779.35
-    },
-    {
-      "benchmark_name": "MixedSubmitCancel",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 1,
-      "p50_ns_per_op": 167.96,
-      "p95_ns_per_op": 183.54,
-      "p99_ns_per_op": 198.38,
-      "max_ns_per_op": 286.05
-    },
-    {
-      "benchmark_name": "RestingLimitOrderInsert",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 85.70,
-      "p95_ns_per_op": 100.62,
-      "p99_ns_per_op": 136.05,
-      "max_ns_per_op": 3268.28
-    },
-    {
-      "benchmark_name": "RestingLimitOrderInsert",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 109.32,
-      "p95_ns_per_op": 129.86,
-      "p99_ns_per_op": 163.64,
-      "max_ns_per_op": 200.58
-    },
-    {
-      "benchmark_name": "RestingLimitOrderInsert",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 181.19,
-      "p95_ns_per_op": 196.28,
-      "p99_ns_per_op": 213.02,
-      "max_ns_per_op": 303.83
-    },
-    {
-      "benchmark_name": "CrossingLimitOrderMatch",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 50.00,
+      "p50_ns_per_op": 38.84,
       "p95_ns_per_op": 62.47,
-      "p99_ns_per_op": 77.95,
-      "max_ns_per_op": 235.61
+      "p99_ns_per_op": 83.16,
+      "max_ns_per_op": 144.64
+    },
+    {
+      "benchmark_name": "CancelFront",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 147.06,
+      "p95_ns_per_op": 214.60,
+      "p99_ns_per_op": 229.29,
+      "max_ns_per_op": 246.46
+    },
+    {
+      "benchmark_name": "CancelBack",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 30.72,
+      "p95_ns_per_op": 38.92,
+      "p99_ns_per_op": 49.89,
+      "max_ns_per_op": 196.05
+    },
+    {
+      "benchmark_name": "CancelBack",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 43.74,
+      "p95_ns_per_op": 53.89,
+      "p99_ns_per_op": 85.55,
+      "max_ns_per_op": 143.71
+    },
+    {
+      "benchmark_name": "CancelBack",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 139.25,
+      "p95_ns_per_op": 150.50,
+      "p99_ns_per_op": 156.16,
+      "max_ns_per_op": 219.41
+    },
+    {
+      "benchmark_name": "CancelRandom",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 86.91,
+      "p95_ns_per_op": 112.47,
+      "p99_ns_per_op": 134.78,
+      "max_ns_per_op": 269.22
+    },
+    {
+      "benchmark_name": "CancelRandom",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 322.86,
+      "p95_ns_per_op": 367.54,
+      "p99_ns_per_op": 394.09,
+      "max_ns_per_op": 456.16
+    },
+    {
+      "benchmark_name": "CancelRandom",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 498.95,
+      "p95_ns_per_op": 533.32,
+      "p99_ns_per_op": 788.46,
+      "max_ns_per_op": 1511.94
+    },
+    {
+      "benchmark_name": "CancelUnknown",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 9.44,
+      "p95_ns_per_op": 13.92,
+      "p99_ns_per_op": 16.56,
+      "max_ns_per_op": 22.45
+    },
+    {
+      "benchmark_name": "CancelUnknown",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 17.25,
+      "p95_ns_per_op": 32.48,
+      "p99_ns_per_op": 49.16,
+      "max_ns_per_op": 97.54
+    },
+    {
+      "benchmark_name": "CancelUnknown",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 35.99,
+      "p95_ns_per_op": 43.78,
+      "p99_ns_per_op": 49.74,
+      "max_ns_per_op": 83.28
+    },
+    {
+      "benchmark_name": "MixedSubmitCancel",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 70.50,
+      "p95_ns_per_op": 129.44,
+      "p99_ns_per_op": 174.14,
+      "max_ns_per_op": 270.34
+    },
+    {
+      "benchmark_name": "MixedSubmitCancel",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 136.82,
+      "p95_ns_per_op": 160.03,
+      "p99_ns_per_op": 201.48,
+      "max_ns_per_op": 232.76
+    },
+    {
+      "benchmark_name": "MixedSubmitCancel",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 1,
+      "p50_ns_per_op": 182.27,
+      "p95_ns_per_op": 210.67,
+      "p99_ns_per_op": 338.34,
+      "max_ns_per_op": 1160.71
+    },
+    {
+      "benchmark_name": "RestingLimitOrderInsert",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 87.77,
+      "p95_ns_per_op": 107.36,
+      "p99_ns_per_op": 240.73,
+      "max_ns_per_op": 1512.52
+    },
+    {
+      "benchmark_name": "RestingLimitOrderInsert",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 128.02,
+      "p95_ns_per_op": 186.37,
+      "p99_ns_per_op": 1098.55,
+      "max_ns_per_op": 6873.02
+    },
+    {
+      "benchmark_name": "RestingLimitOrderInsert",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 179.55,
+      "p95_ns_per_op": 482.33,
+      "p99_ns_per_op": 1294.71,
+      "max_ns_per_op": 7171.64
+    },
+    {
+      "benchmark_name": "CrossingLimitOrderMatch",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 61.70,
+      "p95_ns_per_op": 82.77,
+      "p99_ns_per_op": 178.14,
+      "max_ns_per_op": 4680.05
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -285,10 +285,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 82.45,
-      "p95_ns_per_op": 117.00,
-      "p99_ns_per_op": 136.68,
-      "max_ns_per_op": 308.37
+      "p50_ns_per_op": 149.35,
+      "p95_ns_per_op": 509.85,
+      "p99_ns_per_op": 1897.61,
+      "max_ns_per_op": 4318.16
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -296,10 +296,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 148.87,
-      "p95_ns_per_op": 248.35,
-      "p99_ns_per_op": 258.31,
-      "max_ns_per_op": 314.15
+      "p50_ns_per_op": 241.20,
+      "p95_ns_per_op": 653.01,
+      "p99_ns_per_op": 1827.68,
+      "max_ns_per_op": 5597.41
     },
     {
       "benchmark_name": "CancelFront",
@@ -307,10 +307,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 29.23,
-      "p95_ns_per_op": 38.89,
-      "p99_ns_per_op": 45.06,
-      "max_ns_per_op": 180.19
+      "p50_ns_per_op": 39.41,
+      "p95_ns_per_op": 69.47,
+      "p99_ns_per_op": 268.83,
+      "max_ns_per_op": 4895.75
     },
     {
       "benchmark_name": "CancelFront",
@@ -318,10 +318,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 37.07,
-      "p95_ns_per_op": 56.53,
-      "p99_ns_per_op": 74.57,
-      "max_ns_per_op": 93.28
+      "p50_ns_per_op": 56.10,
+      "p95_ns_per_op": 83.93,
+      "p99_ns_per_op": 121.16,
+      "max_ns_per_op": 425.27
     },
     {
       "benchmark_name": "CancelFront",
@@ -329,10 +329,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 145.36,
-      "p95_ns_per_op": 229.24,
-      "p99_ns_per_op": 247.62,
-      "max_ns_per_op": 254.89
+      "p50_ns_per_op": 148.47,
+      "p95_ns_per_op": 217.11,
+      "p99_ns_per_op": 231.39,
+      "max_ns_per_op": 302.95
     },
     {
       "benchmark_name": "CancelBack",
@@ -340,10 +340,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 28.02,
-      "p95_ns_per_op": 35.25,
-      "p99_ns_per_op": 40.34,
-      "max_ns_per_op": 174.52
+      "p50_ns_per_op": 33.75,
+      "p95_ns_per_op": 41.62,
+      "p99_ns_per_op": 46.47,
+      "max_ns_per_op": 193.12
     },
     {
       "benchmark_name": "CancelBack",
@@ -351,10 +351,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 38.70,
-      "p95_ns_per_op": 50.51,
-      "p99_ns_per_op": 77.23,
-      "max_ns_per_op": 122.81
+      "p50_ns_per_op": 48.90,
+      "p95_ns_per_op": 59.07,
+      "p99_ns_per_op": 86.06,
+      "max_ns_per_op": 100.23
     },
     {
       "benchmark_name": "CancelBack",
@@ -362,10 +362,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 141.11,
-      "p95_ns_per_op": 152.67,
-      "p99_ns_per_op": 160.32,
-      "max_ns_per_op": 301.88
+      "p50_ns_per_op": 140.58,
+      "p95_ns_per_op": 152.10,
+      "p99_ns_per_op": 158.23,
+      "max_ns_per_op": 182.32
     },
     {
       "benchmark_name": "CancelRandom",
@@ -373,10 +373,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 99.89,
-      "p95_ns_per_op": 140.75,
-      "p99_ns_per_op": 234.77,
-      "max_ns_per_op": 1785.30
+      "p50_ns_per_op": 92.06,
+      "p95_ns_per_op": 132.17,
+      "p99_ns_per_op": 157.03,
+      "max_ns_per_op": 296.20
     },
     {
       "benchmark_name": "CancelRandom",
@@ -384,10 +384,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 327.01,
-      "p95_ns_per_op": 374.53,
-      "p99_ns_per_op": 398.91,
-      "max_ns_per_op": 715.87
+      "p50_ns_per_op": 327.02,
+      "p95_ns_per_op": 366.06,
+      "p99_ns_per_op": 387.73,
+      "max_ns_per_op": 405.43
     },
     {
       "benchmark_name": "CancelRandom",
@@ -395,10 +395,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 498.28,
-      "p95_ns_per_op": 521.81,
-      "p99_ns_per_op": 546.56,
-      "max_ns_per_op": 961.33
+      "p50_ns_per_op": 503.23,
+      "p95_ns_per_op": 529.29,
+      "p99_ns_per_op": 538.44,
+      "max_ns_per_op": 630.80
     },
     {
       "benchmark_name": "CancelUnknown",
@@ -406,10 +406,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 10.55,
-      "p95_ns_per_op": 15.19,
-      "p99_ns_per_op": 17.17,
-      "max_ns_per_op": 21.27
+      "p50_ns_per_op": 10.06,
+      "p95_ns_per_op": 14.77,
+      "p99_ns_per_op": 18.36,
+      "max_ns_per_op": 24.66
     },
     {
       "benchmark_name": "CancelUnknown",
@@ -417,10 +417,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 11.54,
-      "p95_ns_per_op": 22.21,
-      "p99_ns_per_op": 25.29,
-      "max_ns_per_op": 55.10
+      "p50_ns_per_op": 14.15,
+      "p95_ns_per_op": 29.45,
+      "p99_ns_per_op": 32.55,
+      "max_ns_per_op": 87.62
     },
     {
       "benchmark_name": "CancelUnknown",
@@ -428,10 +428,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 38.12,
-      "p95_ns_per_op": 42.12,
-      "p99_ns_per_op": 48.94,
-      "max_ns_per_op": 52.05
+      "p50_ns_per_op": 36.12,
+      "p95_ns_per_op": 42.63,
+      "p99_ns_per_op": 49.43,
+      "max_ns_per_op": 279.78
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -439,10 +439,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 67.30,
-      "p95_ns_per_op": 78.53,
-      "p99_ns_per_op": 87.30,
-      "max_ns_per_op": 415.50
+      "p50_ns_per_op": 85.02,
+      "p95_ns_per_op": 102.16,
+      "p99_ns_per_op": 154.19,
+      "max_ns_per_op": 446.84
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -450,10 +450,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 111.76,
-      "p95_ns_per_op": 132.36,
-      "p99_ns_per_op": 160.28,
-      "max_ns_per_op": 196.96
+      "p50_ns_per_op": 134.88,
+      "p95_ns_per_op": 157.55,
+      "p99_ns_per_op": 181.08,
+      "max_ns_per_op": 251.91
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -461,10 +461,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 166.33,
-      "p95_ns_per_op": 180.96,
-      "p99_ns_per_op": 193.18,
-      "max_ns_per_op": 312.93
+      "p50_ns_per_op": 179.58,
+      "p95_ns_per_op": 195.31,
+      "p99_ns_per_op": 209.32,
+      "max_ns_per_op": 306.22
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -472,10 +472,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 83.42,
-      "p95_ns_per_op": 95.22,
-      "p99_ns_per_op": 109.84,
-      "max_ns_per_op": 523.14
+      "p50_ns_per_op": 81.03,
+      "p95_ns_per_op": 97.17,
+      "p99_ns_per_op": 128.77,
+      "max_ns_per_op": 538.88
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -483,10 +483,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 123.39,
-      "p95_ns_per_op": 139.04,
-      "p99_ns_per_op": 168.70,
-      "max_ns_per_op": 316.02
+      "p50_ns_per_op": 107.35,
+      "p95_ns_per_op": 140.89,
+      "p99_ns_per_op": 158.59,
+      "max_ns_per_op": 196.24
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -494,10 +494,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 180.91,
-      "p95_ns_per_op": 193.89,
-      "p99_ns_per_op": 218.99,
-      "max_ns_per_op": 530.78
+      "p50_ns_per_op": 171.56,
+      "p95_ns_per_op": 183.94,
+      "p99_ns_per_op": 205.77,
+      "max_ns_per_op": 308.96
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -505,10 +505,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 49.22,
-      "p95_ns_per_op": 61.38,
-      "p99_ns_per_op": 74.56,
-      "max_ns_per_op": 214.91
+      "p50_ns_per_op": 57.83,
+      "p95_ns_per_op": 76.83,
+      "p99_ns_per_op": 90.30,
+      "max_ns_per_op": 233.58
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -516,10 +516,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 102.50,
-      "p95_ns_per_op": 125.21,
-      "p99_ns_per_op": 151.32,
-      "max_ns_per_op": 243.33
+      "p50_ns_per_op": 105.89,
+      "p95_ns_per_op": 144.30,
+      "p99_ns_per_op": 168.14,
+      "max_ns_per_op": 190.38
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -527,10 +527,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 143.61,
-      "p95_ns_per_op": 245.09,
-      "p99_ns_per_op": 260.06,
-      "max_ns_per_op": 283.20
+      "p50_ns_per_op": 158.11,
+      "p95_ns_per_op": 256.30,
+      "p99_ns_per_op": 287.69,
+      "max_ns_per_op": 333.10
     },
     {
       "benchmark_name": "CancelFront",
@@ -538,10 +538,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 28.73,
-      "p95_ns_per_op": 39.50,
-      "p99_ns_per_op": 52.92,
-      "max_ns_per_op": 206.80
+      "p50_ns_per_op": 32.67,
+      "p95_ns_per_op": 43.28,
+      "p99_ns_per_op": 49.28,
+      "max_ns_per_op": 346.83
     },
     {
       "benchmark_name": "CancelFront",
@@ -549,10 +549,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 35.83,
-      "p95_ns_per_op": 50.95,
-      "p99_ns_per_op": 82.39,
-      "max_ns_per_op": 124.38
+      "p50_ns_per_op": 36.11,
+      "p95_ns_per_op": 59.67,
+      "p99_ns_per_op": 72.41,
+      "max_ns_per_op": 107.11
     },
     {
       "benchmark_name": "CancelFront",
@@ -560,10 +560,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 143.41,
-      "p95_ns_per_op": 224.20,
-      "p99_ns_per_op": 246.30,
-      "max_ns_per_op": 258.03
+      "p50_ns_per_op": 147.17,
+      "p95_ns_per_op": 213.10,
+      "p99_ns_per_op": 225.52,
+      "max_ns_per_op": 234.97
     },
     {
       "benchmark_name": "CancelBack",
@@ -571,10 +571,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 26.55,
-      "p95_ns_per_op": 33.28,
-      "p99_ns_per_op": 37.86,
-      "max_ns_per_op": 200.34
+      "p50_ns_per_op": 31.88,
+      "p95_ns_per_op": 39.75,
+      "p99_ns_per_op": 45.69,
+      "max_ns_per_op": 208.62
     },
     {
       "benchmark_name": "CancelBack",
@@ -582,10 +582,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 47.46,
-      "p95_ns_per_op": 60.96,
-      "p99_ns_per_op": 82.38,
-      "max_ns_per_op": 112.02
+      "p50_ns_per_op": 50.32,
+      "p95_ns_per_op": 64.09,
+      "p99_ns_per_op": 93.48,
+      "max_ns_per_op": 603.54
     },
     {
       "benchmark_name": "CancelBack",
@@ -593,10 +593,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 138.84,
-      "p95_ns_per_op": 150.25,
-      "p99_ns_per_op": 155.64,
-      "max_ns_per_op": 198.13
+      "p50_ns_per_op": 139.44,
+      "p95_ns_per_op": 151.67,
+      "p99_ns_per_op": 157.12,
+      "max_ns_per_op": 220.07
     },
     {
       "benchmark_name": "CancelRandom",
@@ -604,10 +604,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 76.41,
-      "p95_ns_per_op": 115.33,
-      "p99_ns_per_op": 129.33,
-      "max_ns_per_op": 311.98
+      "p50_ns_per_op": 96.81,
+      "p95_ns_per_op": 135.38,
+      "p99_ns_per_op": 167.31,
+      "max_ns_per_op": 410.69
     },
     {
       "benchmark_name": "CancelRandom",
@@ -615,10 +615,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 298.74,
-      "p95_ns_per_op": 353.15,
-      "p99_ns_per_op": 381.56,
-      "max_ns_per_op": 445.71
+      "p50_ns_per_op": 314.65,
+      "p95_ns_per_op": 360.28,
+      "p99_ns_per_op": 385.92,
+      "max_ns_per_op": 512.35
     },
     {
       "benchmark_name": "CancelRandom",
@@ -626,10 +626,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 491.51,
-      "p95_ns_per_op": 513.74,
-      "p99_ns_per_op": 523.16,
-      "max_ns_per_op": 590.19
+      "p50_ns_per_op": 499.31,
+      "p95_ns_per_op": 522.36,
+      "p99_ns_per_op": 533.04,
+      "max_ns_per_op": 850.88
     },
     {
       "benchmark_name": "CancelUnknown",
@@ -637,10 +637,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 10.20,
-      "p95_ns_per_op": 14.50,
-      "p99_ns_per_op": 16.06,
-      "max_ns_per_op": 154.62
+      "p50_ns_per_op": 9.92,
+      "p95_ns_per_op": 14.64,
+      "p99_ns_per_op": 17.41,
+      "max_ns_per_op": 174.06
     },
     {
       "benchmark_name": "CancelUnknown",
@@ -648,10 +648,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 11.74,
-      "p95_ns_per_op": 22.84,
-      "p99_ns_per_op": 27.82,
-      "max_ns_per_op": 94.14
+      "p50_ns_per_op": 12.09,
+      "p95_ns_per_op": 29.66,
+      "p99_ns_per_op": 33.86,
+      "max_ns_per_op": 63.83
     },
     {
       "benchmark_name": "CancelUnknown",
@@ -659,10 +659,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 37.06,
-      "p95_ns_per_op": 44.74,
-      "p99_ns_per_op": 53.84,
-      "max_ns_per_op": 68.45
+      "p50_ns_per_op": 36.04,
+      "p95_ns_per_op": 39.95,
+      "p99_ns_per_op": 48.01,
+      "max_ns_per_op": 64.81
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -670,10 +670,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 58.98,
-      "p95_ns_per_op": 69.91,
-      "p99_ns_per_op": 82.12,
-      "max_ns_per_op": 558.45
+      "p50_ns_per_op": 83.86,
+      "p95_ns_per_op": 98.55,
+      "p99_ns_per_op": 112.86,
+      "max_ns_per_op": 257.83
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -681,10 +681,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 120.23,
-      "p95_ns_per_op": 143.16,
-      "p99_ns_per_op": 172.50,
-      "max_ns_per_op": 280.15
+      "p50_ns_per_op": 132.91,
+      "p95_ns_per_op": 158.54,
+      "p99_ns_per_op": 179.45,
+      "max_ns_per_op": 269.84
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -692,10 +692,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 3,
-      "p50_ns_per_op": 167.97,
-      "p95_ns_per_op": 184.75,
-      "p99_ns_per_op": 199.91,
-      "max_ns_per_op": 355.71
+      "p50_ns_per_op": 184.38,
+      "p95_ns_per_op": 201.11,
+      "p99_ns_per_op": 261.19,
+      "max_ns_per_op": 527.82
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -703,10 +703,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 85.72,
-      "p95_ns_per_op": 99.62,
-      "p99_ns_per_op": 116.05,
-      "max_ns_per_op": 534.44
+      "p50_ns_per_op": 82.34,
+      "p95_ns_per_op": 96.75,
+      "p99_ns_per_op": 122.98,
+      "max_ns_per_op": 563.98
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -714,10 +714,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 118.50,
-      "p95_ns_per_op": 132.79,
-      "p99_ns_per_op": 164.04,
-      "max_ns_per_op": 197.71
+      "p50_ns_per_op": 120.09,
+      "p95_ns_per_op": 144.84,
+      "p99_ns_per_op": 169.45,
+      "max_ns_per_op": 290.36
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -725,10 +725,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 182.53,
-      "p95_ns_per_op": 195.13,
-      "p99_ns_per_op": 207.46,
-      "max_ns_per_op": 318.03
+      "p50_ns_per_op": 172.94,
+      "p95_ns_per_op": 186.19,
+      "p99_ns_per_op": 221.68,
+      "max_ns_per_op": 316.85
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -736,10 +736,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 50.25,
-      "p95_ns_per_op": 63.45,
-      "p99_ns_per_op": 80.03,
-      "max_ns_per_op": 218.08
+      "p50_ns_per_op": 58.77,
+      "p95_ns_per_op": 73.36,
+      "p99_ns_per_op": 87.83,
+      "max_ns_per_op": 236.48
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -747,10 +747,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 84.90,
-      "p95_ns_per_op": 119.07,
-      "p99_ns_per_op": 135.36,
-      "max_ns_per_op": 203.44
+      "p50_ns_per_op": 107.03,
+      "p95_ns_per_op": 133.25,
+      "p99_ns_per_op": 152.50,
+      "max_ns_per_op": 226.22
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -758,10 +758,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 151.77,
-      "p95_ns_per_op": 249.59,
-      "p99_ns_per_op": 258.39,
-      "max_ns_per_op": 288.09
+      "p50_ns_per_op": 159.66,
+      "p95_ns_per_op": 261.03,
+      "p99_ns_per_op": 293.68,
+      "max_ns_per_op": 466.98
     },
     {
       "benchmark_name": "CancelFront",
@@ -769,10 +769,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 29.42,
-      "p95_ns_per_op": 39.25,
-      "p99_ns_per_op": 44.59,
-      "max_ns_per_op": 243.58
+      "p50_ns_per_op": 32.45,
+      "p95_ns_per_op": 44.02,
+      "p99_ns_per_op": 60.83,
+      "max_ns_per_op": 293.56
     },
     {
       "benchmark_name": "CancelFront",
@@ -780,10 +780,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 41.42,
-      "p95_ns_per_op": 59.70,
-      "p99_ns_per_op": 67.54,
-      "max_ns_per_op": 123.34
+      "p50_ns_per_op": 40.60,
+      "p95_ns_per_op": 62.38,
+      "p99_ns_per_op": 92.24,
+      "max_ns_per_op": 475.94
     },
     {
       "benchmark_name": "CancelFront",
@@ -791,10 +791,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 146.27,
-      "p95_ns_per_op": 228.54,
-      "p99_ns_per_op": 245.62,
-      "max_ns_per_op": 257.28
+      "p50_ns_per_op": 147.22,
+      "p95_ns_per_op": 215.20,
+      "p99_ns_per_op": 226.87,
+      "max_ns_per_op": 248.27
     },
     {
       "benchmark_name": "CancelBack",
@@ -802,10 +802,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 28.34,
-      "p95_ns_per_op": 36.16,
-      "p99_ns_per_op": 39.84,
-      "max_ns_per_op": 187.33
+      "p50_ns_per_op": 33.23,
+      "p95_ns_per_op": 40.78,
+      "p99_ns_per_op": 45.27,
+      "max_ns_per_op": 187.59
     },
     {
       "benchmark_name": "CancelBack",
@@ -813,10 +813,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 42.40,
-      "p95_ns_per_op": 55.74,
-      "p99_ns_per_op": 80.55,
-      "max_ns_per_op": 132.33
+      "p50_ns_per_op": 42.41,
+      "p95_ns_per_op": 53.59,
+      "p99_ns_per_op": 85.32,
+      "max_ns_per_op": 103.20
     },
     {
       "benchmark_name": "CancelBack",
@@ -824,87 +824,87 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 142.28,
-      "p95_ns_per_op": 154.06,
-      "p99_ns_per_op": 159.22,
-      "max_ns_per_op": 221.46
+      "p50_ns_per_op": 141.95,
+      "p95_ns_per_op": 154.26,
+      "p99_ns_per_op": 161.25,
+      "max_ns_per_op": 232.80
     },
     {
       "benchmark_name": "CancelRandom",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 4,
+      "p50_ns_per_op": 102.27,
+      "p95_ns_per_op": 141.69,
+      "p99_ns_per_op": 183.20,
+      "max_ns_per_op": 312.25
+    },
+    {
+      "benchmark_name": "CancelRandom",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 4,
+      "p50_ns_per_op": 333.95,
+      "p95_ns_per_op": 378.86,
+      "p99_ns_per_op": 402.70,
+      "max_ns_per_op": 575.43
+    },
+    {
+      "benchmark_name": "CancelRandom",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 4,
+      "p50_ns_per_op": 505.36,
+      "p95_ns_per_op": 532.93,
+      "p99_ns_per_op": 609.17,
+      "max_ns_per_op": 705.53
+    },
+    {
+      "benchmark_name": "CancelUnknown",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 4,
+      "p50_ns_per_op": 10.53,
+      "p95_ns_per_op": 15.22,
+      "p99_ns_per_op": 17.38,
+      "max_ns_per_op": 154.77
+    },
+    {
+      "benchmark_name": "CancelUnknown",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 4,
+      "p50_ns_per_op": 15.53,
+      "p95_ns_per_op": 31.95,
+      "p99_ns_per_op": 44.58,
+      "max_ns_per_op": 88.09
+    },
+    {
+      "benchmark_name": "CancelUnknown",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 4,
+      "p50_ns_per_op": 36.09,
+      "p95_ns_per_op": 40.79,
+      "p99_ns_per_op": 46.98,
+      "max_ns_per_op": 55.75
+    },
+    {
+      "benchmark_name": "MixedSubmitCancel",
       "workload_size": 73728,
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 4,
       "p50_ns_per_op": 82.52,
-      "p95_ns_per_op": 124.25,
-      "p99_ns_per_op": 150.94,
-      "max_ns_per_op": 290.23
-    },
-    {
-      "benchmark_name": "CancelRandom",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 319.20,
-      "p95_ns_per_op": 367.16,
-      "p99_ns_per_op": 393.31,
-      "max_ns_per_op": 417.81
-    },
-    {
-      "benchmark_name": "CancelRandom",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 494.18,
-      "p95_ns_per_op": 515.41,
-      "p99_ns_per_op": 530.02,
-      "max_ns_per_op": 616.75
-    },
-    {
-      "benchmark_name": "CancelUnknown",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 10.12,
-      "p95_ns_per_op": 14.28,
-      "p99_ns_per_op": 16.66,
-      "max_ns_per_op": 153.48
-    },
-    {
-      "benchmark_name": "CancelUnknown",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 13.31,
-      "p95_ns_per_op": 29.64,
-      "p99_ns_per_op": 34.10,
-      "max_ns_per_op": 67.04
-    },
-    {
-      "benchmark_name": "CancelUnknown",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 37.47,
-      "p95_ns_per_op": 42.73,
-      "p99_ns_per_op": 49.69,
-      "max_ns_per_op": 65.33
-    },
-    {
-      "benchmark_name": "MixedSubmitCancel",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 61.25,
-      "p95_ns_per_op": 72.50,
-      "p99_ns_per_op": 81.55,
-      "max_ns_per_op": 469.03
+      "p95_ns_per_op": 96.61,
+      "p99_ns_per_op": 105.25,
+      "max_ns_per_op": 839.50
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -912,10 +912,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 121.07,
-      "p95_ns_per_op": 139.16,
-      "p99_ns_per_op": 165.16,
-      "max_ns_per_op": 231.66
+      "p50_ns_per_op": 144.36,
+      "p95_ns_per_op": 167.36,
+      "p99_ns_per_op": 200.52,
+      "max_ns_per_op": 272.61
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -923,10 +923,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 4,
-      "p50_ns_per_op": 166.10,
-      "p95_ns_per_op": 181.37,
-      "p99_ns_per_op": 190.03,
-      "max_ns_per_op": 279.66
+      "p50_ns_per_op": 180.75,
+      "p95_ns_per_op": 197.31,
+      "p99_ns_per_op": 211.74,
+      "max_ns_per_op": 296.25
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -934,10 +934,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 80.17,
-      "p95_ns_per_op": 92.41,
-      "p99_ns_per_op": 105.50,
-      "max_ns_per_op": 501.77
+      "p50_ns_per_op": 80.36,
+      "p95_ns_per_op": 92.98,
+      "p99_ns_per_op": 107.88,
+      "max_ns_per_op": 568.19
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -945,10 +945,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 94.40,
-      "p95_ns_per_op": 104.34,
-      "p99_ns_per_op": 136.22,
-      "max_ns_per_op": 212.69
+      "p50_ns_per_op": 98.91,
+      "p95_ns_per_op": 135.65,
+      "p99_ns_per_op": 170.54,
+      "max_ns_per_op": 495.33
     },
     {
       "benchmark_name": "RestingLimitOrderInsert",
@@ -956,10 +956,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 178.77,
-      "p95_ns_per_op": 190.65,
-      "p99_ns_per_op": 200.40,
-      "max_ns_per_op": 315.81
+      "p50_ns_per_op": 170.21,
+      "p95_ns_per_op": 181.61,
+      "p99_ns_per_op": 199.26,
+      "max_ns_per_op": 297.73
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -967,10 +967,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 50.31,
-      "p95_ns_per_op": 64.80,
-      "p99_ns_per_op": 91.97,
-      "max_ns_per_op": 205.30
+      "p50_ns_per_op": 56.09,
+      "p95_ns_per_op": 70.91,
+      "p99_ns_per_op": 92.70,
+      "max_ns_per_op": 237.39
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -978,10 +978,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 67.66,
-      "p95_ns_per_op": 100.76,
-      "p99_ns_per_op": 119.49,
-      "max_ns_per_op": 445.67
+      "p50_ns_per_op": 73.73,
+      "p95_ns_per_op": 119.58,
+      "p99_ns_per_op": 141.74,
+      "max_ns_per_op": 232.49
     },
     {
       "benchmark_name": "CrossingLimitOrderMatch",
@@ -989,10 +989,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 147.13,
-      "p95_ns_per_op": 243.88,
-      "p99_ns_per_op": 256.61,
-      "max_ns_per_op": 293.79
+      "p50_ns_per_op": 158.29,
+      "p95_ns_per_op": 252.29,
+      "p99_ns_per_op": 264.43,
+      "max_ns_per_op": 288.22
     },
     {
       "benchmark_name": "CancelFront",
@@ -1000,10 +1000,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 28.12,
-      "p95_ns_per_op": 36.39,
-      "p99_ns_per_op": 41.98,
-      "max_ns_per_op": 171.27
+      "p50_ns_per_op": 32.39,
+      "p95_ns_per_op": 43.25,
+      "p99_ns_per_op": 48.17,
+      "max_ns_per_op": 176.22
     },
     {
       "benchmark_name": "CancelFront",
@@ -1011,10 +1011,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 31.32,
-      "p95_ns_per_op": 42.84,
-      "p99_ns_per_op": 48.33,
-      "max_ns_per_op": 112.37
+      "p50_ns_per_op": 42.17,
+      "p95_ns_per_op": 69.10,
+      "p99_ns_per_op": 93.36,
+      "max_ns_per_op": 137.24
     },
     {
       "benchmark_name": "CancelFront",
@@ -1022,10 +1022,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 146.35,
-      "p95_ns_per_op": 226.72,
-      "p99_ns_per_op": 244.31,
-      "max_ns_per_op": 256.50
+      "p50_ns_per_op": 146.38,
+      "p95_ns_per_op": 210.91,
+      "p99_ns_per_op": 225.98,
+      "max_ns_per_op": 256.13
     },
     {
       "benchmark_name": "CancelBack",
@@ -1033,10 +1033,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 28.03,
-      "p95_ns_per_op": 35.89,
-      "p99_ns_per_op": 41.20,
-      "max_ns_per_op": 195.30
+      "p50_ns_per_op": 32.03,
+      "p95_ns_per_op": 39.78,
+      "p99_ns_per_op": 45.45,
+      "max_ns_per_op": 584.58
     },
     {
       "benchmark_name": "CancelBack",
@@ -1044,10 +1044,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 46.86,
-      "p95_ns_per_op": 62.29,
-      "p99_ns_per_op": 85.61,
-      "max_ns_per_op": 151.41
+      "p50_ns_per_op": 46.14,
+      "p95_ns_per_op": 53.54,
+      "p99_ns_per_op": 83.28,
+      "max_ns_per_op": 134.26
     },
     {
       "benchmark_name": "CancelBack",
@@ -1055,10 +1055,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 138.86,
-      "p95_ns_per_op": 150.18,
-      "p99_ns_per_op": 154.64,
-      "max_ns_per_op": 165.68
+      "p50_ns_per_op": 140.07,
+      "p95_ns_per_op": 152.26,
+      "p99_ns_per_op": 159.40,
+      "max_ns_per_op": 172.39
     },
     {
       "benchmark_name": "CancelRandom",
@@ -1066,10 +1066,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 82.80,
-      "p95_ns_per_op": 121.33,
-      "p99_ns_per_op": 146.27,
-      "max_ns_per_op": 357.61
+      "p50_ns_per_op": 94.36,
+      "p95_ns_per_op": 131.48,
+      "p99_ns_per_op": 165.12,
+      "max_ns_per_op": 294.41
     },
     {
       "benchmark_name": "CancelRandom",
@@ -1077,10 +1077,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 308.61,
-      "p95_ns_per_op": 357.21,
-      "p99_ns_per_op": 379.90,
-      "max_ns_per_op": 425.48
+      "p50_ns_per_op": 331.84,
+      "p95_ns_per_op": 377.02,
+      "p99_ns_per_op": 402.19,
+      "max_ns_per_op": 432.70
     },
     {
       "benchmark_name": "CancelRandom",
@@ -1088,10 +1088,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 500.91,
-      "p95_ns_per_op": 525.55,
-      "p99_ns_per_op": 537.75,
-      "max_ns_per_op": 686.92
+      "p50_ns_per_op": 504.60,
+      "p95_ns_per_op": 528.18,
+      "p99_ns_per_op": 546.41,
+      "max_ns_per_op": 591.33
     },
     {
       "benchmark_name": "CancelUnknown",
@@ -1099,10 +1099,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 11.45,
-      "p95_ns_per_op": 16.42,
-      "p99_ns_per_op": 19.94,
-      "max_ns_per_op": 231.81
+      "p50_ns_per_op": 10.47,
+      "p95_ns_per_op": 15.61,
+      "p99_ns_per_op": 18.19,
+      "max_ns_per_op": 195.19
     },
     {
       "benchmark_name": "CancelUnknown",
@@ -1110,10 +1110,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 12.94,
-      "p95_ns_per_op": 28.12,
-      "p99_ns_per_op": 32.11,
-      "max_ns_per_op": 92.08
+      "p50_ns_per_op": 14.08,
+      "p95_ns_per_op": 31.48,
+      "p99_ns_per_op": 36.27,
+      "max_ns_per_op": 152.52
     },
     {
       "benchmark_name": "CancelUnknown",
@@ -1121,10 +1121,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 39.27,
-      "p95_ns_per_op": 54.91,
-      "p99_ns_per_op": 130.30,
-      "max_ns_per_op": 318.79
+      "p50_ns_per_op": 36.87,
+      "p95_ns_per_op": 41.39,
+      "p99_ns_per_op": 48.89,
+      "max_ns_per_op": 63.04
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -1132,10 +1132,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 96.47,
-      "p95_ns_per_op": 128.69,
-      "p99_ns_per_op": 175.09,
-      "max_ns_per_op": 67991.88
+      "p50_ns_per_op": 78.48,
+      "p95_ns_per_op": 91.20,
+      "p99_ns_per_op": 102.69,
+      "max_ns_per_op": 251.95
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -1143,10 +1143,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 147.19,
-      "p95_ns_per_op": 194.32,
-      "p99_ns_per_op": 3436.69,
-      "max_ns_per_op": 30397.68
+      "p50_ns_per_op": 138.34,
+      "p95_ns_per_op": 164.54,
+      "p99_ns_per_op": 194.10,
+      "max_ns_per_op": 283.70
     },
     {
       "benchmark_name": "MixedSubmitCancel",
@@ -1154,10 +1154,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 177.96,
-      "p95_ns_per_op": 509.10,
-      "p99_ns_per_op": 3653.57,
-      "max_ns_per_op": 24888.17
+      "p50_ns_per_op": 182.42,
+      "p95_ns_per_op": 197.60,
+      "p99_ns_per_op": 215.71,
+      "max_ns_per_op": 306.39
     }
   ]
 }

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.6.0 - End-to-End Benchmarks
+
+- Added Google Benchmark coverage for full public-boundary CLI-style overhead: in-memory input lines, parser, exchange routing, order-book mutation, and event formatting.
+- Added `BM_EndToEnd_ParseProcessFormat` for deterministic multi-symbol parse/process/format throughput without filesystem I/O inside the timed loop.
+- Added `BM_EndToEnd_ReplayScenario` for replay-style multi-symbol command streams covering inserts, crosses, cancels, modifies, market orders, IOC, and FOK.
+- Wired the new `end_to_end_benchmark` target into CMake and the EC2 benchmark runner, producing `benchmarks/end_to_end_results.txt` and `benchmarks/end_to_end_results.json`.
+- Refreshed EC2 Release benchmark artifacts on `t3.small` with GCC 15.2.0 and `-O3 -DNDEBUG`; 121/121 correctness tests passed before benchmark execution.
+- Documented the new results in `BENCHMARKS.md` and `docs/benchmark_history.md`, with an explicit note that end-to-end parser/exchange/formatter overhead should not be compared directly to OrderBook hot-path microbenchmarks.
+
 ## v0.5.2 - Invariants + Regression
 
 - Added deterministic order-book invariant tests that validate randomized operation streams preserve uncrossed books, order-id index consistency, FIFO uniqueness, price-level volume totals, empty-level cleanup, best-price ordering, and live quantity accounting.
