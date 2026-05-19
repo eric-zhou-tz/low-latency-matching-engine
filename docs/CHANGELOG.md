@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.5.0 - Unit Test complete
+
+- Audited the parser, order-book, and exchange test suites for semantic coverage gaps across current engine behavior.
+- Expanded order-book GoogleTest coverage for duplicate-order rejection details, partial-fill cancelability, exact FOK fills, exact market fills without remainder rejection, and fully filled replacement-modify outcomes.
+- Expanded exchange integration coverage for duplicate order ids across symbols and market orders, cross-symbol matching isolation, partial versus full fill index cleanup, IOC exact fills, replacement modify event ordering, and `PRINT` snapshot correctness across empty and multi-symbol books.
+- Expanded parser coverage for `PRINT`, malformed market/cancel/modify/print commands, extra trailing tokens, invalid market sides, and zero-quantity modify rejection.
+- Tightened parser validation so `MARKET`, `CANCEL`, and `PRINT` now reject trailing tokens consistently with `SUBMIT` and `MODIFY`.
+- Removed the legacy assert-based `tests/order_book_tests.cpp` smoke test file because its coverage overlapped heavily with the maintained GoogleTest suite and it was not wired into CMake.
+- Verified the full local CTest suite passes with 79 GoogleTest cases.
+
 ## v0.4.2 - Modify Order Action
 
 - Added native `ModifyOrderAction` support with `MODIFY <order_id> <new_price> <new_quantity>` parsing and exchange routing by the live order-id index.

@@ -162,6 +162,24 @@ TEST(OrderBookTest, DuplicateOrderIdIsRejected) {
     expect_rejected(events.front());
 }
 
+TEST(OrderBookTest, DuplicateOrderIdRejectsWithReasonAndPreservesOriginalOrder) {
+    // Rest an order, then submit a same-id order that would otherwise cross.
+    OrderBook book;
+    submit_accepted(book, make_order(2, Side::Buy, 100, 10));
+    submit_accepted(book, make_order(3, Side::Sell, 105, 4));
+    std::vector<Event> events;
+
+    book.submit(make_order(2, Side::Buy, 110, 4), events);
+
+    // The duplicate is rejected before matching, leaving both original orders untouched.
+    ASSERT_EQ(events.size(), 1U);
+    expect_rejected(events.front(), RejectReason::DuplicateOrderId, 2);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_NE(snapshot.find("[2 BUY 100x10]"), std::string::npos);
+    EXPECT_NE(snapshot.find("[3 SELL 105x4]"), std::string::npos);
+}
+
 TEST(OrderBookTest, AggressiveBuyMatchesRestingSell) {
     // Put sell liquidity on the book, then submit a crossing buy.
     OrderBook book;
@@ -225,6 +243,24 @@ TEST(OrderBookTest, PartialFillLeavesRemainingQuantityCorrectly) {
     expect_trade(events[1], 40, 41, 100, 5);
     EXPECT_EQ(book.snapshot().find("[40 SELL 100x5]"), std::string::npos);
     EXPECT_NE(book.snapshot().find("[41 BUY 101x3]"), std::string::npos);
+}
+
+TEST(OrderBookTest, PartialFillLeavesRestingOrderCancelableWithReducedQuantity) {
+    // Partially consume a resting sell so it remains in the id index.
+    OrderBook book;
+    submit_accepted(book, make_order(410, Side::Sell, 100, 8));
+    std::vector<Event> events;
+
+    book.submit(make_order(411, Side::Buy, 100, 3), events);
+
+    // The resting order should show reduced size and remain cancelable.
+    ASSERT_EQ(events.size(), 2U);
+    expect_trade(events[1], 410, 411, 100, 3);
+    EXPECT_NE(book.snapshot().find("[410 SELL 100x5]"), std::string::npos);
+
+    const auto cancel_result = book.cancel(410);
+    expect_canceled(cancel_result, 410);
+    EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
 }
 
 TEST(OrderBookTest, AggressiveBuyWalksAskLevelsAndRestsRemainder) {
@@ -343,6 +379,26 @@ TEST(OrderBookTest, FokLimitOrderFullyFillsAcrossPriceLevels) {
     const auto snapshot = book.snapshot();
     EXPECT_NE(snapshot.find("orders=0"), std::string::npos);
     EXPECT_EQ(snapshot.find("[487 BUY"), std::string::npos);
+}
+
+TEST(OrderBookTest, FokExactFillEmitsAcceptThenTradesAndLeavesNoRemainder) {
+    // Seed exactly enough FIFO ask liquidity at one price for the FOK buy.
+    OrderBook book;
+    submit_accepted(book, make_order(491, Side::Sell, 100, 2));
+    submit_accepted(book, make_order(492, Side::Sell, 100, 3));
+    std::vector<Event> events;
+
+    book.submit(make_order(493, Side::Buy, 100, 5, TimeInForce::FillOrKill), events);
+
+    // A passing FOK emits acceptance first, then fills same-price orders FIFO.
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 491, 493, 100, 2);
+    expect_trade(events[2], 492, 493, 100, 3);
+
+    const auto snapshot = book.snapshot();
+    EXPECT_NE(snapshot.find("orders=0"), std::string::npos);
+    EXPECT_EQ(snapshot.find("[493 BUY"), std::string::npos);
 }
 
 TEST(OrderBookTest, FokSellRejectsWhenBestBidVolumeBelowLimitIsNotCrossing) {
@@ -477,6 +533,23 @@ TEST(OrderBookTest, MarketOrderOnEmptyOppositeBookExpiresRemainder) {
     ASSERT_EQ(events.size(), 2U);
     expect_accepted(events.front());
     expect_rejected(events[1], RejectReason::InsufficientLiquidity, 550);
+    EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
+}
+
+TEST(OrderBookTest, FullyFilledMarketOrderDoesNotEmitRemainderRejection) {
+    // Seed exactly enough bid liquidity for a market sell.
+    OrderBook book;
+    submit_accepted(book, make_order(555, Side::Buy, 105, 2));
+    submit_accepted(book, make_order(556, Side::Buy, 104, 3));
+    std::vector<Event> events;
+
+    book.submit_market(make_order(557, Side::Sell, 0, 5), events);
+
+    // Exact market fills emit acceptance and trades only, with no final rejection.
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 555, 557, 105, 2);
+    expect_trade(events[2], 556, 557, 104, 3);
     EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
 }
 
@@ -734,6 +807,23 @@ TEST(OrderBookTest, ReplacementModifyCanMatchAndRestRemainder) {
     expect_replaced(events.front(), 651, 98, 100, 5, 7);
     expect_trade(events[1], 650, 651, 99, 4);
     EXPECT_NE(book.snapshot().find("[651 BUY 100x3]"), std::string::npos);
+}
+
+TEST(OrderBookTest, ReplacementModifyFullyFillsLeavesModifiedOrderNonResting) {
+    // Modify a resting buy so it exactly consumes the available ask.
+    OrderBook book;
+    submit_accepted(book, make_order(655, Side::Sell, 99, 4));
+    submit_accepted(book, make_order(656, Side::Buy, 98, 4));
+    std::vector<Event> events;
+
+    book.modify(656, 100, 4, events);
+
+    // The replacement fills completely and should not be cancelable afterward.
+    ASSERT_EQ(events.size(), 2U);
+    expect_replaced(events.front(), 656, 98, 100, 4, 4);
+    expect_trade(events[1], 655, 656, 99, 4);
+    EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
+    expect_rejected(book.cancel(656));
 }
 
 TEST(OrderBookTest, ReplacementModifyDoesNotEmitCancelAcceptPair) {

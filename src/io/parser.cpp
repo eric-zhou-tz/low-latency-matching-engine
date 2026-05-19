@@ -104,6 +104,12 @@ std::optional<Action> Parser::parse_line(const std::string& line) const {
             return std::nullopt;
         }
 
+        // Reject extra tokens so malformed market commands do not silently pass.
+        std::string extra_token;
+        if (input >> extra_token) {
+            return std::nullopt;
+        }
+
         // Store the parsed side so the exchange can route to the correct book side.
         action.side = *side;
         return action;
@@ -116,6 +122,13 @@ std::optional<Action> Parser::parse_line(const std::string& line) const {
         if (!input) {
             return std::nullopt;
         }
+
+        // Reject extra tokens so cancellation targets remain unambiguous.
+        std::string extra_token;
+        if (input >> extra_token) {
+            return std::nullopt;
+        }
+
         // Wrap the id in the action variant expected by the exchange.
         return CancelOrderAction{order_id};
     }
@@ -139,6 +152,12 @@ std::optional<Action> Parser::parse_line(const std::string& line) const {
     }
 
     if (command == "PRINT") {
+        // Reject extra tokens because PRINT currently has no selector payload.
+        std::string extra_token;
+        if (input >> extra_token) {
+            return std::nullopt;
+        }
+
         // PRINT carries no payload; the exchange will snapshot known books.
         return PrintBookAction{};
     }

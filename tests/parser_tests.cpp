@@ -10,6 +10,7 @@ using matching_engine::CancelOrderAction;
 using matching_engine::MarketOrderAction;
 using matching_engine::ModifyOrderAction;
 using matching_engine::Parser;
+using matching_engine::PrintBookAction;
 using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
 using matching_engine::TimeInForce;
@@ -106,11 +107,30 @@ TEST(ParserTest, ParsesMarketOrderCommand) {
     EXPECT_EQ(action.quantity, 25U);
 }
 
+TEST(ParserTest, ParsesPrintBookCommand) {
+    // Parse a snapshot request with no payload.
+    Parser parser;
+
+    const auto print = parser.parse_line("PRINT");
+
+    // Confirm the parser emits the explicit print action variant.
+    ASSERT_TRUE(print.has_value());
+    EXPECT_TRUE(std::holds_alternative<PrintBookAction>(*print));
+}
+
 TEST(ParserTest, RejectsMalformedSubmitOrderCommand) {
     // Missing fields should make the parser return no action.
     Parser parser;
 
     const auto invalid = parser.parse_line("SUBMIT bad");
+    EXPECT_FALSE(invalid.has_value());
+}
+
+TEST(ParserTest, RejectsSubmitOrderCommandWithExtraTokens) {
+    // Extra trailing fields should not be silently ignored.
+    Parser parser;
+
+    const auto invalid = parser.parse_line("SUBMIT 6 AAPL SELL 100 10 GTC EXTRA");
     EXPECT_FALSE(invalid.has_value());
 }
 
@@ -120,4 +140,41 @@ TEST(ParserTest, RejectsUnknownSubmitTimeInForce) {
 
     const auto invalid = parser.parse_line("SUBMIT 5 AAPL BUY 100 10 DAY");
     EXPECT_FALSE(invalid.has_value());
+}
+
+TEST(ParserTest, RejectsMarketOrderCommandWithBadSideOrQuantity) {
+    // Market commands still need a valid side and non-zero quantity.
+    Parser parser;
+
+    EXPECT_FALSE(parser.parse_line("MARKET 8 AAPL HOLD 10").has_value());
+    EXPECT_FALSE(parser.parse_line("MARKET 8 AAPL BUY 0").has_value());
+}
+
+TEST(ParserTest, RejectsMarketOrderCommandWithExtraTokens) {
+    // Market commands do not accept a price or time-in-force payload.
+    Parser parser;
+
+    EXPECT_FALSE(parser.parse_line("MARKET 8 AAPL BUY 10 EXTRA").has_value());
+}
+
+TEST(ParserTest, RejectsCancelOrderCommandWithExtraTokens) {
+    // Cancel commands should contain only the order id.
+    Parser parser;
+
+    EXPECT_FALSE(parser.parse_line("CANCEL 8 EXTRA").has_value());
+}
+
+TEST(ParserTest, RejectsModifyOrderCommandWithExtraTokensOrZeroQuantity) {
+    // Modify must be a precise replacement payload.
+    Parser parser;
+
+    EXPECT_FALSE(parser.parse_line("MODIFY 9 101 0").has_value());
+    EXPECT_FALSE(parser.parse_line("MODIFY 9 101 5 EXTRA").has_value());
+}
+
+TEST(ParserTest, RejectsPrintBookCommandWithExtraTokens) {
+    // PRINT currently snapshots every known book and has no selector syntax.
+    Parser parser;
+
+    EXPECT_FALSE(parser.parse_line("PRINT AAPL").has_value());
 }

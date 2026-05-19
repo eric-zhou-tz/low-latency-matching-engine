@@ -11,6 +11,7 @@ namespace {
 
 using matching_engine::AcceptedEvent;
 using matching_engine::Action;
+using matching_engine::BookSnapshotEvent;
 using matching_engine::CancelOrderAction;
 using matching_engine::CanceledEvent;
 using matching_engine::Event;
@@ -18,6 +19,7 @@ using matching_engine::Exchange;
 using matching_engine::MarketOrderAction;
 using matching_engine::ModifyOrderAction;
 using matching_engine::ModifiedEvent;
+using matching_engine::PrintBookAction;
 using matching_engine::RejectedEvent;
 using matching_engine::ReplacedEvent;
 using matching_engine::Side;
@@ -91,6 +93,14 @@ void modify(Exchange& exchange,
 }
 
 /**
+ * @brief Requests snapshots for all known symbol books.
+ */
+void print_book(Exchange& exchange, std::vector<Event>& out) {
+    // Route through the public variant API so snapshot event emission is covered.
+    exchange.process(Action{PrintBookAction{}}, out);
+}
+
+/**
  * @brief Verifies the first event is an acceptance.
  */
 void expect_accepted(const std::vector<Event>& events) {
@@ -157,6 +167,24 @@ void expect_replaced(const std::vector<Event>& events, std::uint64_t order_id) {
     EXPECT_EQ(std::get<ReplacedEvent>(events.front()).new_order_id, order_id);
 }
 
+/**
+ * @brief Finds a snapshot event containing a token.
+ */
+[[nodiscard]] const BookSnapshotEvent* find_snapshot_containing(
+    const std::vector<Event>& events,
+    const std::string& token) {
+    // Scan all emitted book snapshots because symbol map iteration order is not contractual.
+    for (const auto& event : events) {
+        const auto* snapshot = std::get_if<BookSnapshotEvent>(&event);
+        if (snapshot != nullptr && snapshot->message.find(token) != std::string::npos) {
+            return snapshot;
+        }
+    }
+
+    // Return null so callers can make a clear assertion.
+    return nullptr;
+}
+
 } // namespace
 
 TEST(ExchangeTest, CancelRoutesDirectlyToOwningSymbolBook) {
@@ -174,6 +202,39 @@ TEST(ExchangeTest, CancelRoutesDirectlyToOwningSymbolBook) {
     expect_canceled(events, 2);
     cancel(exchange, 1, events);
     expect_canceled(events, 1);
+}
+
+TEST(ExchangeTest, DuplicateOrderIdAcrossSymbolsIsRejectedUntilOriginalLeavesIndex) {
+    // Rest an AAPL order so the exchange-level id index owns id 1.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(1, "AAPL", Side::Buy, 100, 10), events);
+    expect_accepted(events);
+
+    submit(exchange, make_submit(1, "MSFT", Side::Sell, 200, 5), events);
+
+    // Duplicate detection should happen across symbols, not just within one book.
+    expect_rejected(events, "duplicate order id 1");
+
+    cancel(exchange, 1, events);
+    expect_canceled(events, 1);
+    submit(exchange, make_submit(1, "MSFT", Side::Sell, 200, 5), events);
+
+    // Once the original id leaves the live index, the id can be reused.
+    expect_accepted(events);
+}
+
+TEST(ExchangeTest, MarketOrderDuplicateIdIsRejectedAgainstRestingOrder) {
+    // Rest a limit order and then attempt to reuse its id as a market order.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(2, "AAPL", Side::Buy, 100, 10), events);
+    expect_accepted(events);
+
+    submit_market(exchange, make_market(2, "MSFT", Side::Sell, 5), events);
+
+    // Market orders share the same live-id namespace as resting limit orders.
+    expect_rejected(events, "duplicate order id 2");
 }
 
 TEST(ExchangeTest, UnknownCancelStillReturnsRejectedEvent) {
@@ -234,6 +295,25 @@ TEST(ExchangeTest, MultiSymbolCancelDoesNotInvalidateUnrelatedBook) {
     expect_canceled(events, 21);
 }
 
+TEST(ExchangeTest, CrossSymbolOrdersDoNotMatchOrAffectEachOther) {
+    // Create a sell on AAPL and a crossing buy on MSFT with overlapping prices.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(22, "AAPL", Side::Sell, 100, 5), events);
+    expect_accepted(events);
+
+    submit(exchange, make_submit(23, "MSFT", Side::Buy, 101, 5), events);
+
+    // Matching must be isolated per symbol, so the MSFT order rests instead of trading AAPL.
+    ASSERT_EQ(events.size(), 1U);
+    expect_accepted(events);
+
+    cancel(exchange, 22, events);
+    expect_canceled(events, 22);
+    cancel(exchange, 23, events);
+    expect_canceled(events, 23);
+}
+
 TEST(ExchangeTest, FilledRestingOrdersLeaveExchangeIndex) {
     // Rest a sell, then fully consume it with an aggressive buy.
     Exchange exchange;
@@ -253,6 +333,24 @@ TEST(ExchangeTest, FilledRestingOrdersLeaveExchangeIndex) {
     expect_accepted(events);
     cancel(exchange, 30, events);
     expect_canceled(events, 30);
+}
+
+TEST(ExchangeTest, PartialRestingFillKeepsRemainingOrderIndexed) {
+    // Partially fill a resting sell so it remains visible and cancelable.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(32, "AAPL", Side::Sell, 100, 7), events);
+    expect_accepted(events);
+    submit(exchange, make_submit(33, "AAPL", Side::Buy, 101, 3), events);
+
+    ASSERT_EQ(events.size(), 2U);
+    expect_trade(events[1], 32, 33, 100, 3);
+
+    // The resting order has quantity left, so the exchange route must remain live.
+    cancel(exchange, 32, events);
+    expect_canceled(events, 32);
+    cancel(exchange, 33, events);
+    expect_rejected(events, "unknown order id 33");
 }
 
 TEST(ExchangeTest, IocRemainderDoesNotEnterCancelIndex) {
@@ -333,6 +431,28 @@ TEST(ExchangeTest, IocOrderTradesAndDoesNotRestRemainder) {
     expect_accepted(events);
 }
 
+TEST(ExchangeTest, FullyFilledIocOrderRemovesRestingIndexAndDoesNotIndexIncoming) {
+    // Give the IOC exactly enough opposite-side liquidity to fill.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(62, "AAPL", Side::Sell, 100, 3), events);
+    expect_accepted(events);
+
+    submit(exchange,
+           make_submit(63, "AAPL", Side::Buy, 100, 3, TimeInForce::ImmediateOrCancel),
+           events);
+
+    // Exact IOC fills should emit accept then trade, with no leftover rejection.
+    ASSERT_EQ(events.size(), 2U);
+    expect_accepted(events);
+    expect_trade(events[1], 62, 63, 100, 3);
+
+    cancel(exchange, 62, events);
+    expect_rejected(events, "unknown order id 62");
+    cancel(exchange, 63, events);
+    expect_rejected(events, "unknown order id 63");
+}
+
 TEST(ExchangeTest, ModifyReductionKeepsExchangeIndexCancelable) {
     // Rest a GTC order, reduce it in place, then cancel it through the exchange index.
     Exchange exchange;
@@ -382,6 +502,30 @@ TEST(ExchangeTest, ReplacementModifyFullyExecutedLeavesNoIndex) {
     expect_accepted(events);
 }
 
+TEST(ExchangeTest, ReplacementModifyEmitsReplaceBeforeTradesInPriceTimeOrder) {
+    // Modify a passive buy into multiple ask levels so event ordering is observable.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(92, "AAPL", Side::Sell, 99, 2), events);
+    expect_accepted(events);
+    submit(exchange, make_submit(93, "AAPL", Side::Sell, 100, 3), events);
+    expect_accepted(events);
+    submit(exchange, make_submit(94, "AAPL", Side::Buy, 98, 6), events);
+    expect_accepted(events);
+
+    modify(exchange, 94, 100, 6, events);
+
+    // Replace is the first public event, followed by trades in book priority order.
+    ASSERT_EQ(events.size(), 3U);
+    expect_replaced(events, 94);
+    expect_trade(events[1], 92, 94, 99, 2);
+    expect_trade(events[2], 93, 94, 100, 3);
+
+    // The modified order only partially filled, so its remaining share is still cancelable.
+    cancel(exchange, 94, events);
+    expect_canceled(events, 94);
+}
+
 TEST(ExchangeTest, ModifyUnknownAndNonRestingOrdersReject) {
     // Unknown ids should be rejected before touching any symbol book.
     Exchange exchange;
@@ -411,4 +555,40 @@ TEST(ExchangeTest, ReplacementModifyDoesNotEmitCancelAcceptPair) {
     expect_replaced(events, 110);
     EXPECT_FALSE(std::holds_alternative<CanceledEvent>(events.front()));
     EXPECT_FALSE(std::holds_alternative<AcceptedEvent>(events.front()));
+}
+
+TEST(ExchangeTest, PrintEmptyExchangeEmitsSingleEmptySnapshot) {
+    // Snapshot an exchange before any symbol books have been created.
+    Exchange exchange;
+    std::vector<Event> events;
+
+    print_book(exchange, events);
+
+    // Empty state still returns one printable event for command-line callers.
+    ASSERT_EQ(events.size(), 1U);
+    ASSERT_TRUE(std::holds_alternative<BookSnapshotEvent>(events.front()));
+    EXPECT_EQ(std::get<BookSnapshotEvent>(events.front()).message, "book: empty");
+}
+
+TEST(ExchangeTest, PrintBookReportsEachSymbolWithoutCrossContamination) {
+    // Seed two symbols with different sides and prices.
+    Exchange exchange;
+    std::vector<Event> events;
+    submit(exchange, make_submit(120, "AAPL", Side::Buy, 100, 4), events);
+    expect_accepted(events);
+    submit(exchange, make_submit(121, "MSFT", Side::Sell, 200, 6), events);
+    expect_accepted(events);
+
+    print_book(exchange, events);
+
+    // Each symbol should get its own snapshot and contain only its own orders.
+    ASSERT_EQ(events.size(), 2U);
+    const auto* aapl = find_snapshot_containing(events, "book AAPL:");
+    const auto* msft = find_snapshot_containing(events, "book MSFT:");
+    ASSERT_NE(aapl, nullptr);
+    ASSERT_NE(msft, nullptr);
+    EXPECT_NE(aapl->message.find("[120 BUY 100x4]"), std::string::npos);
+    EXPECT_EQ(aapl->message.find("[121 SELL 200x6]"), std::string::npos);
+    EXPECT_NE(msft->message.find("[121 SELL 200x6]"), std::string::npos);
+    EXPECT_EQ(msft->message.find("[120 BUY 100x4]"), std::string::npos);
 }
