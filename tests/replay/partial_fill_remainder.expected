@@ -1,0 +1,4 @@
+ACCEPTED accepted order 20
+ACCEPTED accepted order 21
+TRADE resting=20 incoming=21 price=100 quantity=5
+book AAPL: orders=1 [21 BUY 101x3]

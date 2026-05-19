@@ -1,8 +1,10 @@
 #include "exchange.hpp"
+#include "io/script_runner.hpp"
 
 #include <gtest/gtest.h>
 
 #include <cstdint>
+#include <sstream>
 #include <string>
 #include <variant>
 #include <vector>
@@ -168,6 +170,25 @@ void expect_replaced(const std::vector<Event>& events, std::uint64_t order_id) {
     }
 
     return nullptr;
+}
+
+/**
+ * @brief Runs raw command text through the same boundary used by the CLI.
+ */
+[[nodiscard]] std::string run_script_text(const std::string& script) {
+    std::istringstream input{script};
+    std::ostringstream output;
+
+    matching_engine::run_script(input, output);
+
+    return output.str();
+}
+
+/**
+ * @brief Asserts the full formatted output for a command script.
+ */
+void expect_script_output(const std::string& script, const std::string& expected) {
+    EXPECT_EQ(run_script_text(script), expected);
 }
 
 } // namespace
@@ -530,4 +551,185 @@ TEST(ExchangeTest, PrintBookReportsEachSymbolWithoutCrossContamination) {
     EXPECT_EQ(aapl->message.find("[121 SELL 200x6]"), std::string::npos);
     EXPECT_NE(msft->message.find("[121 SELL 200x6]"), std::string::npos);
     EXPECT_EQ(msft->message.find("[120 BUY 100x4]"), std::string::npos);
+}
+
+TEST(IntegrationTest, BasicSubmitAndPrint) {
+    expect_script_output(R"(SUBMIT 1 AAPL BUY 100 10
+PRINT
+)",
+                         R"(ACCEPTED accepted order 1
+book AAPL: orders=1 [1 BUY 100x10]
+)");
+}
+
+TEST(IntegrationTest, CrossingBuySellProducesTrades) {
+    expect_script_output(R"(SUBMIT 10 AAPL SELL 100 5
+SUBMIT 11 AAPL BUY 100 5
+PRINT
+)",
+                         R"(ACCEPTED accepted order 10
+ACCEPTED accepted order 11
+TRADE resting=10 incoming=11 price=100 quantity=5
+book AAPL: orders=0
+)");
+}
+
+TEST(IntegrationTest, PartialFillLeavesRemainderResting) {
+    expect_script_output(R"(SUBMIT 20 AAPL SELL 100 5
+SUBMIT 21 AAPL BUY 101 8
+PRINT
+)",
+                         R"(ACCEPTED accepted order 20
+ACCEPTED accepted order 21
+TRADE resting=20 incoming=21 price=100 quantity=5
+book AAPL: orders=1 [21 BUY 101x3]
+)");
+}
+
+TEST(IntegrationTest, CancelExistingOrder) {
+    expect_script_output(R"(SUBMIT 30 AAPL BUY 99 4
+CANCEL 30
+PRINT
+)",
+                         R"(ACCEPTED accepted order 30
+CANCELED order_id=30
+book AAPL: orders=0
+)");
+}
+
+TEST(IntegrationTest, CancelUnknownOrderRejects) {
+    expect_script_output(R"(CANCEL 404
+)",
+                         R"(REJECTED unknown order id 404
+)");
+}
+
+TEST(IntegrationTest, DuplicateOrderIdRejects) {
+    expect_script_output(R"(SUBMIT 40 AAPL BUY 100 10
+SUBMIT 40 AAPL SELL 101 2
+PRINT
+)",
+                         R"(ACCEPTED accepted order 40
+REJECTED duplicate order id 40
+book AAPL: orders=1 [40 BUY 100x10]
+)");
+}
+
+TEST(IntegrationTest, ModifyExistingOrder) {
+    expect_script_output(R"(SUBMIT 50 AAPL BUY 100 10
+MODIFY 50 100 6
+PRINT
+)",
+                         R"(ACCEPTED accepted order 50
+MODIFIED order_id=50 old_price=100 new_price=100 old_quantity=10 new_quantity=6
+book AAPL: orders=1 [50 BUY 100x6]
+)");
+}
+
+TEST(IntegrationTest, ModifyUnknownOrderRejects) {
+    expect_script_output(R"(MODIFY 999 100 5
+)",
+                         R"(REJECTED unknown order id 999
+)");
+}
+
+TEST(IntegrationTest, MarketOrderFullFill) {
+    expect_script_output(R"(SUBMIT 60 AAPL SELL 100 4
+MARKET 61 AAPL BUY 4
+PRINT
+)",
+                         R"(ACCEPTED accepted order 60
+ACCEPTED accepted order 61
+TRADE resting=60 incoming=61 price=100 quantity=4
+book AAPL: orders=0
+)");
+}
+
+TEST(IntegrationTest, MarketOrderInsufficientLiquidityRejectsRemainder) {
+    expect_script_output(R"(SUBMIT 70 AAPL SELL 100 3
+MARKET 71 AAPL BUY 5
+PRINT
+)",
+                         R"(ACCEPTED accepted order 70
+ACCEPTED accepted order 71
+TRADE resting=70 incoming=71 price=100 quantity=3
+REJECTED insufficient liquidity 71
+book AAPL: orders=0
+)");
+}
+
+TEST(IntegrationTest, IocPartialFillCancelsRemainder) {
+    expect_script_output(R"(SUBMIT 80 AAPL SELL 100 3
+SUBMIT 81 AAPL BUY 100 5 IOC
+PRINT
+)",
+                         R"(ACCEPTED accepted order 80
+ACCEPTED accepted order 81
+TRADE resting=80 incoming=81 price=100 quantity=3
+book AAPL: orders=0
+)");
+}
+
+TEST(IntegrationTest, FokFullFillSucceeds) {
+    expect_script_output(R"(SUBMIT 90 AAPL SELL 100 2
+SUBMIT 91 AAPL SELL 101 3
+SUBMIT 92 AAPL BUY 101 5 FOK
+PRINT
+)",
+                         R"(ACCEPTED accepted order 90
+ACCEPTED accepted order 91
+ACCEPTED accepted order 92
+TRADE resting=90 incoming=92 price=100 quantity=2
+TRADE resting=91 incoming=92 price=101 quantity=3
+book AAPL: orders=0
+)");
+}
+
+TEST(IntegrationTest, FokRejectDoesNotMutateBook) {
+    expect_script_output(R"(SUBMIT 100 AAPL SELL 100 2
+SUBMIT 101 AAPL BUY 100 3 FOK
+PRINT
+)",
+                         R"(ACCEPTED accepted order 100
+REJECTED insufficient liquidity 101
+book AAPL: orders=1 [100 SELL 100x2]
+)");
+}
+
+TEST(IntegrationTest, MultiSymbolRoutingKeepsBooksIndependent) {
+    expect_script_output(R"(SUBMIT 110 AAPL BUY 100 5
+SUBMIT 111 MSFT SELL 200 7
+SUBMIT 112 AAPL SELL 100 2
+PRINT
+)",
+                         R"(ACCEPTED accepted order 110
+ACCEPTED accepted order 111
+ACCEPTED accepted order 112
+TRADE resting=110 incoming=112 price=100 quantity=2
+book AAPL: orders=1 [110 BUY 100x3]
+book MSFT: orders=1 [111 SELL 200x7]
+)");
+}
+
+TEST(IntegrationTest, DeterministicReplayProducesIdenticalOutput) {
+    const std::string script = R"(SUBMIT 120 AAPL BUY 100 5
+SUBMIT 121 AAPL SELL 99 2
+SUBMIT 122 MSFT BUY 50 1
+PRINT
+)";
+
+    EXPECT_EQ(run_script_text(script), run_script_text(script));
+}
+
+TEST(IntegrationTest, MalformedInputLinesProduceStableRejections) {
+    expect_script_output(R"(SUBMIT bad
+MARKET 130 AAPL HOLD 5
+PRINT AAPL
+PRINT
+)",
+                         R"(REJECTED invalid command
+REJECTED invalid command
+REJECTED invalid command
+book: empty
+)");
 }

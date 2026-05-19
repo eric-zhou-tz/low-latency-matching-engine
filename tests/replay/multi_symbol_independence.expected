@@ -1,0 +1,6 @@
+ACCEPTED accepted order 110
+ACCEPTED accepted order 111
+ACCEPTED accepted order 112
+TRADE resting=110 incoming=112 price=100 quantity=2
+book AAPL: orders=1 [110 BUY 100x3]
+book MSFT: orders=1 [111 SELL 200x7]

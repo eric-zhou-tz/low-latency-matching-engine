@@ -1,0 +1,3 @@
+ACCEPTED accepted order 40
+REJECTED duplicate order id 40
+book AAPL: orders=1 [40 BUY 100x10]

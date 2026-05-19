@@ -19,6 +19,7 @@ FetchContent_MakeAvailable(unordered_dense)
 
 add_library(engine
     src/io/parser.cpp
+    src/io/script_runner.cpp
     src/book/order_book.cpp
     src/exchange.cpp
 )
@@ -66,6 +67,14 @@ gtest_discover_tests(exchange_test)
 add_executable(parser_tests tests/parser_tests.cpp)
 target_link_libraries(parser_tests PRIVATE engine GTest::gtest_main)
 gtest_discover_tests(parser_tests)
+
+add_executable(golden_replay_tests tests/golden_replay_tests.cpp)
+target_link_libraries(golden_replay_tests PRIVATE engine GTest::gtest_main)
+target_compile_definitions(golden_replay_tests
+    PRIVATE
+        REPLAY_FIXTURE_DIR="${PROJECT_SOURCE_DIR}/tests/replay"
+)
+gtest_discover_tests(golden_replay_tests)
 
 if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
     FetchContent_Declare(

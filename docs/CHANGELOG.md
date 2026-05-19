@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.5.1 - Golden Replay Tests
+
+- Added a golden replay test suite that runs fixture command tapes through the public CLI pipeline: parser, exchange, order book, and event formatter.
+- Added `tests/replay/` fixtures with paired `.txt` input tapes and `.expected` output tapes for submit/print, crossing trades, partial fills, cancels, duplicate ids, modify, market, IOC, FOK, multi-symbol isolation, deterministic replay, and malformed input behavior.
+- Added a replay README documenting the exact-output public-boundary regression test contract.
+- Wired `golden_replay_tests` into CMake and CTest with exact output comparison after normalizing only line endings.
+- Verified the full local CTest suite passes with 111 GoogleTest cases, including 16 replay fixtures.
+
 ## v0.5.0 - Unit Tests
 
 - Audited the parser, order-book, and exchange test suites for semantic coverage gaps across current engine behavior.

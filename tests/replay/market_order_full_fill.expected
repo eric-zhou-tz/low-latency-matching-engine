@@ -1,0 +1,4 @@
+ACCEPTED accepted order 60
+ACCEPTED accepted order 61
+TRADE resting=60 incoming=61 price=100 quantity=4
+book AAPL: orders=0

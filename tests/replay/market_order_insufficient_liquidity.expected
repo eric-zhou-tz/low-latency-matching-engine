@@ -1,0 +1,5 @@
+ACCEPTED accepted order 70
+ACCEPTED accepted order 71
+TRADE resting=70 incoming=71 price=100 quantity=3
+REJECTED insufficient liquidity 71
+book AAPL: orders=0
