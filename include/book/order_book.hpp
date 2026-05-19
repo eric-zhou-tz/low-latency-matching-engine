@@ -12,6 +12,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace matching_engine {
@@ -128,6 +129,41 @@ public:
      * @return Human-readable book summary.
      */
     [[nodiscard]] std::string snapshot() const;
+
+    /**
+     * @brief Immutable order metadata used by tests to validate book structure.
+     */
+    struct DebugOrder {
+        OrderId id{};
+        Side side{Side::Buy};
+        Price price{};
+        Quantity quantity{};
+    };
+
+    /**
+     * @brief Immutable price-level metadata used by tests to validate queues.
+     */
+    struct DebugPriceLevel {
+        Price price{};
+        Quantity total_volume{};
+        std::vector<DebugOrder> orders;
+    };
+
+    /**
+     * @brief Immutable book metadata used by tests to validate indexes and levels.
+     */
+    struct DebugSnapshot {
+        std::vector<DebugPriceLevel> bids;
+        std::vector<DebugPriceLevel> asks;
+        std::unordered_set<OrderId> indexed_order_ids;
+    };
+
+    /**
+     * @brief Copies internal book structure into a validation-only snapshot.
+     *
+     * @return Snapshot of price levels, live orders, and order-id index entries.
+     */
+    [[nodiscard]] DebugSnapshot debug_snapshot() const;
 
     /**
      * @brief Reserves live order-id lookup capacity for expected book depth.

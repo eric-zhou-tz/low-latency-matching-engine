@@ -239,6 +239,51 @@ std::string OrderBook::snapshot() const {
 }
 
 /**
+ * @brief Copies internal book structure for invariant tests.
+ */
+OrderBook::DebugSnapshot OrderBook::debug_snapshot() const {
+    DebugSnapshot snapshot;
+    snapshot.bids.reserve(bids_.size());
+    snapshot.asks.reserve(asks_.size());
+    snapshot.indexed_order_ids.reserve(orders_by_id_.size());
+
+    for (const auto& [order_id, _] : orders_by_id_) {
+        // The id set lets tests compare queue contents against the live lookup index.
+        snapshot.indexed_order_ids.insert(order_id);
+    }
+
+    for (const auto& [price, source_level] : bids_) {
+        DebugPriceLevel level{.price = price, .total_volume = source_level.total_volume};
+
+        for (const Order* order = source_level.head; order != nullptr; order = order->next) {
+            // Copy only stable logical fields so tests cannot mutate intrusive links.
+            level.orders.push_back(DebugOrder{.id = order->id,
+                                              .side = order->side,
+                                              .price = order->price,
+                                              .quantity = order->quantity});
+        }
+
+        snapshot.bids.push_back(std::move(level));
+    }
+
+    for (const auto& [price, source_level] : asks_) {
+        DebugPriceLevel level{.price = price, .total_volume = source_level.total_volume};
+
+        for (const Order* order = source_level.head; order != nullptr; order = order->next) {
+            // Copy only stable logical fields so tests cannot mutate intrusive links.
+            level.orders.push_back(DebugOrder{.id = order->id,
+                                              .side = order->side,
+                                              .price = order->price,
+                                              .quantity = order->quantity});
+        }
+
+        snapshot.asks.push_back(std::move(level));
+    }
+
+    return snapshot;
+}
+
+/**
  * @brief Reserves live order-id lookup capacity.
  */
 void OrderBook::reserve_order_capacity(std::size_t expected_order_capacity) {
