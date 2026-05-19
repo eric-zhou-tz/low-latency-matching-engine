@@ -54,14 +54,6 @@ private:
     void process_action(const CancelOrderAction& action, std::vector<Event>& out);
 
     /**
-     * @brief Handles an order modification.
-     *
-     * @param action Modify action to apply.
-     * @param out Caller-owned event buffer filled with emitted events.
-     */
-    void process_action(const ModifyOrderAction& action, std::vector<Event>& out);
-
-    /**
      * @brief Handles a book snapshot request.
      *
      * @param action Print action to apply.

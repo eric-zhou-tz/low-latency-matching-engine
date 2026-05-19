@@ -105,16 +105,6 @@ public:
     [[nodiscard]] CancelResult cancel(OrderId order_id);
 
     /**
-     * @brief Modifies a resting order using exchange-style priority rules.
-     *
-     * @param order_id Identifier of the resting order to modify.
-     * @param new_price Replacement limit price.
-     * @param new_quantity Replacement total remaining quantity.
-     * @param out Caller-owned event buffer filled with the operation result.
-     */
-    void modify(OrderId order_id, Price new_price, Quantity new_quantity, std::vector<Event>& out);
-
-    /**
      * @brief Checks whether an order id is currently resting in this book.
      *
      * @param order_id Identifier to look up.
@@ -144,6 +134,8 @@ public:
     void set_order_id_max_load_factor(float order_id_max_load_factor);
 
 private:
+    using Price = std::int64_t;
+
     /**
      * @brief Clears all book state and owned order storage.
      */
@@ -164,21 +156,6 @@ private:
     void add_resting_order(const Order& order);
 
     /**
-     * @brief Finds a live resting order by id.
-     *
-     * @param order_id Identifier to look up.
-     * @return Pointer to the live order, or nullptr when missing.
-     */
-    [[nodiscard]] Order* find_resting_order(OrderId order_id) const;
-
-    /**
-     * @brief Removes one live resting order from its queue, index, and storage.
-     *
-     * @param order Resting order node to remove.
-     */
-    void remove_resting_order(Order* order);
-
-    /**
      * @brief Prepares an incoming order and emits the acceptance or rejection.
      *
      * @param order Incoming order whose intrusive links should be reset.
@@ -194,14 +171,6 @@ private:
      * @return True when crossing price levels hold enough visible quantity.
      */
     [[nodiscard]] bool can_fully_fill(const Order& order) const;
-
-    /**
-     * @brief Matches an incoming order and rests any remaining GTC quantity.
-     *
-     * @param order Incoming order to execute.
-     * @param out Output event collection for generated trades.
-     */
-    void execute_incoming_order(Order order, std::vector<Event>& out);
 
     /**
      * @brief Matches an incoming buy order against resting asks.

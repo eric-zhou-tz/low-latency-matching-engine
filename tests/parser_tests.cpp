@@ -8,7 +8,6 @@ namespace {
 
 using matching_engine::CancelOrderAction;
 using matching_engine::MarketOrderAction;
-using matching_engine::ModifyOrderAction;
 using matching_engine::Parser;
 using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
@@ -72,21 +71,6 @@ TEST(ParserTest, ParsesCancelOrderCommand) {
     ASSERT_TRUE(cancel.has_value());
     ASSERT_TRUE(std::holds_alternative<CancelOrderAction>(*cancel));
     EXPECT_EQ(std::get<CancelOrderAction>(*cancel).order_id, 1U);
-}
-
-TEST(ParserTest, ParsesModifyOrderCommand) {
-    // Parse a modify command with replacement price and quantity.
-    Parser parser;
-
-    const auto modify = parser.parse_line("MODIFY 7 105 12");
-    ASSERT_TRUE(modify.has_value());
-    ASSERT_TRUE(std::holds_alternative<ModifyOrderAction>(*modify));
-
-    // Verify the replacement fields are preserved for exchange routing.
-    const auto& action = std::get<ModifyOrderAction>(*modify);
-    EXPECT_EQ(action.order_id, 7U);
-    EXPECT_EQ(action.new_price, 105);
-    EXPECT_EQ(action.new_quantity, 12U);
 }
 
 TEST(ParserTest, ParsesMarketOrderCommand) {

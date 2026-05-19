@@ -37,36 +37,12 @@ struct CanceledEvent {
 };
 
 /**
- * @brief Event emitted when a resting order is safely modified in place.
- */
-struct ModifiedEvent {
-    OrderId order_id{};
-    Price old_price{};
-    Price new_price{};
-    Quantity old_quantity{};
-    Quantity new_quantity{};
-};
-
-/**
- * @brief Event emitted when a modify uses cancel-replace semantics.
- */
-struct ReplacedEvent {
-    OrderId old_order_id{};
-    OrderId new_order_id{};
-    Price old_price{};
-    Price new_price{};
-    Quantity old_quantity{};
-    Quantity new_quantity{};
-};
-
-/**
  * @brief Machine-readable reason for rejecting an action.
  */
 enum class RejectReason {
     DuplicateOrderId,
     UnknownOrderId,
     InsufficientLiquidity,
-    InvalidOrder,
 };
 
 /**
@@ -87,13 +63,7 @@ struct BookSnapshotEvent {
 /**
  * @brief Sum type for all events currently emitted by the engine.
  */
-using Event = std::variant<TradeEvent,
-                           AcceptedEvent,
-                           CanceledEvent,
-                           ModifiedEvent,
-                           ReplacedEvent,
-                           RejectedEvent,
-                           BookSnapshotEvent>;
+using Event = std::variant<TradeEvent, AcceptedEvent, CanceledEvent, RejectedEvent, BookSnapshotEvent>;
 
 /**
  * @brief Single-event result type for order cancellation.
@@ -115,8 +85,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
         return "unknown order id";
     case RejectReason::InsufficientLiquidity:
         return "insufficient liquidity";
-    case RejectReason::InvalidOrder:
-        return "invalid order";
     }
 
     // Return a defensive fallback for future enum additions.
@@ -157,33 +125,6 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
         [[nodiscard]] std::string operator()(const CanceledEvent& canceled) const {
             // Include the canceled id so command-line users can confirm the target.
             return "CANCELED order_id=" + std::to_string(canceled.order_id);
-        }
-
-        /**
-         * @brief Formats an in-place modify event.
-         */
-        [[nodiscard]] std::string operator()(const ModifiedEvent& modified) const {
-            // Report the before/after state without allocating in the matching core.
-            std::ostringstream output;
-            output << "MODIFIED order_id=" << modified.order_id
-                   << " old_price=" << modified.old_price << " new_price=" << modified.new_price
-                   << " old_quantity=" << modified.old_quantity
-                   << " new_quantity=" << modified.new_quantity;
-            return output.str();
-        }
-
-        /**
-         * @brief Formats a cancel-replace modify event.
-         */
-        [[nodiscard]] std::string operator()(const ReplacedEvent& replaced) const {
-            // Keep replace output explicit even when the replacement reuses the same id.
-            std::ostringstream output;
-            output << "REPLACED old_order_id=" << replaced.old_order_id
-                   << " new_order_id=" << replaced.new_order_id
-                   << " old_price=" << replaced.old_price << " new_price=" << replaced.new_price
-                   << " old_quantity=" << replaced.old_quantity
-                   << " new_quantity=" << replaced.new_quantity;
-            return output.str();
         }
 
         /**

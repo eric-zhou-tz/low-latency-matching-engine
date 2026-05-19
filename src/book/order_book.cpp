@@ -111,8 +111,17 @@ void OrderBook::submit(Order order, std::vector<Event>& out) {
     // Acceptance is emitted first; any trades or remainder events follow in order.
     out.push_back(AcceptedEvent{.order_id = order.id});
 
-    // Run the canonical matching and resting flow after submit-specific events.
-    execute_incoming_order(order, out);
+    // Route to the opposite side of the book based on the incoming side.
+    if (order.side == Side::Buy) {
+        match_buy_order(order, out);
+    } else {
+        match_sell_order(order, out);
+    }
+
+    // If matching did not fully fill a GTC order, leave the remainder resting.
+    if (order.quantity > 0 && order.time_in_force == TimeInForce::GoodTilCancel) {
+        add_resting_order(order);
+    }
 }
 
 /**
@@ -156,83 +165,42 @@ void OrderBook::submit_market(Order order, std::vector<Event>& out) {
  */
 CancelResult OrderBook::cancel(OrderId order_id) {
     // Look up the live order pointer so cancellation can unlink it directly.
-    Order* order = find_resting_order(order_id);
-    if (order == nullptr) {
+    const auto found = orders_by_id_.find(order_id);
+    if (found == orders_by_id_.end()) {
         return RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = order_id};
     }
 
-    // Reuse the internal removal path so cancel and replace update queues identically.
-    remove_resting_order(order);
-    return CanceledEvent{.order_id = order_id};
-}
+    // Keep the order pointer long enough to update the level and recycle storage.
+    Order* order = found->second;
+    const auto side = order->side;
+    const auto price = order->price;
 
-/**
- * @brief Modifies a live resting order.
- */
-void OrderBook::modify(OrderId order_id,
-                       Price new_price,
-                       Quantity new_quantity,
-                       std::vector<Event>& out) {
-    // Reuse caller-owned storage so direct book callers get one clean response.
-    out.clear();
-
-    // Modifies are only valid for orders currently resting in this book.
-    Order* existing = find_resting_order(order_id);
-    if (existing == nullptr) {
-        out.push_back(RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = order_id});
-        return;
-    }
-
-    // Reject non-positive prices and empty quantities before touching live state.
-    if (new_price <= 0 || new_quantity == 0) {
-        out.push_back(RejectedEvent{.reason = RejectReason::InvalidOrder, .order_id = order_id});
-        return;
-    }
-
-    // Capture the old visible state because replacement removes the node.
-    const Price old_price = existing->price;
-    const Quantity old_quantity = existing->quantity;
-    const Side side = existing->side;
-
-    if (new_price == old_price && new_quantity < old_quantity) {
-        // Quantity reductions are safe in place and keep the order's FIFO slot.
-        const Quantity reduced_by = old_quantity - new_quantity;
-        if (side == Side::Buy) {
-            // Keep the aggregate bid level volume aligned with the order mutation.
-            bids_.find(old_price)->second.total_volume -= reduced_by;
-        } else {
-            // Keep the aggregate ask level volume aligned with the order mutation.
-            asks_.find(old_price)->second.total_volume -= reduced_by;
+    if (side == Side::Buy) {
+        // Find the bid level and unlink the raw order node in constant time.
+        auto level = bids_.find(price);
+        if (level != bids_.end()) {
+            level->second.remove(order);
+            // Drop empty levels so best-price lookup stays clean.
+            if (level->second.empty()) {
+                bids_.erase(level);
+            }
         }
-
-        // Update the live order after the level accounting succeeds.
-        existing->quantity = new_quantity;
-        out.push_back(ModifiedEvent{.order_id = order_id,
-                                    .old_price = old_price,
-                                    .new_price = new_price,
-                                    .old_quantity = old_quantity,
-                                    .new_quantity = new_quantity});
-        return;
+    } else {
+        // Find the ask level and unlink the raw order node in constant time.
+        auto level = asks_.find(price);
+        if (level != asks_.end()) {
+            level->second.remove(order);
+            // Drop empty levels so best-price lookup stays clean.
+            if (level->second.empty()) {
+                asks_.erase(level);
+            }
+        }
     }
 
-    // Increasing size or changing price creates a fresh priority position.
-    Order replacement{.id = order_id,
-                      .side = side,
-                      .price = new_price,
-                      .quantity = new_quantity,
-                      .time_in_force = TimeInForce::GoodTilCancel};
-    remove_resting_order(existing);
-
-    // Emit replace semantics without exposing an internal cancel plus accept pair.
-    out.push_back(ReplacedEvent{.old_order_id = order_id,
-                                .new_order_id = order_id,
-                                .old_price = old_price,
-                                .new_price = new_price,
-                                .old_quantity = old_quantity,
-                                .new_quantity = new_quantity});
-
-    // Reuse the same matching and resting implementation as normal submissions.
-    execute_incoming_order(replacement, out);
+    // Remove the id index and recycle the order slot after the book is updated.
+    orders_by_id_.erase(found);
+    order_pool_.release(order);
+    return CanceledEvent{.order_id = order_id};
 }
 
 /**
@@ -311,55 +279,6 @@ void OrderBook::add_resting_order(const Order& order) {
 }
 
 /**
- * @brief Finds the live resting order for an id.
- */
-Order* OrderBook::find_resting_order(OrderId order_id) const {
-    // The id map is authoritative for book-local live resting orders.
-    const auto found = orders_by_id_.find(order_id);
-    if (found == orders_by_id_.end()) {
-        return nullptr;
-    }
-
-    // Return the stored node so callers can mutate or unlink it directly.
-    return found->second;
-}
-
-/**
- * @brief Unlinks and releases one resting order.
- */
-void OrderBook::remove_resting_order(Order* order) {
-    // Preserve side and price before unlinking clears the intrusive node links.
-    const auto side = order->side;
-    const auto price = order->price;
-
-    if (side == Side::Buy) {
-        // Find the bid level and unlink the raw order node in constant time.
-        auto level = bids_.find(price);
-        if (level != bids_.end()) {
-            level->second.remove(order);
-            // Drop empty levels so best-price lookup stays clean.
-            if (level->second.empty()) {
-                bids_.erase(level);
-            }
-        }
-    } else {
-        // Find the ask level and unlink the raw order node in constant time.
-        auto level = asks_.find(price);
-        if (level != asks_.end()) {
-            level->second.remove(order);
-            // Drop empty levels so best-price lookup stays clean.
-            if (level->second.empty()) {
-                asks_.erase(level);
-            }
-        }
-    }
-
-    // Remove the id index and recycle storage after queue state is correct.
-    orders_by_id_.erase(order->id);
-    order_pool_.release(order);
-}
-
-/**
  * @brief Resets incoming order links and rejects duplicate live ids.
  */
 bool OrderBook::prepare_incoming_order(Order& order, std::vector<Event>& out) const {
@@ -416,23 +335,6 @@ bool OrderBook::can_fully_fill(const Order& order) const {
 
     // Not enough crossing liquidity was visible to fill the whole order.
     return false;
-}
-
-/**
- * @brief Executes the shared limit-order match and rest path.
- */
-void OrderBook::execute_incoming_order(Order order, std::vector<Event>& out) {
-    // Route to the opposite side of the book based on the incoming side.
-    if (order.side == Side::Buy) {
-        match_buy_order(order, out);
-    } else {
-        match_sell_order(order, out);
-    }
-
-    // If matching did not fully fill a GTC order, leave the remainder resting.
-    if (order.quantity > 0 && order.time_in_force == TimeInForce::GoodTilCancel) {
-        add_resting_order(order);
-    }
 }
 
 /**
