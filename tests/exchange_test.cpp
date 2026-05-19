@@ -508,6 +508,7 @@ TEST(ExchangeTest, PrintEmptyExchangeEmitsSingleEmptySnapshot) {
     ASSERT_EQ(events.size(), 1U);
     ASSERT_TRUE(std::holds_alternative<BookSnapshotEvent>(events.front()));
     EXPECT_EQ(std::get<BookSnapshotEvent>(events.front()).message, "book: empty");
+    EXPECT_EQ(matching_engine::format_event(events.front()), "book: empty");
 }
 
 TEST(ExchangeTest, PrintBookReportsEachSymbolWithoutCrossContamination) {

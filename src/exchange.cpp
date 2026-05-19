@@ -1,5 +1,6 @@
 #include "exchange.hpp"
 
+#include <cassert>
 #include <memory>
 #include <string>
 #include <variant>
@@ -107,11 +108,13 @@ void Exchange::process_action(const CancelOrderAction& action, std::vector<Event
         },
         result));
 
-    if (!std::holds_alternative<RejectedEvent>(result)) {
-        order_to_book_.erase(found);
+    if (std::holds_alternative<RejectedEvent>(result)) {
+        // Keep the route in place so a broken exchange/book invariant is not hidden.
+        assert(false && "order_to_book_ pointed at a book that rejected the cancel");
         return;
     }
 
+    // Successful cancels remove the now-dead order from the exchange-level route index.
     order_to_book_.erase(found);
 }
 

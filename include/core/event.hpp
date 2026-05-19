@@ -191,7 +191,8 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
          * @brief Formats a book snapshot event.
          */
         [[nodiscard]] std::string operator()(const BookSnapshotEvent& snapshot) const {
-            return "ACCEPTED " + snapshot.message;
+            // Snapshot messages are already presentation text for PRINT output.
+            return snapshot.message;
         }
     };
 
