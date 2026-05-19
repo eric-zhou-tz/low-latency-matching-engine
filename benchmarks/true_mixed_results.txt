@@ -1,0 +1,30 @@
+----------------------------------------------------------------------------------------------
+Benchmark                                    Time             CPU   Iterations UserCounters...
+----------------------------------------------------------------------------------------------
+BM_OrderBookTrueMixed/1000               46817 ns        46810 ns        14895 items_per_second=21.3629M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/1000               46894 ns        46884 ns        14895 items_per_second=21.3294M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/1000               46822 ns        46811 ns        14895 items_per_second=21.3624M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/1000               46751 ns        46742 ns        14895 items_per_second=21.394M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/1000               46671 ns        46660 ns        14895 items_per_second=21.4318M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/1000_mean          46791 ns        46781 ns            5 items_per_second=21.3761M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/1000_median        46817 ns        46810 ns            5 items_per_second=21.3629M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/1000_stddev         83.8 ns         84.4 ns            5 items_per_second=38.5855k/s max_live_orders=2.13248u preload_orders=2.13248u reserve_order_capacity=8.52992u
+BM_OrderBookTrueMixed/1000_cv             0.18 %          0.18 %             5 items_per_second=0.18% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%
+BM_OrderBookTrueMixed/10000             564101 ns       564348 ns         1241 items_per_second=17.7196M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/10000             566588 ns       566755 ns         1241 items_per_second=17.6443M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/10000             566424 ns       566535 ns         1241 items_per_second=17.6511M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/10000             565915 ns       566029 ns         1241 items_per_second=17.6669M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/10000             563633 ns       563719 ns         1241 items_per_second=17.7393M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/10000_mean        565332 ns       565477 ns            5 items_per_second=17.6843M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/10000_median      565915 ns       566029 ns            5 items_per_second=17.6669M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_OrderBookTrueMixed/10000_stddev        1370 ns         1362 ns            5 items_per_second=42.6429k/s max_live_orders=2.13248u preload_orders=2.13248u reserve_order_capacity=8.52992u
+BM_OrderBookTrueMixed/10000_cv            0.24 %          0.24 %             5 items_per_second=0.24% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%
+BM_OrderBookTrueMixed/100000           6337443 ns      6339242 ns          111 items_per_second=15.7748M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_OrderBookTrueMixed/100000           6306688 ns      6308119 ns          111 items_per_second=15.8526M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_OrderBookTrueMixed/100000           6321365 ns      6322850 ns          111 items_per_second=15.8157M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_OrderBookTrueMixed/100000           6307219 ns      6308711 ns          111 items_per_second=15.8511M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_OrderBookTrueMixed/100000           6271902 ns      6273462 ns          111 items_per_second=15.9402M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_OrderBookTrueMixed/100000_mean      6308923 ns      6310477 ns            5 items_per_second=15.8469M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_OrderBookTrueMixed/100000_median    6307219 ns      6308711 ns            5 items_per_second=15.8511M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_OrderBookTrueMixed/100000_stddev      24221 ns        24286 ns            5 items_per_second=61.0919k/s max_live_orders=20.825u preload_orders=20.825u reserve_order_capacity=83.3u
+BM_OrderBookTrueMixed/100000_cv           0.38 %          0.38 %             5 items_per_second=0.39% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%

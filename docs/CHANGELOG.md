@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.6.2 - OrderBook True Mixed Benchmark
+
+- Added an OrderBook-only True Mixed Google Benchmark throughput case with randomly interleaved GTC submits, cancels, modifies, IOC limit orders, market orders, and FOK limit orders.
+- Kept the True Mixed workload on the hot path only: no parser, exchange, filesystem I/O, or string/event formatting inside the measured loop.
+- Added deterministic workload generation with fixed RNG seeds, caller-owned reusable `std::vector<Event>` buffers, and `reserve_order_capacity` sized with the current 10% live-order heuristic.
+- Added matching amortized batch latency coverage for the same True Mixed stream at 64, 256, and 1,024-operation batches, explicitly reported as amortized batch latency rather than true single-operation latency.
+- Wired `true_mixed_benchmark` into CMake and the EC2 benchmark runner, producing `benchmarks/true_mixed_results.txt` and `benchmarks/true_mixed_results.json`.
+- Refreshed EC2 Release benchmark artifacts on `t3.small`; 121/121 correctness tests passed before benchmark execution, and the 100,000-operation True Mixed throughput case measured 15.85M items/s.
+- Documented the exact operation mix and EC2 results in `BENCHMARKS.md` and `docs/benchmark_history.md`.
+
 ## v0.6.1 - Preallocation Based on Max Live Orders
 
 - Renamed benchmark and order-book preallocation identifiers from `expected_order_capacity` to `reserve_order_capacity` to make the capacity value explicit as a tuning hint.

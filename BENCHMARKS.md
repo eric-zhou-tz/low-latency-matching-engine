@@ -27,6 +27,9 @@ automatically by CMake or CI until that workflow is added intentionally.
 - `cancel_benchmark` preloads same-price FIFO liquidity, then measures front,
   back, random, and unknown cancels. It also includes a mixed submit/cancel/match
   stream with roughly 70% passive inserts, 20% cancels, and 10% crossing orders.
+- `true_mixed_benchmark` measures direct `OrderBook` hot-path traffic with
+  randomly interleaved GTC, cancel, modify, IOC, market, and FOK operations. It
+  bypasses Parser, Exchange, filesystem I/O, and string/event formatting.
 - `latency_benchmark` runs a separate amortized batch latency suite over the
   same hot paths. It is not a Google Benchmark replacement and does not rename
   or replace the throughput benchmark binaries.
@@ -37,6 +40,72 @@ automatically by CMake or CI until that workflow is added intentionally.
 The hot-path throughput and latency workloads bypass parser, stdin, file I/O,
 and logging. Setup/preload work is excluded from the measured loop where
 appropriate.
+
+## OrderBook True Mixed Hot Path
+
+`BM_OrderBookTrueMixed` is an `OrderBook`-only Google Benchmark throughput case.
+It pre-generates the full operation stream before timing, uses fixed RNG seeds,
+reuses caller-owned `std::vector<Event>` buffers, and reports items/s through
+Google Benchmark's item counter. Book construction, reserve setup, and preload
+liquidity are outside the timed loop.
+
+This workload is separate from the end-to-end benchmarks: it does not call
+Parser, Exchange, filesystem I/O, or event formatting.
+
+The timed operation stream uses this exact target mix:
+
+| Operation type | Share |
+| --- | ---: |
+| GTC limit submit | 25% |
+| Cancel | 25% |
+| Modify | 20% |
+| IOC limit submit | 15% |
+| Market order | 10% |
+| FOK limit submit | 5% |
+
+Operations are randomly interleaved according to the mix rather than generated
+in phases. The generator maintains a live set of resting GTC order ids while it
+builds the stream. Cancels and modifies target only currently live resting GTC
+liquidity. IOC, FOK, and market orders are transient taker flow: they may trade,
+partially fill and expire/reject, or reject for insufficient liquidity, but they
+are never inserted into the cancel/modify live set.
+
+The workload keeps prices near a deterministic mid-price and uses the current
+mixed-workload reserve heuristic:
+
+`reserve_order_capacity = max(1024, operation_count / 10)`
+
+The standalone latency runner also includes `OrderBookTrueMixed` amortized batch
+latency for batch sizes 64, 256, and 1,024. These rows are labeled as amortized
+batch latency, not true single-operation latency.
+
+Latest EC2 True Mixed run metadata:
+
+- Host: AWS EC2 `t3.small`
+- OS: Ubuntu 26.04 LTS
+- Kernel: `7.0.0-1004-aws`
+- CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
+- Compiler: GCC/G++ 15.2.0
+- Commit: `ffe3f1f` plus local True Mixed benchmark changes
+- Build type: `Release`
+- Release flags: `-O3 -DNDEBUG`
+- Correctness tests: 121/121 passed before benchmark execution
+- Run date: `2026-05-19T20:45:50Z`
+- Command: pinned `true_mixed_benchmark` with 5 repetitions, followed by pinned
+  `latency_benchmark --samples=1024 --warmup=128 --trials=5`
+
+Latest EC2 True Mixed throughput results:
+
+| Benchmark | Operations | CPU Time | Throughput | Reserve Capacity | Preload Orders | Max Live Orders |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `BM_OrderBookTrueMixed/1000` | 1,000 | 46810 ns | 21.36M items/s | 1,024 | 256 | 256 |
+| `BM_OrderBookTrueMixed/10000` | 10,000 | 566029 ns | 17.67M items/s | 1,024 | 256 | 256 |
+| `BM_OrderBookTrueMixed/100000` | 100,000 | 6308711 ns | 15.85M items/s | 10,000 | 2,500 | 2,500 |
+
+Artifact files:
+
+- `benchmarks/true_mixed_results.txt`
+- `benchmarks/true_mixed_results.json`
 
 ## End-to-end benchmarks
 
@@ -53,6 +122,23 @@ be compared directly to OrderBook hot-path microbenchmarks.
 limit-order input to focus on parse, route, accept, and format cost.
 `BM_EndToEnd_ReplayScenario` uses replay-style multi-symbol streams containing
 inserts, crosses, cancels, modifies, market orders, IOC, and FOK commands.
+
+`BM_EndToEnd_ReplayScenario` repeats an 11-command deterministic cycle. The
+steady-state operation mix is:
+
+| Operation type | Commands / cycle | Approx. share |
+| --- | ---: | ---: |
+| Passive resting `SUBMIT` | 4 | 36.36% |
+| `MODIFY` | 1 | 9.09% |
+| `CANCEL` | 1 | 9.09% |
+| Crossing limit `SUBMIT` | 1 | 9.09% |
+| `MARKET` | 1 | 9.09% |
+| `IOC` `SUBMIT` | 1 | 9.09% |
+| Successful `FOK` `SUBMIT` | 1 | 9.09% |
+| Rejected `FOK` `SUBMIT` | 1 | 9.09% |
+
+Benchmark input sizes are trimmed to the requested command count, so runs that
+are not exact multiples of 11 may differ by at most one partial cycle.
 
 Latest EC2 median results:
 
@@ -109,27 +195,30 @@ warmup batches.
 
 | Benchmark | Workload Size | Batch Size | Samples / Trial | Trials | p50 ns/op | p95 ns/op | p99 ns/op | Max ns/op |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `RestingLimitOrderInsert` | 73,728 | 64 | 1,024 | 5 | 92.27 | 132.97 | 180.62 | 563.64 |
-| `RestingLimitOrderInsert` | 294,912 | 256 | 1,024 | 5 | 150.12 | 173.35 | 197.67 | 233.14 |
-| `RestingLimitOrderInsert` | 1,179,648 | 1,024 | 1,024 | 5 | 171.95 | 188.18 | 226.67 | 418.26 |
-| `CrossingLimitOrderMatch` | 73,728 | 64 | 1,024 | 5 | 58.84 | 76.27 | 103.72 | 245.70 |
-| `CrossingLimitOrderMatch` | 294,912 | 256 | 1,024 | 5 | 110.45 | 141.38 | 169.14 | 226.87 |
-| `CrossingLimitOrderMatch` | 1,179,648 | 1,024 | 1,024 | 5 | 162.80 | 259.52 | 284.31 | 335.36 |
-| `CancelFront` | 73,728 | 64 | 1,024 | 5 | 33.23 | 43.58 | 48.91 | 226.52 |
-| `CancelFront` | 294,912 | 256 | 1,024 | 5 | 41.36 | 74.93 | 91.09 | 147.35 |
-| `CancelFront` | 1,179,648 | 1,024 | 1,024 | 5 | 148.07 | 216.25 | 231.86 | 246.89 |
-| `CancelBack` | 73,728 | 64 | 1,024 | 5 | 33.05 | 40.47 | 46.88 | 193.39 |
-| `CancelBack` | 294,912 | 256 | 1,024 | 5 | 45.98 | 58.81 | 81.52 | 150.88 |
-| `CancelBack` | 1,179,648 | 1,024 | 1,024 | 5 | 139.94 | 152.27 | 158.94 | 235.31 |
-| `CancelRandom` | 73,728 | 64 | 1,024 | 5 | 89.84 | 130.50 | 159.16 | 412.25 |
-| `CancelRandom` | 294,912 | 256 | 1,024 | 5 | 338.02 | 380.86 | 402.86 | 497.50 |
-| `CancelRandom` | 1,179,648 | 1,024 | 1,024 | 5 | 497.07 | 523.03 | 582.65 | 845.81 |
-| `CancelUnknown` | 73,728 | 64 | 1,024 | 5 | 10.56 | 15.59 | 18.27 | 144.44 |
-| `CancelUnknown` | 294,912 | 256 | 1,024 | 5 | 12.41 | 28.29 | 32.39 | 72.28 |
-| `CancelUnknown` | 1,179,648 | 1,024 | 1,024 | 5 | 36.36 | 40.29 | 47.53 | 66.69 |
-| `MixedSubmitCancel` | 73,728 | 64 | 1,024 | 5 | 45.81 | 80.83 | 128.08 | 2220.33 |
-| `MixedSubmitCancel` | 294,912 | 256 | 1,024 | 5 | 97.36 | 127.50 | 179.64 | 7987.60 |
-| `MixedSubmitCancel` | 1,179,648 | 1,024 | 1,024 | 5 | 144.72 | 172.43 | 193.47 | 10604.05 |
+| `RestingLimitOrderInsert` | 73,728 | 64 | 1,024 | 5 | 88.05 | 108.19 | 140.39 | 628.48 |
+| `RestingLimitOrderInsert` | 294,912 | 256 | 1,024 | 5 | 142.91 | 164.61 | 188.04 | 270.22 |
+| `RestingLimitOrderInsert` | 1,179,648 | 1,024 | 1,024 | 5 | 171.44 | 184.82 | 201.17 | 290.42 |
+| `CrossingLimitOrderMatch` | 73,728 | 64 | 1,024 | 5 | 62.39 | 80.83 | 97.66 | 230.30 |
+| `CrossingLimitOrderMatch` | 294,912 | 256 | 1,024 | 5 | 120.08 | 149.38 | 178.64 | 240.03 |
+| `CrossingLimitOrderMatch` | 1,179,648 | 1,024 | 1,024 | 5 | 165.90 | 260.26 | 271.33 | 313.90 |
+| `CancelFront` | 73,728 | 64 | 1,024 | 5 | 32.70 | 41.73 | 47.27 | 193.73 |
+| `CancelFront` | 294,912 | 256 | 1,024 | 5 | 39.37 | 58.94 | 80.68 | 107.21 |
+| `CancelFront` | 1,179,648 | 1,024 | 1,024 | 5 | 148.04 | 217.88 | 230.55 | 246.32 |
+| `CancelBack` | 73,728 | 64 | 1,024 | 5 | 32.20 | 39.83 | 44.88 | 179.69 |
+| `CancelBack` | 294,912 | 256 | 1,024 | 5 | 46.74 | 55.16 | 82.86 | 110.97 |
+| `CancelBack` | 1,179,648 | 1,024 | 1,024 | 5 | 140.62 | 152.44 | 157.92 | 171.79 |
+| `CancelRandom` | 73,728 | 64 | 1,024 | 5 | 93.22 | 132.09 | 155.25 | 339.25 |
+| `CancelRandom` | 294,912 | 256 | 1,024 | 5 | 337.83 | 384.77 | 411.42 | 713.30 |
+| `CancelRandom` | 1,179,648 | 1,024 | 1,024 | 5 | 499.49 | 521.80 | 539.78 | 797.38 |
+| `CancelUnknown` | 73,728 | 64 | 1,024 | 5 | 9.84 | 14.34 | 17.22 | 157.12 |
+| `CancelUnknown` | 294,912 | 256 | 1,024 | 5 | 11.75 | 27.48 | 31.54 | 69.39 |
+| `CancelUnknown` | 1,179,648 | 1,024 | 1,024 | 5 | 36.02 | 40.67 | 47.25 | 65.33 |
+| `MixedSubmitCancel` | 73,728 | 64 | 1,024 | 5 | 48.00 | 72.77 | 114.25 | 2494.44 |
+| `MixedSubmitCancel` | 294,912 | 256 | 1,024 | 5 | 91.61 | 110.44 | 143.21 | 4793.89 |
+| `MixedSubmitCancel` | 1,179,648 | 1,024 | 1,024 | 5 | 133.54 | 162.34 | 173.34 | 7694.61 |
+| `OrderBookTrueMixed` | 73,728 | 64 | 1,024 | 5 | 63.88 | 71.52 | 80.77 | 257.84 |
+| `OrderBookTrueMixed` | 294,912 | 256 | 1,024 | 5 | 80.56 | 88.70 | 118.61 | 151.13 |
+| `OrderBookTrueMixed` | 1,179,648 | 1,024 | 1,024 | 5 | 137.29 | 164.88 | 177.25 | 187.60 |
 
 The mixed latency run had large max outliers in this EC2 pass, so p50/p95/p99
 are more representative than the max column for that workload.

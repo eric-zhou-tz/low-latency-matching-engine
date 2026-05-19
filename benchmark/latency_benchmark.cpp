@@ -1,4 +1,5 @@
 #include "book/order_book.hpp"
+#include "true_mixed_workload.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -25,6 +26,9 @@ using Clock = std::chrono::steady_clock;
 using matching_engine::Order;
 using matching_engine::OrderBook;
 using matching_engine::Side;
+using matching_engine::benchmark_workloads::make_true_mixed_workload;
+using matching_engine::benchmark_workloads::preload_true_mixed_book;
+using matching_engine::benchmark_workloads::run_true_mixed_operation;
 
 constexpr std::int64_t kBestPassiveBid = 99;
 constexpr std::int64_t kBestPassiveAsk = 101;
@@ -570,6 +574,35 @@ template <typename Operation>
 }
 
 /**
+ * @brief Measures true mixed OrderBook latency batches.
+ *
+ * @param batch_size Number of operations per timed batch.
+ * @param sample_count Number of recorded batches.
+ * @param warmup_batches Number of unrecorded batches.
+ * @return Percentile summary over amortized batch samples.
+ */
+[[nodiscard]] Percentiles run_true_mixed_latency(std::size_t batch_size,
+                                                 std::size_t sample_count,
+                                                 std::size_t warmup_batches) {
+    const auto total_operations = (sample_count + warmup_batches) * batch_size;
+    const auto workload = make_true_mixed_workload(total_operations);
+    OrderBook book;
+    std::vector<matching_engine::Event> events;
+    events.reserve(16);
+
+    // Setup and preload happen outside measured batches so samples isolate hot-path operations.
+    book.reserve_order_capacity(workload.reserve_order_capacity);
+    preload_true_mixed_book(book, workload.preload_orders, events);
+
+    return measure_batches(batch_size, sample_count, warmup_batches, [&](std::size_t index) {
+        auto cancel_result = run_true_mixed_operation(book, workload.operations[index], events);
+        do_not_optimize(cancel_result);
+        do_not_optimize(events.data());
+        do_not_optimize(events.size());
+    });
+}
+
+/**
  * @brief Runs one named workload for a batch size.
  *
  * @param benchmark_name Workload label for artifacts.
@@ -608,6 +641,9 @@ template <typename Operation>
         return run_cancel_latency(make_unknown_cancel_ids(total_operations), batch_size, sample_count,
                                   warmup_batches);
     }
+    if (benchmark_name == "OrderBookTrueMixed") {
+        return run_true_mixed_latency(batch_size, sample_count, warmup_batches);
+    }
 
     return run_mixed_latency(batch_size, sample_count, warmup_batches);
 }
@@ -621,7 +657,8 @@ template <typename Operation>
 [[nodiscard]] std::vector<LatencyResult> run_all_latency_benchmarks(const Options& options) {
     constexpr std::string_view workloads[] = {"RestingLimitOrderInsert", "CrossingLimitOrderMatch",
                                               "CancelFront", "CancelBack", "CancelRandom",
-                                              "CancelUnknown", "MixedSubmitCancel"};
+                                              "CancelUnknown", "MixedSubmitCancel",
+                                              "OrderBookTrueMixed"};
     constexpr std::size_t batch_sizes[] = {64, 256, 1'024};
     std::vector<LatencyResult> results;
     results.reserve(std::size(workloads) * std::size(batch_sizes) * options.trial_count);
