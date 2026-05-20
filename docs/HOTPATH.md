@@ -10,7 +10,7 @@ This note records the first perf-based hot path pass for the intrusive
 - Kernel: `7.0.0-1004-aws`
 - Compiler: GCC/G++ 15.2.0
 - Build: Release with debug symbols and frame pointers
-- Workload: `BM_CancelRandom/100000`
+- Workload: `BM_OrderBook_CancelRandom_Throughput/100000`
 
 Perf build:
 
@@ -41,8 +41,8 @@ The useful profile was collected with the software `cpu-clock` event:
 ```bash
 sudo perf record -e cpu-clock -g \
   -o perf-cancel-random-debug.data \
-  ./build-perf-debug/cancel_benchmark \
-  --benchmark_filter='^BM_CancelRandom/100000$' \
+  ./build-perf-debug/core_hot_path_benchmark \
+  --benchmark_filter='^BM_OrderBook_CancelRandom_Throughput/100000$' \
   --benchmark_min_time=3s
 
 sudo perf report \
@@ -65,7 +65,7 @@ git clone https://github.com/brendangregg/FlameGraph.git ~/FlameGraph
 sudo perf script -i perf-cancel-random-debug.data > perf-cancel-random.script
 ~/FlameGraph/stackcollapse-perf.pl perf-cancel-random.script > perf-cancel-random.folded
 ~/FlameGraph/flamegraph.pl \
-  --title "BM_CancelRandom/100000 cpu-clock" \
+  --title "BM_OrderBook_CancelRandom_Throughput/100000 cpu-clock" \
   --countname samples \
   perf-cancel-random.folded > perf-cancel-random.svg
 ```
@@ -84,8 +84,8 @@ unknown cancels remain in the default suite.
 | --- | ---: | ---: | --- |
 | `BM_CancelFront/100000` | ~6.88-6.91 ms | ~14.47M-14.53M/s | Fast sequential successful cancel |
 | `BM_CancelBack/100000` | ~6.88-6.92 ms | ~14.45M-14.53M/s | Fast reverse-order successful cancel |
-| `BM_CancelUnknown/100000` | ~7.96-7.97 ms | ~12.54M-12.57M/s | Hash miss and rejection event path |
-| `BM_CancelRandom/100000` | ~33.5-37.4 ms in later perf runs | ~2.67M-2.98M/s | Successful cancel with randomized order-id access |
+| `BM_OrderBook_CancelUnknown_Throughput/100000` | ~7.96-7.97 ms | ~12.54M-12.57M/s | Hash miss and rejection event path |
+| `BM_OrderBook_CancelRandom_Throughput/100000` | ~33.5-37.4 ms in later perf runs | ~2.67M-2.98M/s | Successful cancel with randomized order-id access |
 
 Random cancel is roughly 5-6x slower than front/back cancel at the same book
 depth. That gap remains after removing the old queue scan and replacing
@@ -103,13 +103,13 @@ In the FlameGraph:
 The lower frames are Google Benchmark and process startup:
 
 ```text
-cancel_benchmark
+core_hot_path_benchmark
 _start
 main
 RunSpecifiedBenchmarks
 RunBenchmarks
 DoOneRepetition
-BM_CancelRandom
+BM_OrderBook_CancelRandom_Throughput
 run_cancel_workload
 ```
 

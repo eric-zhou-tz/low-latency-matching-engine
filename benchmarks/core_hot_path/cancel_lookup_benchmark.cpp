@@ -21,6 +21,7 @@ constexpr std::int64_t kRestingBid = 100;
 constexpr std::int64_t kRestingAsk = 102;
 constexpr std::int64_t kCrossingBuy = 105;
 constexpr std::uint64_t kQuantity = 1;
+constexpr std::uint64_t kModifiableQuantity = 2;
 constexpr std::uint64_t kUnknownOrderIdBase = 1'000'000'000;
 constexpr std::uint64_t kMixedCrossingIdBase = 2'000'000'000;
 constexpr std::uint32_t kCancelShuffleSeed = 0xC0FFEE;
@@ -77,6 +78,26 @@ struct MixedWorkload {
                                .side = Side::Buy,
                                .price = kRestingBid,
                                .quantity = kQuantity});
+    }
+
+    return orders;
+}
+
+/**
+ * @brief Builds same-price buy orders whose quantity can be reduced in place.
+ *
+ * @param count Number of orders to generate.
+ * @return Passive buy orders with quantity above the benchmark replacement size.
+ */
+[[nodiscard]] std::vector<Order> make_same_price_modifiable_buys(std::int64_t count) {
+    std::vector<Order> orders;
+    orders.reserve(static_cast<std::size_t>(count));
+
+    for (std::int64_t index = 0; index < count; ++index) {
+        orders.push_back(Order{.id = static_cast<std::uint64_t>(index + 1),
+                               .side = Side::Buy,
+                               .price = kRestingBid,
+                               .quantity = kModifiableQuantity});
     }
 
     return orders;
@@ -190,6 +211,46 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
         for (const auto order_id : cancel_ids) {
             auto result = book->cancel(order_id);
             benchmark::DoNotOptimize(result);
+        }
+
+        benchmark::ClobberMemory();
+        benchmark::DoNotOptimize(*book);
+
+        state.PauseTiming();
+        book.reset();
+        state.ResumeTiming();
+    }
+
+    state.SetItemsProcessed(state.iterations() * order_count);
+    state.counters["order_id_max_load_factor"] = order_id_max_load_factor;
+}
+
+/**
+ * @brief Measures in-place modification of live resting orders.
+ */
+void BM_OrderBook_ModifyIfPresent_Throughput(benchmark::State& state) {
+    const auto order_count = state.range(0);
+    // Generate the live orders and target ids outside timing so the benchmark
+    // measures order-id lookup plus in-level aggregate updates.
+    const auto reserve_order_capacity = static_cast<std::size_t>(order_count);
+    const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
+    const auto resting_orders = make_same_price_modifiable_buys(order_count);
+    const auto target_ids = make_front_cancel_ids(order_count);
+    std::optional<OrderBook> book;
+    std::vector<matching_engine::Event> events;
+    events.reserve(4);
+
+    for (auto _ : state) {
+        state.PauseTiming();
+        book.emplace(reserve_order_capacity, order_id_max_load_factor);
+        preload_book(*book, resting_orders);
+        state.ResumeTiming();
+
+        for (const auto order_id : target_ids) {
+            // Same-price quantity reductions preserve FIFO priority and keep the id live.
+            book->modify(order_id, kRestingBid, kQuantity, events);
+            benchmark::DoNotOptimize(events.data());
+            benchmark::DoNotOptimize(events.size());
         }
 
         benchmark::ClobberMemory();
@@ -377,7 +438,7 @@ void run_mixed_submit_cancel_with_reserve(benchmark::State& state,
 /**
  * @brief Measures cancellation of the oldest order at one FIFO price level.
  */
-void BM_CancelFront(benchmark::State& state) {
+void BM_OrderBook_CancelFront_Throughput(benchmark::State& state) {
     const auto cancel_ids = make_front_cancel_ids(state.range(0));
     run_cancel_workload(state, cancel_ids);
 }
@@ -385,7 +446,7 @@ void BM_CancelFront(benchmark::State& state) {
 /**
  * @brief Measures cancellation of the newest order at one FIFO price level.
  */
-void BM_CancelBack(benchmark::State& state) {
+void BM_OrderBook_CancelBack_Throughput(benchmark::State& state) {
     const auto cancel_ids = make_back_cancel_ids(state.range(0));
     run_cancel_workload(state, cancel_ids);
 }
@@ -393,7 +454,7 @@ void BM_CancelBack(benchmark::State& state) {
 /**
  * @brief Measures cancellation through a deterministic random id order.
  */
-void BM_CancelRandom(benchmark::State& state) {
+void BM_OrderBook_CancelRandom_Throughput(benchmark::State& state) {
     const auto cancel_ids = make_random_cancel_ids(state.range(0));
     run_cancel_workload(state, cancel_ids);
 }
@@ -401,7 +462,7 @@ void BM_CancelRandom(benchmark::State& state) {
 /**
  * @brief Measures rejected cancels that miss the order-id index.
  */
-void BM_CancelUnknown(benchmark::State& state) {
+void BM_OrderBook_CancelUnknown_Throughput(benchmark::State& state) {
     const auto cancel_ids = make_unknown_cancel_ids(state.range(0));
     run_cancel_workload(state, cancel_ids);
 }
@@ -409,7 +470,7 @@ void BM_CancelUnknown(benchmark::State& state) {
 /**
  * @brief Measures a realistic stream of inserts, cancels, and matches.
  */
-void BM_MixedSubmitCancel(benchmark::State& state) {
+void BM_Experimental_LegacyMixedSubmitCancel_Throughput(benchmark::State& state) {
     const auto operation_count = state.range(0);
     // Reserve capacity is sized to expected peak live/resting orders, not total
     // processed operations. Submit/cancel/modify-heavy workloads usually have
@@ -456,25 +517,31 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
 /**
  * @brief Sweeps reserve capacity for the mixed workload without changing engine defaults.
  */
-void BM_MixedSubmitCancelReserveSweep(benchmark::State& state) {
+void BM_Experimental_MixedSubmitCancelReserveSweep(benchmark::State& state) {
     // The second argument is the explicit reserve capacity under investigation.
     run_mixed_submit_cancel_with_reserve(state, static_cast<std::size_t>(state.range(1)));
 }
 
-BENCHMARK(BM_CancelRandom)->Arg(1'000)->Arg(10'000)->Arg(100'000);
-BENCHMARK(BM_CancelUnknown)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+#if !defined(MATCHING_ENGINE_ENABLE_RESERVE_SWEEP)
+BENCHMARK(BM_OrderBook_CancelRandom_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_OrderBook_CancelUnknown_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_OrderBook_ModifyIfPresent_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 
 #if defined(MATCHING_ENGINE_ENABLE_CANCEL_DIAGNOSTICS)
-BENCHMARK(BM_CancelFront)->Arg(1'000)->Arg(10'000)->Arg(100'000);
-BENCHMARK(BM_CancelBack)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_OrderBook_CancelFront_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_OrderBook_CancelBack_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 #endif
 
 #if defined(MATCHING_ENGINE_ENABLE_LEGACY_MIXED_BENCHMARK)
-BENCHMARK(BM_MixedSubmitCancel)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_Experimental_LegacyMixedSubmitCancel_Throughput)
+    ->Arg(1'000)
+    ->Arg(10'000)
+    ->Arg(100'000);
+#endif
 #endif
 
 #if defined(MATCHING_ENGINE_ENABLE_RESERVE_SWEEP)
-BENCHMARK(BM_MixedSubmitCancelReserveSweep)
+BENCHMARK(BM_Experimental_MixedSubmitCancelReserveSweep)
     ->Args({100'000, 0})
     ->Args({100'000, 1'000})
     ->Args({100'000, 8'192})

@@ -18,41 +18,134 @@ automatically by CMake or CI until that workflow is added intentionally.
 - Run date: `2026-05-19T21:04:32Z`
 - Command: pinned `end_to_end_benchmark --benchmark_repetitions=5`
 
-## Workloads
+## Benchmark Organization
 
-- `insert_benchmark` measures passive BUY/SELL limit orders that do not cross,
-  isolating resting order insertion throughput.
-- `match_benchmark` preloads resting ask liquidity, then submits aggressive buy
-  limit orders that cross and consume the book.
-- `cancel_benchmark` preloads same-price FIFO liquidity, then measures front,
-  back, random, and unknown cancels. It also includes a mixed submit/cancel/match
-  stream with roughly 70% passive inserts, 20% cancels, and 10% crossing orders.
-- `true_mixed_benchmark` measures direct `OrderBook` hot-path traffic with
-  randomly interleaved GTC, cancel, modify, IOC, market, and FOK operations. It
-  bypasses Parser, Exchange, filesystem I/O, and string/event formatting.
-- `shallow_gtc_mixed_benchmark` measures direct `OrderBook` hot-path GTC churn
-  with a low live resting depth, tight prices, random cancels/modifies, and
-  crossing GTC orders that immediately match.
-- `deep_sparse_gtc_mixed_benchmark` measures direct `OrderBook` hot-path GTC
-  churn with many occupied price levels and only one to two orders per level.
-  This "deep sparse" shape stresses price-level map/tree traversal and level
-  cleanup more than long FIFO queues at one price.
-- `best_level_churn_benchmark` measures direct `OrderBook` hot-path churn at
-  the inside market. It repeatedly cancels current best-level orders, submits
-  one-tick inside-improving liquidity, sends small marketable orders, and
-  occasionally modifies live orders.
-- `level_create_delete_churn_benchmark` measures direct `OrderBook` hot-path
-  churn that repeatedly creates tiny fresh price levels and then erases each
-  entire level by canceling or matching the final resting order.
-- `latency_benchmark` runs a separate amortized batch latency suite over the
-  same hot paths. It is not a Google Benchmark replacement and does not rename
-  or replace the throughput benchmark binaries.
-- `end_to_end_benchmark` measures public-boundary CLI-style overhead:
-  in-memory input lines, parser, exchange routing, order-book mutation, and
-  event formatting.
-- `order_book_stress_tests` runs long deterministic correctness stress streams
-  as GoogleTest/CTest cases. These are soak-style structural validation tests,
-  not throughput benchmarks.
+The benchmark suite is organized by benchmark intent rather than by the order in
+which workloads were added.
+
+### Core Hot Path
+
+Executable: `core_hot_path_benchmark`
+
+Source directory: `benchmarks/core_hot_path/`
+
+These are pure `OrderBook` microbenchmarks. They do not use Parser, Exchange,
+string formatting, filesystem access, or replay I/O. Setup, RNG, workload
+generation, and allocation are kept outside the measured loops.
+
+- `BM_OrderBook_PassiveInsert_Throughput`
+- `BM_OrderBook_OneLevelCrossingMatch_Throughput`
+- `BM_OrderBook_CancelRandom_Throughput`
+- `BM_OrderBook_CancelUnknown_Throughput`
+- `BM_OrderBook_ModifyIfPresent_Throughput`
+
+Executable: `core_hot_path_latency_benchmark`
+
+This standalone runner reports amortized batch latency, not true per-operation
+latency. It writes `benchmarks/batch_latency_results.txt` and
+`benchmarks/batch_latency_results.json`.
+
+### Realistic Flow
+
+Executable: `realistic_flow_benchmark`
+
+Source directory: `benchmarks/realistic_flow/`
+
+These workloads model mixed production-like traffic. The direct `OrderBook`
+workload is paired with end-to-end parser/exchange/formatter throughput and
+batch-latency rows where practical.
+
+- `BM_OrderBook_TrueMixed_Throughput`
+- `BM_OrderBook_TrueMixed_BatchLatency` in the standalone batch-latency runner
+- `BM_EndToEnd_PassiveInsert_Throughput`
+- `BM_EndToEnd_TrueMixed_Throughput`
+- `BM_EndToEnd_TrueMixed_BatchLatency`
+
+### Stress
+
+Executable: `stress_benchmark`
+
+Source directory: `benchmarks/stress/`
+
+These workloads are pathological or adversarial `OrderBook` shapes: best-level
+churn, level create/delete churn, shallow high-churn GTC flow, and deep sparse
+price-level traversal. They bypass Parser, Exchange, filesystem I/O, and string
+formatting.
+
+- `BM_Stress_BestLevelChurn_Throughput`
+- `BM_Stress_LevelCreateDeleteChurn_Throughput`
+- `BM_Stress_ShallowGtcMixed_Throughput`
+- `BM_Stress_DeepSparseGtcMixed_Throughput`
+
+### Determinism / Replay
+
+Executable: `determinism_replay_benchmark`
+
+Source directory: `benchmarks/determinism_replay/`
+
+Replay benchmarks load golden fixtures before timing, then run in-memory command
+streams through the same parser/exchange/formatter path as the CLI and golden
+replay tests.
+
+- `BM_Replay_GoldenFixtures_Throughput`
+
+### Experimental
+
+Executable: `experimental_reserve_sweep_benchmark`
+
+The reserve-capacity sweep is retained as an optional tuning benchmark rather
+than part of the main suite because it changes setup-time capacity knobs instead
+of representing a normal workload category.
+
+Run it explicitly with `BENCHMARK_TARGETS=reserve_sweep`; it is intentionally
+excluded from the default `BENCHMARK_TARGETS=all` EC2 pass.
+
+## Migration Note
+
+Moved benchmark sources:
+
+- `benchmark/insert_benchmark.cpp` -> `benchmarks/core_hot_path/passive_insert_benchmark.cpp`
+- `benchmark/match_benchmark.cpp` -> `benchmarks/core_hot_path/one_level_crossing_benchmark.cpp`
+- `benchmark/cancel_benchmark.cpp` -> `benchmarks/core_hot_path/cancel_lookup_benchmark.cpp`
+- `benchmark/latency_benchmark.cpp` -> `benchmarks/core_hot_path/batch_latency_benchmark.cpp`
+- `benchmark/true_mixed_benchmark.cpp` and `benchmark/end_to_end_benchmark.cpp` -> `benchmarks/realistic_flow/`
+- stress workload sources under `benchmarks/` -> `benchmarks/stress/`
+
+Renamed primary benchmark executables:
+
+- `insert_benchmark`, `match_benchmark`, and `cancel_benchmark` -> `core_hot_path_benchmark`
+- `true_mixed_benchmark` and `end_to_end_benchmark` -> `realistic_flow_benchmark`
+- shallow/deep/best-level/level-create-delete binaries -> `stress_benchmark`
+- `latency_benchmark` -> `core_hot_path_latency_benchmark`
+- `cancel_reserve_sweep_benchmark` -> `experimental_reserve_sweep_benchmark`
+
+Renamed benchmark rows:
+
+- `BM_OrderBookTrueMixed` -> `BM_OrderBook_TrueMixed_Throughput`
+- `BM_EndToEnd_MixedOrderFlow_Throughput` -> `BM_EndToEnd_TrueMixed_Throughput`
+- `BM_EndToEnd_MixedOrderFlow_Latency` -> `BM_EndToEnd_TrueMixed_BatchLatency`
+- `BM_CancelRandom` and `BM_CancelUnknown` -> `BM_OrderBook_CancelRandom_Throughput` and `BM_OrderBook_CancelUnknown_Throughput`
+- stress rows now use the `BM_Stress_*_Throughput` prefix
+
+Created throughput/latency pairs:
+
+- `BM_OrderBook_PassiveInsert_Throughput` / `BM_OrderBook_PassiveInsert_BatchLatency`
+- `BM_OrderBook_OneLevelCrossingMatch_Throughput` / `BM_OrderBook_OneLevelCrossingMatch_BatchLatency`
+- `BM_OrderBook_CancelRandom_Throughput` / `BM_OrderBook_CancelRandom_BatchLatency`
+- `BM_OrderBook_CancelUnknown_Throughput` / `BM_OrderBook_CancelUnknown_BatchLatency`
+- `BM_OrderBook_ModifyIfPresent_Throughput` / `BM_OrderBook_ModifyIfPresent_BatchLatency`
+- `BM_OrderBook_TrueMixed_Throughput` / `BM_OrderBook_TrueMixed_BatchLatency`
+- `BM_EndToEnd_TrueMixed_Throughput` / `BM_EndToEnd_TrueMixed_BatchLatency`
+
+Removed or marked experimental:
+
+- No benchmark behavior was deleted.
+- The legacy 70/20/10 `BM_MixedSubmitCancel` path is left behind a compile-time
+  diagnostic flag and renamed `BM_Experimental_LegacyMixedSubmitCancel_Throughput`.
+- The reserve-capacity sweep is now optional under `experimental_reserve_sweep_benchmark`.
+
+`order_book_stress_tests` remains a GoogleTest/CTest structural validation
+suite, not a benchmark timing binary.
 
 The hot-path throughput and latency workloads bypass parser, stdin, file I/O,
 and logging. Setup/preload work is excluded from the measured loop where
@@ -467,7 +560,7 @@ Artifact files:
 ## Amortized Batch Latency
 
 Throughput benchmarks remain Google Benchmark based. Latency benchmarks are
-reported by the standalone `latency_benchmark` runner and time fixed-size
+reported by the standalone `core_hot_path_latency_benchmark` runner and time fixed-size
 operation batches of 64, 256, and 1,024 operations with
 `std::chrono::steady_clock`.
 
@@ -492,8 +585,8 @@ environment metadata next to the benchmark artifacts.
 
 Latency artifact files:
 
-- `benchmarks/latency_results.txt`
-- `benchmarks/latency_results.json`
+- `benchmarks/batch_latency_results.txt`
+- `benchmarks/batch_latency_results.json`
 
 Latest latency result table:
 
@@ -540,7 +633,8 @@ need a hardware-level explanation. The existing throughput and latency pipeline
 is unchanged.
 
 The script pins the latency runner with `taskset -c 0`, executes
-`latency_benchmark` under `perf stat`, and records aggregate counters for:
+`core_hot_path_latency_benchmark` under `perf stat`, and records aggregate
+counters for:
 
 - `cycles`
 - `instructions`

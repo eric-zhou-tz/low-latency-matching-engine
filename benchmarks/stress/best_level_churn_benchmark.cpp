@@ -681,7 +681,7 @@ void preload_book(OrderBook& book,
 /**
  * @brief Measures repeated top-of-book mutation on the direct OrderBook hot path.
  */
-void BM_BestLevelChurn(benchmark::State& state) {
+void BM_Stress_BestLevelChurn_Throughput(benchmark::State& state) {
     const auto operation_count = static_cast<std::size_t>(state.range(0));
     const auto workload = make_workload(operation_count);
     std::optional<OrderBook> book;
@@ -717,6 +717,9 @@ void BM_BestLevelChurn(benchmark::State& state) {
     state.counters["max_live_orders"] = static_cast<double>(workload.max_live_orders);
 }
 
-BENCHMARK(BM_BestLevelChurn)->Arg(10'000)->Arg(100'000)->Arg(1'000'000);
+BENCHMARK(BM_Stress_BestLevelChurn_Throughput)
+    ->Arg(10'000)
+    ->Arg(100'000)
+    ->Arg(1'000'000);
 
 } // namespace

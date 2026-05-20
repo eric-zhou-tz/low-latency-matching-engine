@@ -31,16 +31,18 @@ using matching_engine::RejectReason;
 using matching_engine::Side;
 using matching_engine::TimeInForce;
 
-constexpr Price kMidPrice = 10'000;
-constexpr Quantity kBaseQuantity = 100;
-constexpr std::size_t kTargetLiveOrders = 512;
-constexpr std::size_t kMinimumReserveOrderCapacity = 1'024;
-constexpr std::uint32_t kSeed = 0x5A11'0B00U;
-constexpr OrderId kPreloadIdBase = 20'000'000'000ULL;
-constexpr OrderId kTimedIdBase = 30'000'000'000ULL;
+constexpr Price kMidPrice = 1'000'000'000;
+constexpr Price kPriceStride = 17;
+constexpr Quantity kBaseQuantity = 10;
+constexpr std::size_t kPreloadPriceLevels = 50'000;
+constexpr std::size_t kCrossingLevelsPerOrder = 4;
+constexpr std::size_t kReserveSlack = 1'024;
+constexpr std::uint32_t kSeed = 0xD33F'5A7EU;
+constexpr OrderId kPreloadIdBase = 40'000'000'000ULL;
+constexpr OrderId kTimedIdBase = 50'000'000'000ULL;
 
 /**
- * @brief Primary operation kind requested by the shallow GTC workload.
+ * @brief Primary operation kind requested by the deep sparse GTC workload.
  */
 enum class PrimaryKind {
     GtcLimit,
@@ -70,7 +72,7 @@ struct Action {
 };
 
 /**
- * @brief Full deterministic shallow-book workload and metadata.
+ * @brief Full deterministic deep sparse workload and metadata.
  */
 struct Workload {
     std::vector<Order> preload_orders;
@@ -78,20 +80,21 @@ struct Workload {
     std::size_t primary_operations{};
     std::size_t reserve_order_capacity{};
     std::size_t max_live_orders{};
+    std::size_t max_price_levels{};
 };
 
 /**
- * @brief Lightweight generation model for valid live ids and FIFO crossing fills.
+ * @brief Lightweight generation model for sparse price levels and live ids.
  */
-class ShallowBookModel {
+class DeepSparseBookModel {
 public:
     /**
-     * @brief Adds a modeled resting GTC order to all live lookup structures.
+     * @brief Adds a modeled resting GTC order to live id and price-level indexes.
      *
      * @param order Passive order that should become cancel/modify eligible.
      */
     void add_order(const Order& order) {
-        // Keep id selection, order metadata, and FIFO price levels in sync.
+        // Keep random id selection and side-specific FIFO levels in sync.
         live_by_id_.emplace(order.id, order);
         live_ids_.push_back(order.id);
         live_index_by_id_.emplace(order.id, live_ids_.size() - 1);
@@ -107,8 +110,16 @@ public:
      * @brief Returns the current modeled resting order count.
      */
     [[nodiscard]] std::size_t live_order_count() const {
-        // The benchmark uses this to keep the book pinned near the target depth.
+        // Reserve sizing and generation safety depend on the current live set.
         return live_ids_.size();
+    }
+
+    /**
+     * @brief Returns the current occupied price-level count.
+     */
+    [[nodiscard]] std::size_t price_level_count() const {
+        // The workload tracks level depth separately from order count.
+        return bids_.size() + asks_.size();
     }
 
     /**
@@ -118,7 +129,7 @@ public:
      * @return Live order id that exists in the modeled book.
      */
     [[nodiscard]] OrderId random_live_order_id(std::mt19937& rng) const {
-        // Uniform id selection exercises random hash lookups instead of only FIFO fronts.
+        // Uniform id selection exercises random lookup and removal paths.
         std::uniform_int_distribution<std::size_t> distribution{0, live_ids_.size() - 1};
         return live_ids_[distribution(rng)];
     }
@@ -130,29 +141,29 @@ public:
      * @return Copy of the live order.
      */
     [[nodiscard]] Order live_order(OrderId order_id) const {
-        // Modify and crossing generation need the latest modeled remaining quantity.
+        // Modify and crossing generation need the latest modeled quantity.
         return live_by_id_.at(order_id);
     }
 
     /**
-     * @brief Finds the FIFO-front order on the opposite side for a crossing submit.
+     * @brief Collects FIFO orders from several best opposite sparse levels.
      *
-     * @param incoming_side Side of the incoming order.
-     * @return Best opposite resting order id, if any exists.
+     * @param incoming_side Side of the incoming crossing order.
+     * @param max_price_levels Number of opposite price levels to walk.
+     * @return Resting orders that the generated crossing order should fill.
      */
-    [[nodiscard]] std::optional<OrderId> best_opposite_order_id(Side incoming_side) const {
-        // Crossing GTC flow consumes one cache-hot best-level order at a time.
+    [[nodiscard]] std::vector<Order> best_opposite_orders(Side incoming_side,
+                                                          std::size_t max_price_levels) const {
+        std::vector<Order> orders;
+        orders.reserve(max_price_levels * 2);
+
         if (incoming_side == Side::Buy) {
-            if (asks_.empty()) {
-                return std::nullopt;
-            }
-            return asks_.begin()->second.front();
+            collect_best_orders(asks_, max_price_levels, orders);
+        } else {
+            collect_best_orders(bids_, max_price_levels, orders);
         }
 
-        if (bids_.empty()) {
-            return std::nullopt;
-        }
-        return bids_.begin()->second.front();
+        return orders;
     }
 
     /**
@@ -166,7 +177,7 @@ public:
             return;
         }
 
-        // Remove the id from its side-specific FIFO level before dropping metadata.
+        // Remove the id from the sparse price level before dropping metadata.
         const auto order = found->second;
         if (order.side == Side::Buy) {
             remove_from_level(bids_, order.price, order_id);
@@ -178,31 +189,46 @@ public:
     }
 
     /**
-     * @brief Applies a modeled modify while preserving OrderBook priority rules.
+     * @brief Applies cancel-replace style repricing in the generation model.
      *
      * @param order_id Live order being modified.
-     * @param new_price Replacement price.
+     * @param new_price Replacement sparse price.
      * @param new_quantity Replacement remaining quantity.
      */
     void modify_order(OrderId order_id, Price new_price, Quantity new_quantity) {
-        auto existing = live_order(order_id);
+        auto replacement = live_order(order_id);
 
-        if (new_price == existing.price && new_quantity < existing.quantity) {
-            // Pure reductions stay in place and keep FIFO priority.
-            live_by_id_.at(order_id).quantity = new_quantity;
-            return;
-        }
-
-        // Repricing and size increases use cancel-replace semantics at the new level.
+        // Deep sparse modifies intentionally move to a different level.
         remove_order(order_id);
-        existing.price = new_price;
-        existing.quantity = new_quantity;
-        existing.prev = nullptr;
-        existing.next = nullptr;
-        add_order(existing);
+        replacement.price = new_price;
+        replacement.quantity = new_quantity;
+        replacement.prev = nullptr;
+        replacement.next = nullptr;
+        add_order(replacement);
     }
 
 private:
+    /**
+     * @brief Copies orders from the first several levels of one side.
+     *
+     * @param levels Side-specific FIFO levels.
+     * @param max_price_levels Number of levels to include.
+     * @param orders Output collection for matched resting orders.
+     */
+    template <typename Levels>
+    void collect_best_orders(const Levels& levels,
+                             std::size_t max_price_levels,
+                             std::vector<Order>& orders) const {
+        std::size_t levels_seen = 0;
+        for (auto level = levels.begin(); level != levels.end() && levels_seen < max_price_levels;
+             ++level, ++levels_seen) {
+            // Sparse levels usually contain one order; keep the logic valid for two.
+            for (const auto order_id : level->second) {
+                orders.push_back(live_by_id_.at(order_id));
+            }
+        }
+    }
+
     /**
      * @brief Removes an id from one modeled price-level map.
      *
@@ -217,7 +243,7 @@ private:
             return;
         }
 
-        // The generation model is off the timed path, so simple deque erase is fine here.
+        // Generation is outside the timed loop, so deque erase is acceptable here.
         auto& queue = level->second;
         const auto found = std::ranges::find(queue, order_id);
         if (found != queue.end()) {
@@ -234,7 +260,7 @@ private:
      * @param order_id Live order id to erase.
      */
     void erase_live_metadata(OrderId order_id) {
-        // Swap-remove keeps the live id vector compact for O(1) random targeting.
+        // Swap-remove keeps random live-id selection compact and deterministic.
         const auto live_index = live_index_by_id_.at(order_id);
         const auto moved_id = live_ids_.back();
         live_ids_[live_index] = moved_id;
@@ -253,31 +279,21 @@ private:
 };
 
 /**
- * @brief Computes the current mixed-workload reserve heuristic.
- *
- * @param operation_count Requested primary operation count.
- * @return Caller-selected OrderBook reserve capacity.
- */
-[[nodiscard]] std::size_t reserve_order_capacity(std::size_t operation_count) {
-    // Keep the existing 10% reserve heuristic so this benchmark compares cleanly.
-    return std::max<std::size_t>(kMinimumReserveOrderCapacity, operation_count / 10);
-}
-
-/**
- * @brief Creates a passive GTC order near the midpoint without crossing.
+ * @brief Creates a passive sparse GTC order that cannot cross the spread.
  *
  * @param order_id Stable order id.
  * @param side Resting side.
- * @param rng Fixed-seed RNG for deterministic price/quantity variation.
+ * @param price Sparse price selected by the generator.
+ * @param rng Fixed-seed RNG for deterministic quantity variation.
  * @return Passive limit order.
  */
-[[nodiscard]] Order make_passive_order(OrderId order_id, Side side, std::mt19937& rng) {
-    std::uniform_int_distribution<int> offset_distribution{1, 3};
-    std::uniform_int_distribution<int> quantity_distribution{1, 8};
-    const auto offset = offset_distribution(rng);
-    const auto price = side == Side::Buy ? kMidPrice - offset : kMidPrice + offset;
+[[nodiscard]] Order make_passive_order(OrderId order_id,
+                                       Side side,
+                                       Price price,
+                                       std::mt19937& rng) {
+    std::uniform_int_distribution<int> quantity_distribution{0, 3};
 
-    // Small quantities keep crossing submits focused on short best-level work.
+    // Small quantities let crossing orders consume several sparse levels.
     return Order{.id = order_id,
                  .side = side,
                  .price = price,
@@ -286,15 +302,30 @@ private:
 }
 
 /**
- * @brief Creates a random passive order around the tight spread.
+ * @brief Returns the next unique sparse price on a side.
  *
- * @param order_id Stable order id.
- * @param rng Fixed-seed RNG for side and order attributes.
- * @return Passive GTC limit order.
+ * @param side Side receiving a new passive price.
+ * @param next_bid_index Monotonic bid-side sparse index.
+ * @param next_ask_index Monotonic ask-side sparse index.
+ * @param rng Fixed-seed RNG for deterministic spacing jitter.
+ * @return Unique passive price that stays away from crossing the midpoint.
  */
-[[nodiscard]] Order make_random_passive_order(OrderId order_id, std::mt19937& rng) {
-    std::bernoulli_distribution side_distribution{0.5};
-    return make_passive_order(order_id, side_distribution(rng) ? Side::Buy : Side::Sell, rng);
+[[nodiscard]] Price next_sparse_price(Side side,
+                                      std::size_t& next_bid_index,
+                                      std::size_t& next_ask_index,
+                                      std::mt19937& rng) {
+    std::uniform_int_distribution<int> jitter_distribution{0, 3};
+    const auto jitter = static_cast<Price>(jitter_distribution(rng));
+
+    if (side == Side::Buy) {
+        // New bid levels move farther below the midpoint while preserving uniqueness.
+        const auto index = static_cast<Price>(++next_bid_index);
+        return kMidPrice - (index * kPriceStride) - jitter;
+    }
+
+    // New ask levels move farther above the midpoint while preserving uniqueness.
+    const auto index = static_cast<Price>(++next_ask_index);
+    return kMidPrice + (index * kPriceStride) + jitter;
 }
 
 /**
@@ -304,13 +335,13 @@ private:
  * @return Counts for GTC submit, cancel, modify, and crossing GTC.
  */
 [[nodiscard]] std::array<std::size_t, 4> primary_operation_counts(std::size_t operation_count) {
-    constexpr std::array<std::size_t, 4> weights{50, 30, 15, 5};
+    constexpr std::array<std::size_t, 4> weights{45, 30, 15, 10};
     std::array<std::size_t, 4> counts{};
     std::array<std::pair<std::size_t, std::size_t>, 4> remainders{};
     std::size_t assigned = 0;
 
     for (std::size_t index = 0; index < weights.size(); ++index) {
-        // Integer division gives deterministic exact counts for common sizes.
+        // Integer scaling gives exact shares for the standard benchmark sizes.
         const auto scaled = operation_count * weights[index];
         counts[index] = scaled / 100;
         remainders[index] = {scaled % 100, index};
@@ -319,7 +350,7 @@ private:
 
     std::ranges::sort(remainders, std::greater<>{});
     for (std::size_t index = 0; assigned < operation_count; ++index, ++assigned) {
-        // Largest remainders receive leftover operations when counts are not exact.
+        // Largest remainders receive leftover operations for non-multiple sizes.
         ++counts[remainders[index].second];
     }
 
@@ -354,20 +385,27 @@ private:
 }
 
 /**
- * @brief Appends a passive submit action and updates modeled live state.
+ * @brief Appends a passive sparse submit action and updates modeled live state.
  *
  * @param workload Workload receiving the replay action.
  * @param model Generation model to update.
  * @param next_order_id Next unique order id.
+ * @param next_bid_index Monotonic bid price index.
+ * @param next_ask_index Monotonic ask price index.
  * @param rng Fixed-seed RNG for deterministic order attributes.
  */
 void append_passive_submit(Workload& workload,
-                           ShallowBookModel& model,
+                           DeepSparseBookModel& model,
                            OrderId& next_order_id,
+                           std::size_t& next_bid_index,
+                           std::size_t& next_ask_index,
                            std::mt19937& rng) {
-    auto order = make_random_passive_order(next_order_id++, rng);
+    std::bernoulli_distribution side_distribution{0.5};
+    const auto side = side_distribution(rng) ? Side::Buy : Side::Sell;
+    const auto price = next_sparse_price(side, next_bid_index, next_ask_index, rng);
+    auto order = make_passive_order(next_order_id++, side, price, rng);
 
-    // Passive GTC submits become future live cancel/modify targets.
+    // New sparse prices keep per-level queues short while the tree grows deep.
     model.add_order(order);
     workload.actions.push_back(Action{.kind = ActionKind::Submit, .order = order});
 }
@@ -379,37 +417,32 @@ void append_passive_submit(Workload& workload,
  * @param model Generation model to update.
  * @param order_id Live order id to cancel.
  */
-void append_cancel(Workload& workload, ShallowBookModel& model, OrderId order_id) {
-    // Remove in generation state now so later actions cannot target a dead order.
+void append_cancel(Workload& workload, DeepSparseBookModel& model, OrderId order_id) {
+    // Remove now so later generated actions cannot target dead liquidity.
     model.remove_order(order_id);
     workload.actions.push_back(Action{.kind = ActionKind::Cancel, .target_order_id = order_id});
 }
 
 /**
- * @brief Appends a modify action that stays passive and updates modeled state.
+ * @brief Appends a modify action that moves an order to a different sparse level.
  *
  * @param workload Workload receiving the replay action.
  * @param model Generation model to update.
- * @param rng Fixed-seed RNG for deterministic modify shape.
+ * @param next_bid_index Monotonic bid price index.
+ * @param next_ask_index Monotonic ask price index.
+ * @param rng Fixed-seed RNG for deterministic modify attributes.
  */
-void append_modify(Workload& workload, ShallowBookModel& model, std::mt19937& rng) {
+void append_modify(Workload& workload,
+                   DeepSparseBookModel& model,
+                   std::size_t& next_bid_index,
+                   std::size_t& next_ask_index,
+                   std::mt19937& rng) {
     const auto order_id = model.random_live_order_id(rng);
     const auto existing = model.live_order(order_id);
-    std::uniform_int_distribution<int> mode_distribution{0, 2};
-    Price new_price = existing.price;
-    Quantity new_quantity = existing.quantity;
+    const auto new_price = next_sparse_price(existing.side, next_bid_index, next_ask_index, rng);
+    const auto new_quantity = existing.quantity + 1;
 
-    if (mode_distribution(rng) == 0 && existing.quantity > 1) {
-        // Same-price reductions exercise the in-place priority-preserving path.
-        new_quantity = existing.quantity - 1;
-    } else {
-        // Passive repricing exercises cancel-replace without crossing the spread.
-        std::uniform_int_distribution<int> offset_distribution{1, 3};
-        const auto offset = offset_distribution(rng);
-        new_price = existing.side == Side::Buy ? kMidPrice - offset : kMidPrice + offset;
-        new_quantity = existing.quantity + 1;
-    }
-
+    // Repricing preserves the live id but moves tree membership to a new level.
     model.modify_order(order_id, new_price, new_quantity);
     workload.actions.push_back(Action{.kind = ActionKind::Modify,
                                       .target_order_id = order_id,
@@ -418,7 +451,7 @@ void append_modify(Workload& workload, ShallowBookModel& model, std::mt19937& rn
 }
 
 /**
- * @brief Appends a crossing GTC submit that fully fills one resting order.
+ * @brief Appends a crossing GTC submit that consumes several sparse levels.
  *
  * @param workload Workload receiving the replay action.
  * @param model Generation model to update.
@@ -426,73 +459,63 @@ void append_modify(Workload& workload, ShallowBookModel& model, std::mt19937& rn
  * @param rng Fixed-seed RNG for deterministic side choice.
  */
 void append_crossing_submit(Workload& workload,
-                            ShallowBookModel& model,
+                            DeepSparseBookModel& model,
                             OrderId& next_order_id,
                             std::mt19937& rng) {
     std::bernoulli_distribution side_distribution{0.5};
     auto side = side_distribution(rng) ? Side::Buy : Side::Sell;
-    auto resting_id = model.best_opposite_order_id(side);
-    if (!resting_id.has_value()) {
-        // A missing side is unlikely at 512 orders, but flip sides to keep the action valid.
+    auto matched_orders = model.best_opposite_orders(side, kCrossingLevelsPerOrder);
+
+    if (matched_orders.empty()) {
+        // A missing side is unexpected at this depth, but flipping keeps the stream valid.
         side = side == Side::Buy ? Side::Sell : Side::Buy;
-        resting_id = model.best_opposite_order_id(side);
+        matched_orders = model.best_opposite_orders(side, kCrossingLevelsPerOrder);
     }
-    if (!resting_id.has_value()) {
-        // If both sides somehow disappear, replenish rather than generating an invalid target.
-        append_passive_submit(workload, model, next_order_id, rng);
+    if (matched_orders.empty()) {
         return;
     }
 
-    const auto resting = model.live_order(*resting_id);
+    Quantity crossing_quantity = 0;
+    for (const auto& resting : matched_orders) {
+        // Exact aggregate quantity lets the crossing GTC order walk levels without resting.
+        crossing_quantity += resting.quantity;
+    }
+
+    const auto limit_price = matched_orders.back().price;
     auto order = Order{.id = next_order_id++,
                        .side = side,
-                       .price = resting.price,
-                       .quantity = resting.quantity,
+                       .price = limit_price,
+                       .quantity = crossing_quantity,
                        .time_in_force = TimeInForce::GoodTilCancel};
 
-    // The incoming quantity equals the FIFO-front resting quantity, so it never rests.
-    model.remove_order(resting.id);
+    for (const auto& resting : matched_orders) {
+        // Generation state mirrors fills so later cancels/modifies stay valid.
+        model.remove_order(resting.id);
+    }
+
     workload.actions.push_back(Action{.kind = ActionKind::Submit, .order = order});
-}
-
-/**
- * @brief Rebalances modeled depth back to the shallow-book target.
- *
- * @param workload Workload receiving maintenance actions.
- * @param model Generation model to update.
- * @param next_order_id Next unique passive order id.
- * @param rng Fixed-seed RNG for deterministic maintenance choices.
- */
-void rebalance_to_target(Workload& workload,
-                         ShallowBookModel& model,
-                         OrderId& next_order_id,
-                         std::mt19937& rng) {
-    while (model.live_order_count() < kTargetLiveOrders) {
-        // Replenishment keeps cancel/match churn from draining the shallow book.
-        append_passive_submit(workload, model, next_order_id, rng);
-    }
-
-    while (model.live_order_count() > kTargetLiveOrders) {
-        // Extra passive submits are trimmed so live depth stays cache-hot and bounded.
-        append_cancel(workload, model, model.random_live_order_id(rng));
-    }
 }
 
 /**
  * @brief Builds deterministic preload liquidity outside the timed loop.
  *
  * @param model Generation model receiving the same live state.
+ * @param next_bid_index Monotonic bid price index initialized by preload.
+ * @param next_ask_index Monotonic ask price index initialized by preload.
  * @return Preload orders to submit before timing starts.
  */
-[[nodiscard]] std::vector<Order> make_preload(ShallowBookModel& model) {
-    std::mt19937 rng{kSeed ^ 0xC0FF'EEU};
+[[nodiscard]] std::vector<Order> make_preload(DeepSparseBookModel& model,
+                                              std::size_t& next_bid_index,
+                                              std::size_t& next_ask_index) {
+    std::mt19937 rng{kSeed ^ 0xBEEF'CAFEU};
     std::vector<Order> preload_orders;
-    preload_orders.reserve(kTargetLiveOrders);
+    preload_orders.reserve(kPreloadPriceLevels);
 
-    for (std::size_t index = 0; index < kTargetLiveOrders; ++index) {
-        // Alternating sides guarantees a two-sided book before random churn begins.
+    for (std::size_t index = 0; index < kPreloadPriceLevels; ++index) {
+        // Alternating sides creates a two-sided book with one order per level.
         const auto side = index % 2 == 0 ? Side::Buy : Side::Sell;
-        auto order = make_passive_order(kPreloadIdBase + index, side, rng);
+        const auto price = next_sparse_price(side, next_bid_index, next_ask_index, rng);
+        auto order = make_passive_order(kPreloadIdBase + index, side, price, rng);
         model.add_order(order);
         preload_orders.push_back(order);
     }
@@ -501,46 +524,47 @@ void rebalance_to_target(Workload& workload,
 }
 
 /**
- * @brief Builds a replayable shallow GTC mixed workload.
+ * @brief Builds a replayable deep sparse GTC mixed workload.
  *
  * @param operation_count Number of primary operations requested by the benchmark argument.
  * @return Preload orders, replay actions, and benchmark metadata.
  */
 [[nodiscard]] Workload make_workload(std::size_t operation_count) {
     Workload workload;
-    ShallowBookModel model;
+    DeepSparseBookModel model;
     std::mt19937 rng{kSeed};
     auto remaining = primary_operation_counts(operation_count);
     auto next_order_id = kTimedIdBase;
+    std::size_t next_bid_index = 0;
+    std::size_t next_ask_index = 0;
 
     workload.primary_operations = operation_count;
-    workload.reserve_order_capacity = reserve_order_capacity(operation_count);
-    workload.preload_orders = make_preload(model);
-    workload.actions.reserve(operation_count * 2);
+    workload.preload_orders = make_preload(model, next_bid_index, next_ask_index);
+    workload.actions.reserve(operation_count);
     workload.max_live_orders = model.live_order_count();
+    workload.max_price_levels = model.price_level_count();
 
     for (std::size_t index = 0; index < operation_count; ++index) {
         const auto kind = choose_primary_kind(remaining, rng);
         --remaining[static_cast<std::size_t>(kind)];
 
         if (kind == PrimaryKind::GtcLimit) {
-            append_passive_submit(workload, model, next_order_id, rng);
+            append_passive_submit(
+                workload, model, next_order_id, next_bid_index, next_ask_index, rng);
         } else if (kind == PrimaryKind::Cancel) {
             append_cancel(workload, model, model.random_live_order_id(rng));
         } else if (kind == PrimaryKind::Modify) {
-            append_modify(workload, model, rng);
+            append_modify(workload, model, next_bid_index, next_ask_index, rng);
         } else {
             append_crossing_submit(workload, model, next_order_id, rng);
         }
 
-        // Record the brief high-water mark before maintenance trims extra live orders.
+        // Track high-water marks so the real book reserves for peak live state.
         workload.max_live_orders = std::max(workload.max_live_orders, model.live_order_count());
-
-        // Maintenance actions keep the timed replay centered on the shallow target depth.
-        rebalance_to_target(workload, model, next_order_id, rng);
-        workload.max_live_orders = std::max(workload.max_live_orders, model.live_order_count());
+        workload.max_price_levels = std::max(workload.max_price_levels, model.price_level_count());
     }
 
+    workload.reserve_order_capacity = workload.max_live_orders + kReserveSlack;
     return workload;
 }
 
@@ -555,7 +579,7 @@ void preload_book(OrderBook& book,
                   const std::vector<Order>& preload_orders,
                   std::vector<Event>& events) {
     for (const auto& order : preload_orders) {
-        // Preload establishes the target live depth outside the measured loop.
+        // Preload establishes deep sparse liquidity outside the measured loop.
         book.submit(order, events);
     }
 }
@@ -572,13 +596,13 @@ void preload_book(OrderBook& book,
                                       const Action& action,
                                       std::vector<Event>& events) {
     if (action.kind == ActionKind::Submit) {
-        // Submit covers both passive GTC adds and crossing GTC taker orders.
+        // Submit covers both passive sparse adds and crossing GTC taker orders.
         book.submit(action.order, events);
     } else if (action.kind == ActionKind::Cancel) {
         // Cancel uses the direct single-event hot path.
         return book.cancel(action.target_order_id);
     } else {
-        // Modify reuses the caller-owned event buffer for in-place and replace cases.
+        // Modify reuses the caller-owned event buffer for replace-at-new-level cases.
         book.modify(action.target_order_id, action.new_price, action.new_quantity, events);
     }
 
@@ -586,14 +610,14 @@ void preload_book(OrderBook& book,
 }
 
 /**
- * @brief Measures cache-hot shallow-book GTC churn directly on OrderBook.
+ * @brief Measures deep sparse GTC churn directly on OrderBook.
  */
-void BM_ShallowGtcMixed(benchmark::State& state) {
+void BM_Stress_DeepSparseGtcMixed_Throughput(benchmark::State& state) {
     const auto operation_count = static_cast<std::size_t>(state.range(0));
     const auto workload = make_workload(operation_count);
     std::optional<OrderBook> book;
     std::vector<Event> events;
-    events.reserve(8);
+    events.reserve(16);
 
     for (auto _ : state) {
         state.PauseTiming();
@@ -620,13 +644,18 @@ void BM_ShallowGtcMixed(benchmark::State& state) {
     state.SetItemsProcessed(state.iterations() *
                             static_cast<std::int64_t>(workload.actions.size()));
     state.counters["primary_operations"] = static_cast<double>(workload.primary_operations);
-    state.counters["book_actions"] = static_cast<double>(workload.actions.size());
+    state.counters["preload_price_levels"] = static_cast<double>(kPreloadPriceLevels);
+    state.counters["crossing_levels_per_order"] =
+        static_cast<double>(kCrossingLevelsPerOrder);
     state.counters["reserve_order_capacity"] =
         static_cast<double>(workload.reserve_order_capacity);
-    state.counters["target_live_orders"] = static_cast<double>(kTargetLiveOrders);
     state.counters["max_live_orders"] = static_cast<double>(workload.max_live_orders);
+    state.counters["max_price_levels"] = static_cast<double>(workload.max_price_levels);
 }
 
-BENCHMARK(BM_ShallowGtcMixed)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_Stress_DeepSparseGtcMixed_Throughput)
+    ->Arg(1'000)
+    ->Arg(10'000)
+    ->Arg(100'000);
 
 } // namespace

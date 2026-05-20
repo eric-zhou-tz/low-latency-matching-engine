@@ -95,7 +95,7 @@ src/       Engine implementation
   io/      Parser implementation
 tests/     GoogleTest unit tests
 toy/       Simple std-container baseline engine for comparison/regression
-benchmark/ Google Benchmark microbenchmarks and end-to-end benchmarks
+benchmarks/ Benchmark sources, EC2 runners, and historical result artifacts
 examples/  Example order streams
 docs/      Architecture, changelog, benchmark history, and hot-path notes
 ```

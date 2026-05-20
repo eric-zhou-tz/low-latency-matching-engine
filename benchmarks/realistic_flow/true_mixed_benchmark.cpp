@@ -21,7 +21,7 @@ using matching_engine::benchmark_workloads::run_true_mixed_operation;
  * limit orders, market orders, and FOK limit orders. Parser, Exchange routing,
  * filesystem I/O, and event formatting are intentionally excluded.
  */
-void BM_OrderBookTrueMixed(benchmark::State& state) {
+void BM_OrderBook_TrueMixed_Throughput(benchmark::State& state) {
     const auto operation_count = static_cast<std::size_t>(state.range(0));
     const auto workload = make_true_mixed_workload(operation_count);
     std::optional<OrderBook> book;
@@ -57,6 +57,6 @@ void BM_OrderBookTrueMixed(benchmark::State& state) {
     state.counters["max_live_orders"] = static_cast<double>(workload.max_live_orders);
 }
 
-BENCHMARK(BM_OrderBookTrueMixed)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_OrderBook_TrueMixed_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 
 } // namespace

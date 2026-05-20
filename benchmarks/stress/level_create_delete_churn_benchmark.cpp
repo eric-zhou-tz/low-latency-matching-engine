@@ -282,7 +282,7 @@ void preload_book(OrderBook& book,
 /**
  * @brief Measures repeated creation and deletion of whole price levels.
  */
-void BM_LevelCreateDeleteChurn(benchmark::State& state) {
+void BM_Stress_LevelCreateDeleteChurn_Throughput(benchmark::State& state) {
     const auto operation_count = static_cast<std::size_t>(state.range(0));
     const auto workload = make_workload(operation_count);
     std::optional<OrderBook> book;
@@ -325,6 +325,9 @@ void BM_LevelCreateDeleteChurn(benchmark::State& state) {
     state.counters["match_deleted_levels"] = static_cast<double>(workload.match_deleted_levels);
 }
 
-BENCHMARK(BM_LevelCreateDeleteChurn)->Arg(10'000)->Arg(100'000)->Arg(1'000'000);
+BENCHMARK(BM_Stress_LevelCreateDeleteChurn_Throughput)
+    ->Arg(10'000)
+    ->Arg(100'000)
+    ->Arg(1'000'000);
 
 } // namespace

@@ -13,13 +13,13 @@ LATENCY_SAMPLES="${LATENCY_SAMPLES:-1024}"
 LATENCY_WARMUP_BATCHES="${LATENCY_WARMUP_BATCHES:-128}"
 PIN_CPU="${PIN_CPU:-0}"
 BENCHMARK_TARGETS="${BENCHMARK_TARGETS:-all}"
-BENCHMARK_FILTER="${BENCHMARK_FILTER:-^BM_BestLevelChurn}"
+STRESS_BENCHMARK_FILTER="${STRESS_BENCHMARK_FILTER:-^BM_Stress_}"
 
 mkdir -p "$OUTPUT_DIR"
 
 if find "$ROOT_DIR" -name '._*' -print -quit | grep -q .; then
     echo "error: macOS resource-fork sidecar files found under $ROOT_DIR" >&2
-    echo "exclude '._*' files before transferring sources to EC2, then rerun this script" >&2
+    echo "do not transfer AppleDouble '._*' files to EC2; re-sync sources with those files excluded" >&2
     exit 1
 fi
 
@@ -111,82 +111,49 @@ cmake --build "$BUILD_DIR" --config "$BUILD_TYPE"
 
 ctest --test-dir "$BUILD_DIR" --output-on-failure -C "$BUILD_TYPE"
 
-if should_run insert; then
-    run_pinned "$BUILD_DIR/insert_benchmark" \
+if should_run core_hot_path; then
+    run_pinned "$BUILD_DIR/core_hot_path_benchmark" \
         --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
-        --benchmark_out="$OUTPUT_DIR/insert_results.json" \
+        --benchmark_out="$OUTPUT_DIR/core_hot_path_results.json" \
         --benchmark_out_format=json \
-        | tee "$OUTPUT_DIR/insert_results.txt"
+        | tee "$OUTPUT_DIR/core_hot_path_results.txt"
 fi
 
-if should_run match; then
-    run_pinned "$BUILD_DIR/match_benchmark" \
+if should_run realistic_flow; then
+    run_pinned "$BUILD_DIR/realistic_flow_benchmark" \
         --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
-        --benchmark_out="$OUTPUT_DIR/match_results.json" \
+        --benchmark_out="$OUTPUT_DIR/realistic_flow_results.json" \
         --benchmark_out_format=json \
-        | tee "$OUTPUT_DIR/match_results.txt"
+        | tee "$OUTPUT_DIR/realistic_flow_results.txt"
 fi
 
-if should_run cancel; then
-    run_pinned "$BUILD_DIR/cancel_benchmark" \
+if should_run stress; then
+    run_pinned "$BUILD_DIR/stress_benchmark" \
+        --benchmark_filter="$STRESS_BENCHMARK_FILTER" \
         --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
-        --benchmark_out="$OUTPUT_DIR/cancel_results.json" \
+        --benchmark_out="$OUTPUT_DIR/stress_benchmark_results.json" \
         --benchmark_out_format=json \
-        | tee "$OUTPUT_DIR/cancel_results.txt"
+        | tee "$OUTPUT_DIR/stress_benchmark_results.txt"
 fi
 
-if should_run true_mixed; then
-    run_pinned "$BUILD_DIR/true_mixed_benchmark" \
+if should_run replay; then
+    run_pinned "$BUILD_DIR/determinism_replay_benchmark" \
         --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
-        --benchmark_out="$OUTPUT_DIR/true_mixed_results.json" \
+        --benchmark_out="$OUTPUT_DIR/determinism_replay_results.json" \
         --benchmark_out_format=json \
-        | tee "$OUTPUT_DIR/true_mixed_results.txt"
+        | tee "$OUTPUT_DIR/determinism_replay_results.txt"
 fi
 
-if should_run shallow_gtc_mixed; then
-    run_pinned "$BUILD_DIR/shallow_gtc_mixed_benchmark" \
+if [[ "$BENCHMARK_TARGETS" != "all" ]] && should_run reserve_sweep; then
+    run_pinned "$BUILD_DIR/experimental_reserve_sweep_benchmark" \
         --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
-        --benchmark_out="$OUTPUT_DIR/shallow_gtc_mixed_results.json" \
+        --benchmark_out="$OUTPUT_DIR/experimental_reserve_sweep_results.json" \
         --benchmark_out_format=json \
-        | tee "$OUTPUT_DIR/shallow_gtc_mixed_results.txt"
+        | tee "$OUTPUT_DIR/experimental_reserve_sweep_results.txt"
 fi
 
-if should_run deep_sparse_gtc_mixed; then
-    run_pinned "$BUILD_DIR/deep_sparse_gtc_mixed_benchmark" \
-        --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
-        --benchmark_out="$OUTPUT_DIR/deep_sparse_gtc_mixed_results.json" \
-        --benchmark_out_format=json \
-        | tee "$OUTPUT_DIR/deep_sparse_gtc_mixed_results.txt"
-fi
-
-if should_run best_level_churn; then
-    run_pinned "$BUILD_DIR/best_level_churn_benchmark" \
-        --benchmark_filter="$BENCHMARK_FILTER" \
-        --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
-        --benchmark_out="$OUTPUT_DIR/best_level_churn_results.json" \
-        --benchmark_out_format=json \
-        | tee "$OUTPUT_DIR/best_level_churn_results.txt"
-fi
-
-if should_run level_create_delete_churn; then
-    run_pinned "$BUILD_DIR/level_create_delete_churn_benchmark" \
-        --benchmark_filter="^BM_LevelCreateDeleteChurn" \
-        --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
-        --benchmark_out="$OUTPUT_DIR/level_create_delete_churn_results.json" \
-        --benchmark_out_format=json \
-        | tee "$OUTPUT_DIR/level_create_delete_churn_results.txt"
-fi
-
-if should_run end_to_end; then
-    run_pinned "$BUILD_DIR/end_to_end_benchmark" \
-        --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
-        --benchmark_out="$OUTPUT_DIR/end_to_end_results.json" \
-        --benchmark_out_format=json \
-        | tee "$OUTPUT_DIR/end_to_end_results.txt"
-fi
-
-if should_run latency; then
-    run_pinned "$BUILD_DIR/latency_benchmark" \
+if should_run batch_latency; then
+    run_pinned "$BUILD_DIR/core_hot_path_latency_benchmark" \
         --output-dir="$OUTPUT_DIR" \
         --samples="$LATENCY_SAMPLES" \
         --warmup="$LATENCY_WARMUP_BATCHES" \

@@ -1,5 +1,5 @@
 #include "book/order_book.hpp"
-#include "true_mixed_workload.hpp"
+#include "benchmarks/realistic_flow/true_mixed_workload.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -36,6 +36,7 @@ constexpr std::int64_t kRestingBid = 100;
 constexpr std::int64_t kRestingAsk = 102;
 constexpr std::int64_t kCrossingBuy = 105;
 constexpr std::uint64_t kQuantity = 1;
+constexpr std::uint64_t kModifiableQuantity = 2;
 constexpr std::uint64_t kIncomingIdBase = 1'000'000'000;
 constexpr std::uint64_t kUnknownOrderIdBase = 2'000'000'000;
 constexpr std::uint64_t kMixedCrossingIdBase = 3'000'000'000;
@@ -232,6 +233,26 @@ void clobber_memory() {
                                .side = Side::Buy,
                                .price = kRestingBid,
                                .quantity = kQuantity});
+    }
+
+    return orders;
+}
+
+/**
+ * @brief Builds same-price resting buys whose quantity can be reduced in place.
+ *
+ * @param count Number of buys to create.
+ * @return Passive buy liquidity for modify latency samples.
+ */
+[[nodiscard]] std::vector<Order> make_same_price_modifiable_buys(std::size_t count) {
+    std::vector<Order> orders;
+    orders.reserve(count);
+
+    for (std::size_t index = 0; index < count; ++index) {
+        orders.push_back(Order{.id = static_cast<std::uint64_t>(index + 1),
+                               .side = Side::Buy,
+                               .price = kRestingBid,
+                               .quantity = kModifiableQuantity});
     }
 
     return orders;
@@ -539,6 +560,34 @@ template <typename Operation>
 }
 
 /**
+ * @brief Measures in-place modify latency batches for live resting orders.
+ *
+ * @param batch_size Number of operations per timed batch.
+ * @param sample_count Number of recorded batches.
+ * @param warmup_batches Number of unrecorded batches.
+ * @return Percentile summary over amortized batch samples.
+ */
+[[nodiscard]] Percentiles run_modify_if_present_latency(std::size_t batch_size,
+                                                        std::size_t sample_count,
+                                                        std::size_t warmup_batches) {
+    const auto total_operations = (sample_count + warmup_batches) * batch_size;
+    // Preload modifiable quantity so timing covers lookup and in-level volume updates only.
+    const auto reserve_order_capacity = total_operations;
+    const auto resting_orders = make_same_price_modifiable_buys(total_operations);
+    const auto target_ids = make_front_cancel_ids(total_operations);
+    OrderBook book{reserve_order_capacity};
+    std::vector<matching_engine::Event> events;
+    events.reserve(4);
+    preload_book(book, resting_orders);
+
+    return measure_batches(batch_size, sample_count, warmup_batches, [&](std::size_t index) {
+        book.modify(target_ids[index], kRestingBid, kQuantity, events);
+        do_not_optimize(events.data());
+        do_not_optimize(events.size());
+    });
+}
+
+/**
  * @brief Measures mixed insert/cancel/match latency batches.
  *
  * @param batch_size Number of operations per timed batch.
@@ -615,33 +664,36 @@ template <typename Operation>
                                              std::size_t batch_size,
                                              std::size_t sample_count,
                                              std::size_t warmup_batches) {
-    if (benchmark_name == "OrderBook_PassiveInsert") {
+    if (benchmark_name == "BM_OrderBook_PassiveInsert_BatchLatency") {
         return run_resting_insert_latency(batch_size, sample_count, warmup_batches);
     }
-    if (benchmark_name == "OrderBook_OneLevelCrossingMatch") {
+    if (benchmark_name == "BM_OrderBook_OneLevelCrossingMatch_BatchLatency") {
         return run_crossing_match_latency(batch_size, sample_count, warmup_batches);
     }
-    if (benchmark_name == "CancelFront") {
+    if (benchmark_name == "BM_OrderBook_CancelFront_BatchLatency") {
         const auto total_operations = (sample_count + warmup_batches) * batch_size;
         return run_cancel_latency(make_front_cancel_ids(total_operations), batch_size, sample_count,
                                   warmup_batches);
     }
-    if (benchmark_name == "CancelBack") {
+    if (benchmark_name == "BM_OrderBook_CancelBack_BatchLatency") {
         const auto total_operations = (sample_count + warmup_batches) * batch_size;
         return run_cancel_latency(make_back_cancel_ids(total_operations), batch_size, sample_count,
                                   warmup_batches);
     }
-    if (benchmark_name == "CancelRandom") {
+    if (benchmark_name == "BM_OrderBook_CancelRandom_BatchLatency") {
         const auto total_operations = (sample_count + warmup_batches) * batch_size;
         return run_cancel_latency(make_random_cancel_ids(total_operations), batch_size, sample_count,
                                   warmup_batches);
     }
-    if (benchmark_name == "CancelUnknown") {
+    if (benchmark_name == "BM_OrderBook_CancelUnknown_BatchLatency") {
         const auto total_operations = (sample_count + warmup_batches) * batch_size;
         return run_cancel_latency(make_unknown_cancel_ids(total_operations), batch_size, sample_count,
                                   warmup_batches);
     }
-    if (benchmark_name == "OrderBookTrueMixed") {
+    if (benchmark_name == "BM_OrderBook_ModifyIfPresent_BatchLatency") {
+        return run_modify_if_present_latency(batch_size, sample_count, warmup_batches);
+    }
+    if (benchmark_name == "BM_OrderBook_TrueMixed_BatchLatency") {
         return run_true_mixed_latency(batch_size, sample_count, warmup_batches);
     }
 
@@ -655,11 +707,13 @@ template <typename Operation>
  * @return Deterministically ordered result rows.
  */
 [[nodiscard]] std::vector<LatencyResult> run_all_latency_benchmarks(const Options& options) {
-    constexpr std::string_view workloads[] = {"OrderBook_PassiveInsert",
-                                              "OrderBook_OneLevelCrossingMatch",
-                                              "CancelRandom",
-                                              "CancelUnknown",
-                                              "OrderBookTrueMixed"};
+    constexpr std::string_view workloads[] = {
+        "BM_OrderBook_PassiveInsert_BatchLatency",
+        "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
+        "BM_OrderBook_CancelRandom_BatchLatency",
+        "BM_OrderBook_CancelUnknown_BatchLatency",
+        "BM_OrderBook_ModifyIfPresent_BatchLatency",
+        "BM_OrderBook_TrueMixed_BatchLatency"};
     constexpr std::size_t batch_sizes[] = {64, 256, 1'024};
     std::vector<LatencyResult> results;
     results.reserve(std::size(workloads) * std::size(batch_sizes) * options.trial_count);
@@ -770,11 +824,11 @@ int latency_main(int argc, char** argv) {
     std::filesystem::create_directories(options.output_dir);
 
     const auto results = run_all_latency_benchmarks(options);
-    write_text_results(options.output_dir / "latency_results.txt", options, results);
-    write_json_results(options.output_dir / "latency_results.json", options, results);
+    write_text_results(options.output_dir / "batch_latency_results.txt", options, results);
+    write_json_results(options.output_dir / "batch_latency_results.json", options, results);
 
-    std::cout << "Wrote " << (options.output_dir / "latency_results.txt") << '\n';
-    std::cout << "Wrote " << (options.output_dir / "latency_results.json") << '\n';
+    std::cout << "Wrote " << (options.output_dir / "batch_latency_results.txt") << '\n';
+    std::cout << "Wrote " << (options.output_dir / "batch_latency_results.json") << '\n';
     return 0;
 }
 

@@ -341,7 +341,7 @@ void run_end_to_end_script(const std::vector<std::string>& commands,
 /**
  * @brief Measures full parser/exchange/order-book/formatter throughput.
  */
-void BM_EndToEnd_RestingSubmitOnly_Throughput(benchmark::State& state) {
+void BM_EndToEnd_PassiveInsert_Throughput(benchmark::State& state) {
     const auto command_count = state.range(0);
     // Reserve capacity is sized to expected peak live/resting orders, not total
     // processed operations. Submit/cancel/modify-heavy workloads usually have
@@ -371,7 +371,7 @@ void BM_EndToEnd_RestingSubmitOnly_Throughput(benchmark::State& state) {
 /**
  * @brief Measures full-pipeline throughput for true mixed order flow.
  */
-void BM_EndToEnd_MixedOrderFlow_Throughput(benchmark::State& state) {
+void BM_EndToEnd_TrueMixed_Throughput(benchmark::State& state) {
     const auto operation_count = static_cast<std::size_t>(state.range(0));
     const auto workload =
         matching_engine::benchmark_workloads::make_true_mixed_workload(operation_count);
@@ -406,7 +406,7 @@ void BM_EndToEnd_MixedOrderFlow_Throughput(benchmark::State& state) {
 /**
  * @brief Reports amortized end-to-end mixed-flow batch latency.
  */
-void BM_EndToEnd_MixedOrderFlow_Latency(benchmark::State& state) {
+void BM_EndToEnd_TrueMixed_BatchLatency(benchmark::State& state) {
     const auto batch_size = static_cast<std::size_t>(state.range(0));
     const auto operation_count =
         (kEndToEndLatencySampleCount + kEndToEndLatencyWarmupBatches) * batch_size;
@@ -442,9 +442,9 @@ void BM_EndToEnd_MixedOrderFlow_Latency(benchmark::State& state) {
         static_cast<double>(workload.reserve_order_capacity);
 }
 
-BENCHMARK(BM_EndToEnd_RestingSubmitOnly_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
-BENCHMARK(BM_EndToEnd_MixedOrderFlow_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
-BENCHMARK(BM_EndToEnd_MixedOrderFlow_Latency)
+BENCHMARK(BM_EndToEnd_PassiveInsert_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_EndToEnd_TrueMixed_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_EndToEnd_TrueMixed_BatchLatency)
     ->Arg(64)
     ->Arg(256)
     ->Arg(1'024)

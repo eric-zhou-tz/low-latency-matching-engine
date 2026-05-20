@@ -72,14 +72,16 @@ ensure_taskset() {
     fi
 }
 
-find_latency_benchmark() {
+find_batch_latency_benchmark() {
     local configured="${BENCHMARK_BIN:-}"
     local candidates=(
         "$configured"
+        "$BUILD_DIR/core_hot_path_latency_benchmark"
+        "$ROOT_DIR/build-release/core_hot_path_latency_benchmark"
+        "$ROOT_DIR/build/core_hot_path_latency_benchmark"
+        "$ROOT_DIR/build/benchmarks/core_hot_path_latency_benchmark"
         "$BUILD_DIR/latency_benchmark"
         "$ROOT_DIR/build-release/latency_benchmark"
-        "$ROOT_DIR/build/latency_benchmark"
-        "$ROOT_DIR/build/benchmarks/latency_benchmark"
     )
 
     # Accept the first executable path so the script works with local build-dir choices.
@@ -90,7 +92,7 @@ find_latency_benchmark() {
         fi
     done
 
-    echo "error: latency_benchmark was not found; run benchmarks/run_ec2_benchmarks.sh or set BENCHMARK_BIN" >&2
+    echo "error: core_hot_path_latency_benchmark was not found; run benchmarks/run_ec2_benchmarks.sh or set BENCHMARK_BIN" >&2
     exit 1
 }
 
@@ -162,7 +164,7 @@ write_text_artifact() {
         echo "- Branch counters expose unpredictable random lookup behavior."
         echo "- Cycles and instructions help separate memory-bound work from compute-bound work."
         echo
-        echo "latency_benchmark_stdout:"
+        echo "batch_latency_benchmark_stdout:"
         sed 's/^/  /' "$BENCHMARK_STDOUT_FILE"
         echo
         echo "perf_counter_summary:"
@@ -216,7 +218,7 @@ main() {
     ensure_taskset
 
     local benchmark_bin
-    benchmark_bin="$(find_latency_benchmark)"
+    benchmark_bin="$(find_batch_latency_benchmark)"
 
     local supported_events=()
     local unsupported_events=()

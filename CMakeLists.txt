@@ -103,95 +103,64 @@ if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
     set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googlebenchmark)
 
-    add_executable(insert_benchmark benchmark/insert_benchmark.cpp)
-    target_link_libraries(insert_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
-    )
+    function(link_google_benchmark target_name)
+        target_link_libraries(${target_name}
+            PRIVATE
+                engine
+                benchmark::benchmark
+                benchmark::benchmark_main
+        )
+    endfunction()
 
-    add_executable(match_benchmark benchmark/match_benchmark.cpp)
-    target_link_libraries(match_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
+    add_executable(core_hot_path_benchmark
+        benchmarks/core_hot_path/passive_insert_benchmark.cpp
+        benchmarks/core_hot_path/one_level_crossing_benchmark.cpp
+        benchmarks/core_hot_path/cancel_lookup_benchmark.cpp
     )
+    link_google_benchmark(core_hot_path_benchmark)
 
-    add_executable(cancel_benchmark benchmark/cancel_benchmark.cpp)
-    target_link_libraries(cancel_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
+    add_executable(core_hot_path_latency_benchmark
+        benchmarks/core_hot_path/batch_latency_benchmark.cpp
     )
+    target_include_directories(core_hot_path_latency_benchmark
+        PRIVATE
+            ${PROJECT_SOURCE_DIR}/benchmarks/realistic_flow
+    )
+    target_link_libraries(core_hot_path_latency_benchmark PRIVATE engine)
 
-    add_executable(cancel_reserve_sweep_benchmark benchmark/cancel_benchmark.cpp)
-    target_compile_definitions(cancel_reserve_sweep_benchmark
+    add_executable(realistic_flow_benchmark
+        benchmarks/realistic_flow/true_mixed_benchmark.cpp
+        benchmarks/realistic_flow/end_to_end_true_mixed_benchmark.cpp
+    )
+    target_include_directories(realistic_flow_benchmark
+        PRIVATE
+            ${PROJECT_SOURCE_DIR}/benchmarks/realistic_flow
+    )
+    link_google_benchmark(realistic_flow_benchmark)
+
+    add_executable(stress_benchmark
+        benchmarks/stress/best_level_churn_benchmark.cpp
+        benchmarks/stress/level_create_delete_churn_benchmark.cpp
+        benchmarks/stress/shallow_gtc_mixed_benchmark.cpp
+        benchmarks/stress/deep_sparse_gtc_mixed_benchmark.cpp
+    )
+    link_google_benchmark(stress_benchmark)
+
+    add_executable(determinism_replay_benchmark
+        benchmarks/determinism_replay/replay_benchmark.cpp
+    )
+    target_compile_definitions(determinism_replay_benchmark
+        PRIVATE
+            REPLAY_FIXTURE_DIR="${PROJECT_SOURCE_DIR}/tests/replay"
+    )
+    link_google_benchmark(determinism_replay_benchmark)
+
+    add_executable(experimental_reserve_sweep_benchmark
+        benchmarks/core_hot_path/cancel_lookup_benchmark.cpp
+    )
+    target_compile_definitions(experimental_reserve_sweep_benchmark
         PRIVATE
             MATCHING_ENGINE_ENABLE_RESERVE_SWEEP
     )
-    target_link_libraries(cancel_reserve_sweep_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
-    )
-
-    add_executable(end_to_end_benchmark benchmark/end_to_end_benchmark.cpp)
-    target_link_libraries(end_to_end_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
-    )
-
-    add_executable(true_mixed_benchmark benchmark/true_mixed_benchmark.cpp)
-    target_link_libraries(true_mixed_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
-    )
-
-    add_executable(shallow_gtc_mixed_benchmark benchmarks/shallow_gtc_mixed_benchmark.cpp)
-    target_link_libraries(shallow_gtc_mixed_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
-    )
-
-    add_executable(deep_sparse_gtc_mixed_benchmark benchmarks/deep_sparse_gtc_mixed_benchmark.cpp)
-    target_link_libraries(deep_sparse_gtc_mixed_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
-    )
-
-    add_executable(best_level_churn_benchmark benchmarks/best_level_churn_benchmark.cpp)
-    target_link_libraries(best_level_churn_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
-    )
-
-    add_executable(level_create_delete_churn_benchmark
-        benchmarks/level_create_delete_churn_benchmark.cpp
-    )
-    target_link_libraries(level_create_delete_churn_benchmark
-        PRIVATE
-            engine
-            benchmark::benchmark
-            benchmark::benchmark_main
-    )
-
-    add_executable(latency_benchmark benchmark/latency_benchmark.cpp)
-    target_link_libraries(latency_benchmark
-        PRIVATE
-            engine
-    )
+    link_google_benchmark(experimental_reserve_sweep_benchmark)
 endif()
