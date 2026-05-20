@@ -30,6 +30,9 @@ automatically by CMake or CI until that workflow is added intentionally.
 - `true_mixed_benchmark` measures direct `OrderBook` hot-path traffic with
   randomly interleaved GTC, cancel, modify, IOC, market, and FOK operations. It
   bypasses Parser, Exchange, filesystem I/O, and string/event formatting.
+- `shallow_gtc_mixed_benchmark` measures direct `OrderBook` hot-path GTC churn
+  with a low live resting depth, tight prices, random cancels/modifies, and
+  crossing GTC orders that immediately match.
 - `latency_benchmark` runs a separate amortized batch latency suite over the
   same hot paths. It is not a Google Benchmark replacement and does not rename
   or replace the throughput benchmark binaries.
@@ -151,6 +154,56 @@ Artifact files:
 
 - `benchmarks/true_mixed_results.txt`
 - `benchmarks/true_mixed_results.json`
+
+## OrderBook Shallow GTC Mixed Hot Path
+
+`BM_ShallowGtcMixed` is an `OrderBook`-only Google Benchmark throughput case for
+a shallow book: low live resting depth, high churn, and a cache-hot working set.
+It targets about 512 resting GTC orders, preloads the book before timing, keeps
+prices near a tight deterministic spread, and rebalances depth after cancels,
+matches, and passive submits.
+
+The primary operation stream uses fixed-seed random interleaving with this mix:
+
+| Operation type | Share |
+| --- | ---: |
+| GTC limit submit | 50% |
+| Cancel existing live order | 30% |
+| Modify existing live order | 15% |
+| Crossing GTC submit | 5% |
+
+The benchmark bypasses Parser, Exchange, filesystem I/O, and event formatting.
+It reuses caller-owned `std::vector<Event>` buffers and uses the same mixed
+reserve heuristic:
+
+`reserve_order_capacity = max(1024, operation_count / 10)`
+
+Latest EC2 Shallow GTC Mixed run metadata:
+
+- Host: AWS EC2 `t3.small`
+- OS: Ubuntu 26.04 LTS
+- Kernel: `7.0.0-1004-aws`
+- CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
+- Compiler: GCC/G++ 15.2.0
+- Commit: `d491452` plus local Shallow GTC Mixed benchmark changes
+- Build type: `Release`
+- Release flags: `-O3 -DNDEBUG`
+- Correctness tests: 124/124 passed before benchmark execution
+- Run date: `2026-05-20T04:01:43Z`
+- Command: pinned `shallow_gtc_mixed_benchmark` with 5 repetitions
+
+Latest EC2 Shallow GTC Mixed throughput results:
+
+| Benchmark | Primary Operations | Timed Book Actions | CPU Time | Throughput | Reserve Capacity | Target Live Orders | Max Live Orders |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `BM_ShallowGtcMixed/1000` | 1,000 | 1,850 | 90221 ns | 20.505M items/s | 1,024 | 512 | 513 |
+| `BM_ShallowGtcMixed/10000` | 10,000 | 18,500 | 947193 ns | 19.531M items/s | 1,024 | 512 | 513 |
+| `BM_ShallowGtcMixed/100000` | 100,000 | 185,000 | 9840556 ns | 18.800M items/s | 10,000 | 512 | 513 |
+
+Artifact files:
+
+- `benchmarks/shallow_gtc_mixed_results.txt`
+- `benchmarks/shallow_gtc_mixed_results.json`
 
 ## End-to-end benchmarks
 

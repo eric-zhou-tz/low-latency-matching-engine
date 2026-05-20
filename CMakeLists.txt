@@ -152,6 +152,14 @@ if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
             benchmark::benchmark_main
     )
 
+    add_executable(shallow_gtc_mixed_benchmark benchmarks/shallow_gtc_mixed_benchmark.cpp)
+    target_link_libraries(shallow_gtc_mixed_benchmark
+        PRIVATE
+            engine
+            benchmark::benchmark
+            benchmark::benchmark_main
+    )
+
     add_executable(latency_benchmark benchmark/latency_benchmark.cpp)
     target_link_libraries(latency_benchmark
         PRIVATE
