@@ -1,5 +1,0 @@
-if(EXISTS "/Users/ericzhou/Desktop/Productivity/Projects/Serious/MatchingEngine/build-release/order_book_test[1]_tests.cmake")
-  include("/Users/ericzhou/Desktop/Productivity/Projects/Serious/MatchingEngine/build-release/order_book_test[1]_tests.cmake")
-else()
-  add_test(order_book_test_NOT_BUILT order_book_test_NOT_BUILT)
-endif()

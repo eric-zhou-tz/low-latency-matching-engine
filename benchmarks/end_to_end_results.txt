@@ -1,57 +1,111 @@
--------------------------------------------------------------------------------------------------------
-Benchmark                                             Time             CPU   Iterations UserCounters...
--------------------------------------------------------------------------------------------------------
-BM_EndToEnd_ParseProcessFormat/1000              658446 ns       658470 ns         1054 items_per_second=1.51867M/s
-BM_EndToEnd_ParseProcessFormat/1000              662429 ns       662475 ns         1054 items_per_second=1.50949M/s
-BM_EndToEnd_ParseProcessFormat/1000              659099 ns       659129 ns         1054 items_per_second=1.51715M/s
-BM_EndToEnd_ParseProcessFormat/1000              656276 ns       656315 ns         1054 items_per_second=1.52366M/s
-BM_EndToEnd_ParseProcessFormat/1000              655586 ns       655594 ns         1054 items_per_second=1.52534M/s
-BM_EndToEnd_ParseProcessFormat/1000_mean         658367 ns       658396 ns            5 items_per_second=1.51886M/s
-BM_EndToEnd_ParseProcessFormat/1000_median       658446 ns       658470 ns            5 items_per_second=1.51867M/s
-BM_EndToEnd_ParseProcessFormat/1000_stddev         2699 ns         2709 ns            5 items_per_second=6.23867k/s
-BM_EndToEnd_ParseProcessFormat/1000_cv             0.41 %          0.41 %             5 items_per_second=0.41%
-BM_EndToEnd_ParseProcessFormat/10000            7114633 ns      7115254 ns           94 items_per_second=1.40543M/s
-BM_EndToEnd_ParseProcessFormat/10000            7113466 ns      7114647 ns           94 items_per_second=1.40555M/s
-BM_EndToEnd_ParseProcessFormat/10000            7052618 ns      7053229 ns           94 items_per_second=1.41779M/s
-BM_EndToEnd_ParseProcessFormat/10000            7162467 ns      7163498 ns           94 items_per_second=1.39597M/s
-BM_EndToEnd_ParseProcessFormat/10000            7061335 ns      7062873 ns           94 items_per_second=1.41585M/s
-BM_EndToEnd_ParseProcessFormat/10000_mean       7100904 ns      7101900 ns            5 items_per_second=1.40812M/s
-BM_EndToEnd_ParseProcessFormat/10000_median     7113466 ns      7114647 ns            5 items_per_second=1.40555M/s
-BM_EndToEnd_ParseProcessFormat/10000_stddev       44815 ns        44797 ns            5 items_per_second=8.87251k/s
-BM_EndToEnd_ParseProcessFormat/10000_cv            0.63 %          0.63 %             5 items_per_second=0.63%
-BM_EndToEnd_ParseProcessFormat/100000          96020497 ns     96017914 ns            7 items_per_second=1.04147M/s
-BM_EndToEnd_ParseProcessFormat/100000          94189478 ns     94182318 ns            7 items_per_second=1.06177M/s
-BM_EndToEnd_ParseProcessFormat/100000          94316798 ns     94313245 ns            7 items_per_second=1.0603M/s
-BM_EndToEnd_ParseProcessFormat/100000          94438755 ns     94438475 ns            7 items_per_second=1.05889M/s
-BM_EndToEnd_ParseProcessFormat/100000          96042914 ns     96035666 ns            7 items_per_second=1.04128M/s
-BM_EndToEnd_ParseProcessFormat/100000_mean     95001688 ns     94997524 ns            5 items_per_second=1.05274M/s
-BM_EndToEnd_ParseProcessFormat/100000_median   94438755 ns     94438475 ns            5 items_per_second=1.05889M/s
-BM_EndToEnd_ParseProcessFormat/100000_stddev     944428 ns       943964 ns            5 items_per_second=10.4256k/s
-BM_EndToEnd_ParseProcessFormat/100000_cv           0.99 %          0.99 %             5 items_per_second=0.99%
-BM_EndToEnd_ReplayScenario/1000                  860420 ns       860535 ns          824 items_per_second=1.16207M/s
-BM_EndToEnd_ReplayScenario/1000                  848147 ns       848200 ns          824 items_per_second=1.17897M/s
-BM_EndToEnd_ReplayScenario/1000                  848990 ns       849015 ns          824 items_per_second=1.17784M/s
-BM_EndToEnd_ReplayScenario/1000                  854065 ns       854171 ns          824 items_per_second=1.17073M/s
-BM_EndToEnd_ReplayScenario/1000                  849629 ns       849665 ns          824 items_per_second=1.17693M/s
-BM_EndToEnd_ReplayScenario/1000_mean             852250 ns       852317 ns            5 items_per_second=1.17331M/s
-BM_EndToEnd_ReplayScenario/1000_median           849629 ns       849665 ns            5 items_per_second=1.17693M/s
-BM_EndToEnd_ReplayScenario/1000_stddev             5108 ns         5144 ns            5 items_per_second=7.04774k/s
-BM_EndToEnd_ReplayScenario/1000_cv                 0.60 %          0.60 %             5 items_per_second=0.60%
-BM_EndToEnd_ReplayScenario/10000                8529629 ns      8531152 ns           82 items_per_second=1.17217M/s
-BM_EndToEnd_ReplayScenario/10000                8645622 ns      8646302 ns           82 items_per_second=1.15656M/s
-BM_EndToEnd_ReplayScenario/10000                8507645 ns      8508591 ns           82 items_per_second=1.17528M/s
-BM_EndToEnd_ReplayScenario/10000                8530609 ns      8532050 ns           82 items_per_second=1.17205M/s
-BM_EndToEnd_ReplayScenario/10000                8673378 ns      8674475 ns           82 items_per_second=1.15281M/s
-BM_EndToEnd_ReplayScenario/10000_mean           8577377 ns      8578514 ns            5 items_per_second=1.16578M/s
-BM_EndToEnd_ReplayScenario/10000_median         8530609 ns      8532050 ns            5 items_per_second=1.17205M/s
-BM_EndToEnd_ReplayScenario/10000_stddev           76163 ns        75985 ns            5 items_per_second=10.2925k/s
-BM_EndToEnd_ReplayScenario/10000_cv                0.89 %          0.89 %             5 items_per_second=0.88%
-BM_EndToEnd_ReplayScenario/100000              97771927 ns     97765103 ns            7 items_per_second=1.02286M/s
-BM_EndToEnd_ReplayScenario/100000              97157072 ns     97148277 ns            7 items_per_second=1.02935M/s
-BM_EndToEnd_ReplayScenario/100000              98080702 ns     98076756 ns            7 items_per_second=1.01961M/s
-BM_EndToEnd_ReplayScenario/100000              97197198 ns     97191673 ns            7 items_per_second=1.02889M/s
-BM_EndToEnd_ReplayScenario/100000             101265730 ns    101258908 ns            7 items_per_second=987.567k/s
-BM_EndToEnd_ReplayScenario/100000_mean         98294526 ns     98288143 ns            5 items_per_second=1.01766M/s
-BM_EndToEnd_ReplayScenario/100000_median       97771927 ns     97765103 ns            5 items_per_second=1.02286M/s
-BM_EndToEnd_ReplayScenario/100000_stddev        1706225 ns      1706256 ns            5 items_per_second=17.316k/s
-BM_EndToEnd_ReplayScenario/100000_cv               1.74 %          1.74 %             5 items_per_second=1.70%
+----------------------------------------------------------------------------------------------------------------------------------
+Benchmark                                                                        Time             CPU   Iterations UserCounters...
+----------------------------------------------------------------------------------------------------------------------------------
+BM_EndToEnd_ParseProcessFormat/1000                                         651626 ns       651656 ns         1074 items_per_second=1.53455M/s
+BM_EndToEnd_ParseProcessFormat/1000                                         650952 ns       650990 ns         1074 items_per_second=1.53612M/s
+BM_EndToEnd_ParseProcessFormat/1000                                         651366 ns       651418 ns         1074 items_per_second=1.53511M/s
+BM_EndToEnd_ParseProcessFormat/1000                                         646005 ns       646049 ns         1074 items_per_second=1.54787M/s
+BM_EndToEnd_ParseProcessFormat/1000                                         702362 ns       702597 ns         1074 items_per_second=1.42329M/s
+BM_EndToEnd_ParseProcessFormat/1000_mean                                    660462 ns       660542 ns            5 items_per_second=1.51539M/s
+BM_EndToEnd_ParseProcessFormat/1000_median                                  651366 ns       651418 ns            5 items_per_second=1.53511M/s
+BM_EndToEnd_ParseProcessFormat/1000_stddev                                   23537 ns        23623 ns            5 items_per_second=51.7761k/s
+BM_EndToEnd_ParseProcessFormat/1000_cv                                        3.56 %          3.58 %             5 items_per_second=3.42%
+BM_EndToEnd_ParseProcessFormat/10000                                       7026941 ns      7026222 ns           91 items_per_second=1.42324M/s
+BM_EndToEnd_ParseProcessFormat/10000                                       6919086 ns      6920101 ns           91 items_per_second=1.44507M/s
+BM_EndToEnd_ParseProcessFormat/10000                                       6983032 ns      6983756 ns           91 items_per_second=1.43189M/s
+BM_EndToEnd_ParseProcessFormat/10000                                       6990370 ns      6991258 ns           91 items_per_second=1.43036M/s
+BM_EndToEnd_ParseProcessFormat/10000                                       7010961 ns      7012750 ns           91 items_per_second=1.42597M/s
+BM_EndToEnd_ParseProcessFormat/10000_mean                                  6986078 ns      6986818 ns            5 items_per_second=1.43131M/s
+BM_EndToEnd_ParseProcessFormat/10000_median                                6990370 ns      6991258 ns            5 items_per_second=1.43036M/s
+BM_EndToEnd_ParseProcessFormat/10000_stddev                                  41245 ns        40943 ns            5 items_per_second=8.42705k/s
+BM_EndToEnd_ParseProcessFormat/10000_cv                                       0.59 %          0.59 %             5 items_per_second=0.59%
+BM_EndToEnd_ParseProcessFormat/100000                                     95039917 ns     95033926 ns            7 items_per_second=1.05226M/s
+BM_EndToEnd_ParseProcessFormat/100000                                     96975565 ns     96964922 ns            7 items_per_second=1.0313M/s
+BM_EndToEnd_ParseProcessFormat/100000                                     96105417 ns     96104057 ns            7 items_per_second=1.04054M/s
+BM_EndToEnd_ParseProcessFormat/100000                                     94821712 ns     94818289 ns            7 items_per_second=1.05465M/s
+BM_EndToEnd_ParseProcessFormat/100000                                     95517674 ns     95509290 ns            7 items_per_second=1.04702M/s
+BM_EndToEnd_ParseProcessFormat/100000_mean                                95692057 ns     95686097 ns            5 items_per_second=1.04515M/s
+BM_EndToEnd_ParseProcessFormat/100000_median                              95517674 ns     95509290 ns            5 items_per_second=1.04702M/s
+BM_EndToEnd_ParseProcessFormat/100000_stddev                                870554 ns       868873 ns            5 items_per_second=9.45088k/s
+BM_EndToEnd_ParseProcessFormat/100000_cv                                      0.91 %          0.91 %             5 items_per_second=0.90%
+BM_EndToEnd_ReplayScenario/1000                                             840232 ns       840268 ns          833 items_per_second=1.1901M/s
+BM_EndToEnd_ReplayScenario/1000                                             840143 ns       840195 ns          833 items_per_second=1.1902M/s
+BM_EndToEnd_ReplayScenario/1000                                             839365 ns       839377 ns          833 items_per_second=1.19136M/s
+BM_EndToEnd_ReplayScenario/1000                                             840638 ns       840661 ns          833 items_per_second=1.18954M/s
+BM_EndToEnd_ReplayScenario/1000                                             841197 ns       841069 ns          833 items_per_second=1.18896M/s
+BM_EndToEnd_ReplayScenario/1000_mean                                        840315 ns       840314 ns            5 items_per_second=1.19003M/s
+BM_EndToEnd_ReplayScenario/1000_median                                      840232 ns       840268 ns            5 items_per_second=1.1901M/s
+BM_EndToEnd_ReplayScenario/1000_stddev                                         675 ns          629 ns            5 items_per_second=891.643/s
+BM_EndToEnd_ReplayScenario/1000_cv                                            0.08 %          0.07 %             5 items_per_second=0.07%
+BM_EndToEnd_ReplayScenario/10000                                           8476057 ns      8477204 ns           81 items_per_second=1.17963M/s
+BM_EndToEnd_ReplayScenario/10000                                           8555568 ns      8556623 ns           81 items_per_second=1.16869M/s
+BM_EndToEnd_ReplayScenario/10000                                           8586005 ns      8586952 ns           81 items_per_second=1.16456M/s
+BM_EndToEnd_ReplayScenario/10000                                           8536871 ns      8538271 ns           81 items_per_second=1.1712M/s
+BM_EndToEnd_ReplayScenario/10000                                           8511761 ns      8512529 ns           81 items_per_second=1.17474M/s
+BM_EndToEnd_ReplayScenario/10000_mean                                      8533252 ns      8534316 ns            5 items_per_second=1.17176M/s
+BM_EndToEnd_ReplayScenario/10000_median                                    8536871 ns      8538271 ns            5 items_per_second=1.1712M/s
+BM_EndToEnd_ReplayScenario/10000_stddev                                      41914 ns        41894 ns            5 items_per_second=5.75595k/s
+BM_EndToEnd_ReplayScenario/10000_cv                                           0.49 %          0.49 %             5 items_per_second=0.49%
+BM_EndToEnd_ReplayScenario/100000                                         98872945 ns     98863871 ns            7 items_per_second=1.01149M/s
+BM_EndToEnd_ReplayScenario/100000                                         97758877 ns     97756453 ns            7 items_per_second=1.02295M/s
+BM_EndToEnd_ReplayScenario/100000                                         96868457 ns     96868912 ns            7 items_per_second=1.03232M/s
+BM_EndToEnd_ReplayScenario/100000                                         96574041 ns     96565583 ns            7 items_per_second=1.03557M/s
+BM_EndToEnd_ReplayScenario/100000                                         97107316 ns     97101762 ns            7 items_per_second=1.02985M/s
+BM_EndToEnd_ReplayScenario/100000_mean                                    97436327 ns     97431316 ns            5 items_per_second=1.02644M/s
+BM_EndToEnd_ReplayScenario/100000_median                                  97107316 ns     97101762 ns            5 items_per_second=1.02985M/s
+BM_EndToEnd_ReplayScenario/100000_stddev                                    914080 ns       912733 ns            5 items_per_second=9.55408k/s
+BM_EndToEnd_ReplayScenario/100000_cv                                          0.94 %          0.94 %             5 items_per_second=0.93%
+BM_EndToEnd_MixedOrderFlow_Throughput/1000                                  731152 ns       731148 ns          959 items_per_second=1.36771M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/1000                                  727722 ns       727721 ns          959 items_per_second=1.37415M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/1000                                  727874 ns       727879 ns          959 items_per_second=1.37385M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/1000                                  727574 ns       727562 ns          959 items_per_second=1.37445M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/1000                                  728542 ns       728531 ns          959 items_per_second=1.37263M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/1000_mean                             728573 ns       728568 ns            5 items_per_second=1.37256M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/1000_median                           727874 ns       727879 ns            5 items_per_second=1.37385M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/1000_stddev                             1489 ns         1489 ns            5 items_per_second=2.79791k/s max_live_orders=2.13248u preload_orders=2.13248u reserve_order_capacity=8.52992u
+BM_EndToEnd_MixedOrderFlow_Throughput/1000_cv                                 0.20 %          0.20 %             5 items_per_second=0.20% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%
+BM_EndToEnd_MixedOrderFlow_Throughput/10000                                7201200 ns      7200962 ns           97 items_per_second=1.3887M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/10000                                7207100 ns      7207405 ns           97 items_per_second=1.38746M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/10000                                7268237 ns      7268960 ns           97 items_per_second=1.37571M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/10000                                7275891 ns      7276809 ns           97 items_per_second=1.37423M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/10000                               11010624 ns     11010230 ns           97 items_per_second=908.246k/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/10000_mean                           7992610 ns      7992873 ns            5 items_per_second=1.28687M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/10000_median                         7268237 ns      7268960 ns            5 items_per_second=1.37571M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_EndToEnd_MixedOrderFlow_Throughput/10000_stddev                         1687466 ns      1687107 ns            5 items_per_second=211.76k/s max_live_orders=2.13248u preload_orders=2.13248u reserve_order_capacity=8.52992u
+BM_EndToEnd_MixedOrderFlow_Throughput/10000_cv                               21.11 %         21.11 %             5 items_per_second=16.46% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%
+BM_EndToEnd_MixedOrderFlow_Throughput/100000                              74696381 ns     74689043 ns            8 items_per_second=1.33888M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_EndToEnd_MixedOrderFlow_Throughput/100000                              74126038 ns     74119852 ns            8 items_per_second=1.34917M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_EndToEnd_MixedOrderFlow_Throughput/100000                              74629300 ns     74625402 ns            8 items_per_second=1.34003M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_EndToEnd_MixedOrderFlow_Throughput/100000                              74445205 ns     74442924 ns            8 items_per_second=1.34331M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_EndToEnd_MixedOrderFlow_Throughput/100000                              73971625 ns     73972648 ns            8 items_per_second=1.35185M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_EndToEnd_MixedOrderFlow_Throughput/100000_mean                         74373710 ns     74369974 ns            5 items_per_second=1.34465M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_EndToEnd_MixedOrderFlow_Throughput/100000_median                       74445205 ns     74442924 ns            5 items_per_second=1.34331M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+BM_EndToEnd_MixedOrderFlow_Throughput/100000_stddev                         315265 ns       313368 ns            5 items_per_second=5.6715k/s max_live_orders=20.825u preload_orders=20.825u reserve_order_capacity=83.3u
+BM_EndToEnd_MixedOrderFlow_Throughput/100000_cv                               0.42 %          0.42 %             5 items_per_second=0.42% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%
+BM_EndToEnd_MixedOrderFlow_Latency/64/iterations:1/manual_time            48034066 ns     55774709 ns            1 items_per_second=1.36437M/s latency_samples=1.024k max_ns_per_op=1.48464k p50_ns_per_op=726.688 p95_ns_per_op=807.969 p99_ns_per_op=908.938 reserve_order_capacity=7.372k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/64/iterations:1/manual_time            48349880 ns     56047636 ns            1 items_per_second=1.35545M/s latency_samples=1.024k max_ns_per_op=1.39753k p50_ns_per_op=729.781 p95_ns_per_op=817.062 p99_ns_per_op=993.922 reserve_order_capacity=7.372k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/64/iterations:1/manual_time            47926195 ns     55631447 ns            1 items_per_second=1.36744M/s latency_samples=1.024k max_ns_per_op=1.22884k p50_ns_per_op=725.219 p95_ns_per_op=802.953 p99_ns_per_op=904.25 reserve_order_capacity=7.372k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/64/iterations:1/manual_time            47714914 ns     55360994 ns            1 items_per_second=1.37349M/s latency_samples=1.024k max_ns_per_op=1.93545k p50_ns_per_op=722.328 p95_ns_per_op=799.281 p99_ns_per_op=850.531 reserve_order_capacity=7.372k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/64/iterations:1/manual_time            47870729 ns     55527708 ns            1 items_per_second=1.36902M/s latency_samples=1.024k max_ns_per_op=1.2177k p50_ns_per_op=726.281 p95_ns_per_op=803.266 p99_ns_per_op=889.344 reserve_order_capacity=7.372k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/64/iterations:1/manual_time_mean       47979157 ns     55668499 ns            5 items_per_second=1.36595M/s latency_samples=1.024k max_ns_per_op=1.45283k p50_ns_per_op=726.059 p95_ns_per_op=806.106 p99_ns_per_op=909.397 reserve_order_capacity=7.372k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/64/iterations:1/manual_time_median     47926195 ns     55631447 ns            5 items_per_second=1.36744M/s latency_samples=1.024k max_ns_per_op=1.39753k p50_ns_per_op=726.281 p95_ns_per_op=803.266 p99_ns_per_op=904.25 reserve_order_capacity=7.372k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/64/iterations:1/manual_time_stddev       237085 ns       260182 ns            5 items_per_second=6.73043k/s latency_samples=8.52992u max_ns_per_op=292.596 p50_ns_per_op=2.6891 p95_ns_per_op=6.85748 p99_ns_per_op=52.5321 reserve_order_capacity=61.4088u warmup_batches=1.06624u amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/64/iterations:1/manual_time_cv             0.49 %          0.47 %             5 items_per_second=0.49% latency_samples=0.00% max_ns_per_op=20.14% p50_ns_per_op=0.37% p95_ns_per_op=0.85% p99_ns_per_op=5.78% reserve_order_capacity=0.00% warmup_batches=0.00% amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/256/iterations:1/manual_time          223512911 ns    259688913 ns            1 items_per_second=1.17284M/s latency_samples=1.024k max_ns_per_op=1.09228k p50_ns_per_op=850.918 p95_ns_per_op=904.738 p99_ns_per_op=929.824 reserve_order_capacity=29.491k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/256/iterations:1/manual_time          231259621 ns    267270720 ns            1 items_per_second=1.13355M/s latency_samples=1.024k max_ns_per_op=1.22373k p50_ns_per_op=879.082 p95_ns_per_op=936.84 p99_ns_per_op=1.00552k reserve_order_capacity=29.491k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/256/iterations:1/manual_time          225945178 ns    261918718 ns            1 items_per_second=1.16021M/s latency_samples=1.024k max_ns_per_op=1.12497k p50_ns_per_op=857.273 p95_ns_per_op=921.305 p99_ns_per_op=965.512 reserve_order_capacity=29.491k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/256/iterations:1/manual_time          225981493 ns    261727996 ns            1 items_per_second=1.16002M/s latency_samples=1.024k max_ns_per_op=1.028k p50_ns_per_op=860.043 p95_ns_per_op=910.508 p99_ns_per_op=965.367 reserve_order_capacity=29.491k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/256/iterations:1/manual_time          222605963 ns    258689933 ns            1 items_per_second=1.17761M/s latency_samples=1.024k max_ns_per_op=1.18471k p50_ns_per_op=846.23 p95_ns_per_op=900.117 p99_ns_per_op=945.793 reserve_order_capacity=29.491k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/256/iterations:1/manual_time_mean     225861033 ns    261859256 ns            5 items_per_second=1.16085M/s latency_samples=1.024k max_ns_per_op=1.13074k p50_ns_per_op=858.709 p95_ns_per_op=914.702 p99_ns_per_op=962.403 reserve_order_capacity=29.491k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/256/iterations:1/manual_time_median   225945178 ns    261727996 ns            5 items_per_second=1.16021M/s latency_samples=1.024k max_ns_per_op=1.12497k p50_ns_per_op=857.273 p95_ns_per_op=910.508 p99_ns_per_op=965.367 reserve_order_capacity=29.491k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/256/iterations:1/manual_time_stddev     3364354 ns      3318874 ns            5 items_per_second=17.1112k/s latency_samples=8.52992u max_ns_per_op=76.8563 p50_ns_per_op=12.6027 p95_ns_per_op=14.6907 p99_ns_per_op=28.3494 reserve_order_capacity=245.66u warmup_batches=1.06624u amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/256/iterations:1/manual_time_cv            1.49 %          1.27 %             5 items_per_second=1.47% latency_samples=0.00% max_ns_per_op=6.80% p50_ns_per_op=1.47% p95_ns_per_op=1.61% p99_ns_per_op=2.95% reserve_order_capacity=0.00% warmup_batches=0.00% amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/1024/iterations:1/manual_time        1172137112 ns   1350983866 ns            1 items_per_second=894.585k/s latency_samples=1.024k max_ns_per_op=1.51506k p50_ns_per_op=1.11259k p95_ns_per_op=1.16943k p99_ns_per_op=1.24675k reserve_order_capacity=117.964k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/1024/iterations:1/manual_time        1151476518 ns   1327498013 ns            1 items_per_second=910.636k/s latency_samples=1.024k max_ns_per_op=1.51021k p50_ns_per_op=1.09641k p95_ns_per_op=1.13553k p99_ns_per_op=1.1734k reserve_order_capacity=117.964k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/1024/iterations:1/manual_time        1144259835 ns   1318639774 ns            1 items_per_second=916.379k/s latency_samples=1.024k max_ns_per_op=1.34923k p50_ns_per_op=1.08849k p95_ns_per_op=1.13814k p99_ns_per_op=1.16653k reserve_order_capacity=117.964k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/1024/iterations:1/manual_time        1149912587 ns   1327968912 ns            1 items_per_second=911.875k/s latency_samples=1.024k max_ns_per_op=1.32358k p50_ns_per_op=1.09664k p95_ns_per_op=1.13783k p99_ns_per_op=1.18136k reserve_order_capacity=117.964k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/1024/iterations:1/manual_time        1130337320 ns   1307412003 ns            1 items_per_second=927.666k/s latency_samples=1.024k max_ns_per_op=1.16759k p50_ns_per_op=1.07667k p95_ns_per_op=1.12045k p99_ns_per_op=1.14755k reserve_order_capacity=117.964k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/1024/iterations:1/manual_time_mean   1149624674 ns   1326500514 ns            5 items_per_second=912.228k/s latency_samples=1.024k max_ns_per_op=1.37313k p50_ns_per_op=1.09416k p95_ns_per_op=1.14028k p99_ns_per_op=1.18312k reserve_order_capacity=117.964k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/1024/iterations:1/manual_time_median 1149912587 ns   1327498013 ns            5 items_per_second=911.875k/s latency_samples=1.024k max_ns_per_op=1.34923k p50_ns_per_op=1.09641k p95_ns_per_op=1.13783k p99_ns_per_op=1.1734k reserve_order_capacity=117.964k warmup_batches=128 amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/1024/iterations:1/manual_time_stddev   15092263 ns     16037052 ns            5 items_per_second=11.9323k/s latency_samples=8.52992u max_ns_per_op=145.092 p50_ns_per_op=13.1233 p95_ns_per_op=17.8603 p99_ns_per_op=37.7064 reserve_order_capacity=982.64u warmup_batches=1.06624u amortized end-to-end batch latency
+BM_EndToEnd_MixedOrderFlow_Latency/1024/iterations:1/manual_time_cv           1.31 %          1.21 %             5 items_per_second=1.31% latency_samples=0.00% max_ns_per_op=10.57% p50_ns_per_op=1.20% p95_ns_per_op=1.57% p99_ns_per_op=3.19% reserve_order_capacity=0.00% warmup_batches=0.00% amortized end-to-end batch latency

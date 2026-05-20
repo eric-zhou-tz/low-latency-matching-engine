@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.6.4 - Stress/Soak Correctness Tests
+
+- Added `order_book_stress_tests` with three million-operation correctness stress scenarios: mixed order flow, price-level churn, and modify/cancel churn.
+- Added periodic structural health checks during stress runs to validate uncrossed books, order-id index consistency, price-level aggregate volumes, empty-level cleanup, and resting order metadata.
+- Made long-run stress streams deterministic while allowing legitimate full book drains to replenish passive liquidity instead of failing the harness.
+- Wired stress tests into CMake/CTest as a dedicated GoogleTest executable.
+- Validated the stress suite on the Ubuntu EC2 `t3.small` host in Release mode with `-O3 -DNDEBUG`; all 3/3 stress tests passed across 3,000,000 total operations.
+- Added stress/soak validation artifacts and documentation in `BENCHMARKS.md`, `docs/benchmark_history.md`, `benchmarks/stress_results.txt`, and `benchmarks/stress_environment.txt`.
+
+## v0.6.3 - End to End OrderBook True Mixed Benchmark
+
+- Added an end-to-end True Mixed Google Benchmark covering the full pipeline: parser → exchange → order book → event formatting.
+- Interleaved GTC submits, cancels, modifies, IOC orders, market orders, and FOK orders in a deterministic mixed stream.
+- Kept filesystem I/O outside the timed loop while measuring full public-boundary execution overhead.
+- Added amortized batch latency coverage for 64, 256, and 1,024-operation batches.
+- Used fixed RNG seeds, reusable std::vector<Event> buffers, and the current 10% reserve_order_capacity heuristic.
+
 ## v0.6.2 - OrderBook True Mixed Benchmark
 
 - Added an OrderBook-only True Mixed Google Benchmark throughput case with randomly interleaved GTC submits, cancels, modifies, IOC limit orders, market orders, and FOK limit orders.
@@ -10,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - Added matching amortized batch latency coverage for the same True Mixed stream at 64, 256, and 1,024-operation batches, explicitly reported as amortized batch latency rather than true single-operation latency.
 - Wired `true_mixed_benchmark` into CMake and the EC2 benchmark runner, producing `benchmarks/true_mixed_results.txt` and `benchmarks/true_mixed_results.json`.
 - Refreshed EC2 Release benchmark artifacts on `t3.small`; 121/121 correctness tests passed before benchmark execution, and the 100,000-operation True Mixed throughput case measured 15.85M items/s.
-- Documented the exact operation mix and EC2 results in `BENCHMARKS.md` and `docs/benchmark_history.md`.
+
 
 ## v0.6.1 - Preallocation Based on Max Live Orders
 

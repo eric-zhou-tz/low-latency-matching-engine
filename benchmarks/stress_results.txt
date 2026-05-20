@@ -1,0 +1,11 @@
+Test project /home/ubuntu/matching-engine-runs/stress-soak-20260519-codex/build-release
+    Start 7: OrderBookStressTest.LongRunMixedOneMillionMaintainsBookHealth
+1/3 Test #7: OrderBookStressTest.LongRunMixedOneMillionMaintainsBookHealth ...............   Passed    0.54 sec
+    Start 8: OrderBookStressTest.LongRunLevelChurnOneMillionMaintainsBookHealth
+2/3 Test #8: OrderBookStressTest.LongRunLevelChurnOneMillionMaintainsBookHealth ..........   Passed    0.39 sec
+    Start 9: OrderBookStressTest.LongRunModifyCancelChurnOneMillionMaintainsBookHealth
+3/3 Test #9: OrderBookStressTest.LongRunModifyCancelChurnOneMillionMaintainsBookHealth ...   Passed    0.54 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =   1.47 sec

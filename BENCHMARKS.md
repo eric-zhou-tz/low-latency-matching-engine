@@ -11,12 +11,12 @@ automatically by CMake or CI until that workflow is added intentionally.
 - Kernel: `7.0.0-1004-aws`
 - CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
 - Compiler: GCC/G++ 15.2.0
-- Commit: `e1eb134` plus local reserve-order-capacity rule changes
+- Commit: `80e9dc4` plus local end-to-end mixed order-flow benchmark changes
 - Build type: `Release`
 - Release flags: `-O3 -DNDEBUG`
-- Correctness tests: 121/121 passed before benchmark execution
-- Run date: `2026-05-19T18:55:58Z`
-- Command: `THROUGHPUT_REPETITIONS=5 LATENCY_TRIALS=5 benchmarks/run_ec2_benchmarks.sh`
+- Correctness tests: 137/137 passed before benchmark execution
+- Run date: `2026-05-19T21:04:32Z`
+- Command: pinned `end_to_end_benchmark --benchmark_repetitions=5`
 
 ## Workloads
 
@@ -36,10 +36,55 @@ automatically by CMake or CI until that workflow is added intentionally.
 - `end_to_end_benchmark` measures public-boundary CLI-style overhead:
   in-memory input lines, parser, exchange routing, order-book mutation, and
   event formatting.
+- `order_book_stress_tests` runs long deterministic correctness stress streams
+  as GoogleTest/CTest cases. These are soak-style structural validation tests,
+  not throughput benchmarks.
 
 The hot-path throughput and latency workloads bypass parser, stdin, file I/O,
 and logging. Setup/preload work is excluded from the measured loop where
 appropriate.
+
+## Stress/Soak Correctness Validation
+
+The stress/soak suite validates long-run `OrderBook` health under million-op
+streams. It is intentionally separate from Google Benchmark timing: the goal is
+to catch structural degradation, stale indexes, missed level cleanup, and
+aggregate-volume drift after sustained churn.
+
+Each scenario runs 1,000,000 operations and checks book structure every 10,000
+operations plus final state. Health checks verify:
+
+- best bid and best ask are not crossed
+- live order-id index entries match queued resting orders
+- price-level total volume equals summed order quantities
+- empty or zero-volume price levels are erased
+- resting orders retain correct side, price, and positive quantity
+
+Latest EC2 stress/soak validation metadata:
+
+- Host: AWS EC2 `t3.small`
+- OS: Ubuntu 26.04 LTS
+- Kernel: `7.0.0-1004-aws`
+- CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
+- Compiler: GCC/G++ 15.2.0
+- Commit: `6e66ca0` plus local stress live-set fixes
+- Build type: `Release`
+- Release flags: `-O3 -DNDEBUG`
+- Run date: `2026-05-19T21:45:45Z`
+- Command: pinned `ctest -R OrderBookStressTest --output-on-failure`
+
+Latest EC2 stress/soak correctness results:
+
+| Test | Operations | Result | CTest Wall Time |
+| --- | ---: | --- | ---: |
+| `LongRunMixedOneMillionMaintainsBookHealth` | 1,000,000 | Passed | 0.54 s |
+| `LongRunLevelChurnOneMillionMaintainsBookHealth` | 1,000,000 | Passed | 0.39 s |
+| `LongRunModifyCancelChurnOneMillionMaintainsBookHealth` | 1,000,000 | Passed | 0.54 s |
+
+Artifact files:
+
+- `benchmarks/stress_results.txt`
+- `benchmarks/stress_environment.txt`
 
 ## OrderBook True Mixed Hot Path
 
@@ -120,36 +165,69 @@ be compared directly to OrderBook hot-path microbenchmarks.
 
 `BM_EndToEnd_ParseProcessFormat` uses deterministic non-crossing multi-symbol
 limit-order input to focus on parse, route, accept, and format cost.
-`BM_EndToEnd_ReplayScenario` uses replay-style multi-symbol streams containing
-inserts, crosses, cancels, modifies, market orders, IOC, and FOK commands.
+`BM_EndToEnd_MixedOrderFlow_Throughput` uses the same deterministic mixed-flow
+methodology as the OrderBook-only true mixed benchmark, but translates each
+operation into public command strings so the measured work is:
 
-`BM_EndToEnd_ReplayScenario` repeats an 11-command deterministic cycle. The
-steady-state operation mix is:
+`command script -> Parser -> Exchange -> OrderBook -> Event formatting`
 
-| Operation type | Commands / cycle | Approx. share |
-| --- | ---: | ---: |
-| Passive resting `SUBMIT` | 4 | 36.36% |
-| `MODIFY` | 1 | 9.09% |
-| `CANCEL` | 1 | 9.09% |
-| Crossing limit `SUBMIT` | 1 | 9.09% |
-| `MARKET` | 1 | 9.09% |
-| `IOC` `SUBMIT` | 1 | 9.09% |
-| Successful `FOK` `SUBMIT` | 1 | 9.09% |
-| Rejected `FOK` `SUBMIT` | 1 | 9.09% |
+This benchmark is intentionally separate from `BM_OrderBookTrueMixed`. It
+measures Parser, Exchange, OrderBook, and event-formatting overhead together and
+should not be compared directly against OrderBook-only mixed hot-path results.
 
-Benchmark input sizes are trimmed to the requested command count, so runs that
-are not exact multiples of 11 may differ by at most one partial cycle.
+`BM_EndToEnd_MixedOrderFlow_Throughput` pre-generates deterministic interleaved
+command streams before timing, uses fixed RNG seeds, avoids filesystem I/O in
+the timed loop, and includes event formatting in the measured work. Preload
+liquidity is applied through the public parser/exchange path before timing so
+the active book state matches the hot-path mixed workload methodology.
 
-Latest EC2 median results:
+The timed mixed order-flow command stream uses this exact operation mix:
+
+| Operation type | Share |
+| --- | ---: |
+| GTC limit submit | 25% |
+| Cancel | 25% |
+| Modify | 20% |
+| IOC limit submit | 15% |
+| Market order | 10% |
+| FOK limit submit | 5% |
+
+Operations are randomly interleaved according to the mix rather than generated
+in phases. The generator maintains a live set of resting GTC order ids while it
+builds the stream. Cancels and modifies target only currently live resting GTC
+liquidity. IOC, FOK, and market commands are transient taker flow: they may
+trade, partially fill and expire/reject, or reject for insufficient liquidity,
+but they are never inserted into the cancel/modify live set.
+
+The end-to-end mixed flow uses the current mixed-workload reserve heuristic
+unless a benchmark configuration overrides it:
+
+`reserve_order_capacity = max(1024, operation_count / 10)`
+
+`BM_EndToEnd_MixedOrderFlow_Latency` reports amortized end-to-end batch latency
+for the same mixed command stream at batch sizes 64, 256, and 1,024. It collects
+1,024 timed batch samples after 128 warmup batches and reports p50, p95, p99,
+and max ns/op as Google Benchmark counters. These values are amortized over
+fixed-size batches and are not true single-operation latency.
+
+Latest EC2 median throughput results:
 
 | Benchmark | Commands | CPU Time | Throughput |
 | --- | ---: | ---: | ---: |
-| `BM_EndToEnd_ParseProcessFormat/1000` | 1,000 | 658470 ns | 1.5187M commands/s |
-| `BM_EndToEnd_ParseProcessFormat/10000` | 10,000 | 7114647 ns | 1.4056M commands/s |
-| `BM_EndToEnd_ParseProcessFormat/100000` | 100,000 | 94438475 ns | 1.0589M commands/s |
-| `BM_EndToEnd_ReplayScenario/1000` | 1,000 | 849665 ns | 1.1769M commands/s |
-| `BM_EndToEnd_ReplayScenario/10000` | 10,000 | 8532050 ns | 1.1721M commands/s |
-| `BM_EndToEnd_ReplayScenario/100000` | 100,000 | 97765103 ns | 1.0229M commands/s |
+| `BM_EndToEnd_ParseProcessFormat/1000` | 1,000 | 651418 ns | 1.535M commands/s |
+| `BM_EndToEnd_ParseProcessFormat/10000` | 10,000 | 6991258 ns | 1.430M commands/s |
+| `BM_EndToEnd_ParseProcessFormat/100000` | 100,000 | 95509290 ns | 1.047M commands/s |
+| `BM_EndToEnd_MixedOrderFlow_Throughput/1000` | 1,000 | 727879 ns | 1.374M commands/s |
+| `BM_EndToEnd_MixedOrderFlow_Throughput/10000` | 10,000 | 7268960 ns | 1.376M commands/s |
+| `BM_EndToEnd_MixedOrderFlow_Throughput/100000` | 100,000 | 74442924 ns | 1.343M commands/s |
+
+Latest EC2 mixed order-flow amortized batch latency results:
+
+| Benchmark | Batch Size | Samples | p50 ns/op | p95 ns/op | p99 ns/op | Max ns/op |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `BM_EndToEnd_MixedOrderFlow_Latency/64` | 64 | 1,024 | 726.28 | 803.27 | 904.25 | 1397.53 |
+| `BM_EndToEnd_MixedOrderFlow_Latency/256` | 256 | 1,024 | 857.27 | 910.51 | 965.37 | 1124.97 |
+| `BM_EndToEnd_MixedOrderFlow_Latency/1024` | 1,024 | 1,024 | 1096.41 | 1137.83 | 1173.40 | 1349.23 |
 
 Artifact files:
 

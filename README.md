@@ -149,8 +149,8 @@ Latest EC2 Release hot-path highlights:
 
 Latest EC2 Release end-to-end CLI-style highlights:
 
-- 100,000 command parse/process/format: `1.0589M commands/s`
-- 100,000 command replay scenario: `1.0229M commands/s`
+- 100,000 command parse/process/format: `1.047M commands/s`
+- 100,000 command mixed order flow: `1.343M commands/s`
 
 End-to-end results include parser, exchange, OrderBook, and event-formatting
 overhead. They should not be compared directly to OrderBook hot-path
