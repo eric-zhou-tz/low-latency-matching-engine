@@ -33,6 +33,10 @@ automatically by CMake or CI until that workflow is added intentionally.
 - `shallow_gtc_mixed_benchmark` measures direct `OrderBook` hot-path GTC churn
   with a low live resting depth, tight prices, random cancels/modifies, and
   crossing GTC orders that immediately match.
+- `deep_sparse_gtc_mixed_benchmark` measures direct `OrderBook` hot-path GTC
+  churn with many occupied price levels and only one to two orders per level.
+  This "deep sparse" shape stresses price-level map/tree traversal and level
+  cleanup more than long FIFO queues at one price.
 - `latency_benchmark` runs a separate amortized batch latency suite over the
   same hot paths. It is not a Google Benchmark replacement and does not rename
   or replace the throughput benchmark binaries.
@@ -204,6 +208,65 @@ Artifact files:
 
 - `benchmarks/shallow_gtc_mixed_results.txt`
 - `benchmarks/shallow_gtc_mixed_results.json`
+
+## OrderBook Deep Sparse GTC Mixed Hot Path
+
+`BM_DeepSparseGtcMixed` is an `OrderBook`-only Google Benchmark throughput case
+for deep sparse liquidity: many occupied price levels with only one to two
+resting GTC orders per level. The goal is to stress the price-level
+`std::map`/tree behavior, including traversal and level erasure, rather than
+long same-price FIFO queues.
+
+The workload preloads 50,000 occupied price levels before timing. It then
+replays a fixed-seed deterministic operation stream with widely spaced passive
+prices, a live order index for cancel/modify selection, caller-owned reusable
+`std::vector<Event>` buffers, and `reserve_order_capacity` sized from the peak
+modeled live order count.
+
+The primary operation stream uses this exact target mix:
+
+| Operation type | Share |
+| --- | ---: |
+| GTC limit submit at a new sparse level | 45% |
+| Cancel existing live order | 30% |
+| Modify existing order to a different sparse level | 15% |
+| Crossing GTC submit walking sparse levels | 10% |
+
+The benchmark bypasses Parser, Exchange, filesystem I/O, and event formatting.
+Crossing GTC orders are generated to consume several best opposite price levels
+without resting, so benchmark timing reflects direct `OrderBook` matching and
+map updates.
+
+Latest EC2 Deep Sparse GTC Mixed run metadata:
+
+- Host: AWS EC2 benchmark host; IMDS instance-type query returned `N/A`
+- OS: Ubuntu 26.04 LTS
+- Kernel: `7.0.0-1004-aws`
+- CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
+- Compiler: GCC/G++ 15.2.0
+- Commit: `c1bea29` plus local Deep Sparse GTC Mixed benchmark changes
+- Build type: `Release`
+- Release flags: `-O3 -DNDEBUG`
+- Correctness tests: not rerun in this EC2 pass; only the new benchmark was run
+- Run date: `2026-05-20T04:17:13Z`
+- Command: pinned `deep_sparse_gtc_mixed_benchmark` with 5 repetitions and
+  `--benchmark_filter="^BM_DeepSparseGtcMixed"`
+- Transfer hygiene: source was synced with `.git`, build directories,
+  `.DS_Store`, and macOS `._*` sidecar files excluded
+
+Latest EC2 Deep Sparse GTC Mixed throughput results:
+
+| Benchmark | Primary Operations | Preload Price Levels | Crossing Levels / Order | CPU Time | Throughput | Reserve Capacity | Max Live Orders | Max Price Levels |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `BM_DeepSparseGtcMixed/1000` | 1,000 | 50,000 | 4 | 662811 ns | 1.509M items/s | 51,026 | 50,002 | 50,002 |
+| `BM_DeepSparseGtcMixed/10000` | 10,000 | 50,000 | 4 | 5364079 ns | 1.864M items/s | 51,026 | 50,002 | 50,002 |
+| `BM_DeepSparseGtcMixed/100000` | 100,000 | 50,000 | 4 | 54052361 ns | 1.850M items/s | 51,026 | 50,002 | 50,002 |
+
+Artifact files:
+
+- `benchmarks/deep_sparse_gtc_mixed_results.txt`
+- `benchmarks/deep_sparse_gtc_mixed_results.json`
+- `benchmarks/deep_sparse_gtc_mixed_environment.txt`
 
 ## End-to-end benchmarks
 

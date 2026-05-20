@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.6.5 - Deep Sparse GTC Mixed Benchmark
+
+- Added `deep_sparse_gtc_mixed_benchmark` with `BM_DeepSparseGtcMixed`, an OrderBook-only Google Benchmark for deep sparse liquidity: 50,000 occupied price levels with only one to two resting GTC orders per level.
+- Built a deterministic fixed-seed workload that interleaves 45% sparse GTC submits, 30% live cancels, 15% modifies to different sparse price levels, and 10% crossing GTC submits that walk several sparse levels.
+- Kept parser, exchange routing, filesystem I/O, and string/event formatting out of the timed loop while reusing caller-owned `std::vector<Event>` buffers.
+- Used `reserve_order_capacity` sized from the modeled peak live order count instead of operation count.
+- Wired the new benchmark into CMake and the EC2 benchmark runner, producing `benchmarks/deep_sparse_gtc_mixed_results.txt`, `benchmarks/deep_sparse_gtc_mixed_results.json`, and `benchmarks/deep_sparse_gtc_mixed_environment.txt`.
+- Ran only the new benchmark on the Ubuntu EC2 host in Release mode with `-O3 -DNDEBUG`, CPU-pinned with five repetitions; the 100,000-operation median measured 1.850M items/s.
+- Synced the EC2 source tree with `.git`, build directories, `.DS_Store`, and macOS `._*` sidecar files excluded to avoid bogus replay fixtures during benchmarking.
+- Documented the benchmark methodology and EC2 medians in `BENCHMARKS.md` and `docs/benchmark_history.md`.
+
 ## v0.6.4 - Stress/Soak Correctness Tests
 
 - Added `order_book_stress_tests` with three million-operation correctness stress scenarios: mixed order flow, price-level churn, and modify/cancel churn.

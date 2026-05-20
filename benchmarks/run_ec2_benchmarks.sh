@@ -121,6 +121,12 @@ run_pinned "$BUILD_DIR/shallow_gtc_mixed_benchmark" \
     --benchmark_out_format=json \
     | tee "$OUTPUT_DIR/shallow_gtc_mixed_results.txt"
 
+run_pinned "$BUILD_DIR/deep_sparse_gtc_mixed_benchmark" \
+    --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
+    --benchmark_out="$OUTPUT_DIR/deep_sparse_gtc_mixed_results.json" \
+    --benchmark_out_format=json \
+    | tee "$OUTPUT_DIR/deep_sparse_gtc_mixed_results.txt"
+
 run_pinned "$BUILD_DIR/end_to_end_benchmark" \
     --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
     --benchmark_out="$OUTPUT_DIR/end_to_end_results.json" \
