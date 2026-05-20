@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.6.6 - Best Level Churn + Level create/delete churn
+
+- Added `best_level_churn_benchmark` for direct `OrderBook` top-of-book churn: best-level cancels, one-tick inside-improving submits, marketable taker flow, and occasional modifies.
+- Added `level_create_delete_churn_benchmark` for repeated creation and deletion of whole price levels across both bid and ask sides.
+- Kept both workloads on the `OrderBook` hot path only with fixed RNG seeds, caller-owned reusable `std::vector<Event>` buffers, no parser/exchange/filesystem/string formatting in the timed loop, and `reserve_order_capacity` based on modeled live depth.
+- Updated the EC2 runner with focused `BENCHMARK_TARGETS` support, sidecar-file fail-fast checks for macOS `._*` files, and result artifacts for `benchmarks/*churn_results.{txt,json}`.
+- Refreshed EC2 Release medians: best-level churn measured 15.100M items/s at 1,000,000 operations; level create/delete churn measured 23.628M items/s at 1,000,000 operations.
+- Synced EC2 source without `.git`, build directories, `.DS_Store`, or macOS `._*` sidecar files; 124/124 correctness tests passed before each focused benchmark run.
+- Documented methodology and EC2 medians in `BENCHMARKS.md` and `docs/benchmark_history.md`.
+
 ## v0.6.5 - Shallow Dense + Deep Sparse GTC Mixed Benchmark
 
 - Added `shallow_gtc_mixed_benchmark` for shallow dense GTC churn: tight prices, low live depth, random cancels/modifies, and crossing GTC submits.

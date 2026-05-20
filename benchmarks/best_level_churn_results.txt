@@ -1,0 +1,30 @@
+-------------------------------------------------------------------------------------------
+Benchmark                                 Time             CPU   Iterations UserCounters...
+-------------------------------------------------------------------------------------------
+BM_BestLevelChurn/10000              484660 ns       484622 ns         1439 items_per_second=20.6346M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=1.024k
+BM_BestLevelChurn/10000              484351 ns       484214 ns         1439 items_per_second=20.652M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=1.024k
+BM_BestLevelChurn/10000              485644 ns       485593 ns         1439 items_per_second=20.5934M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=1.024k
+BM_BestLevelChurn/10000              487863 ns       488028 ns         1439 items_per_second=20.4906M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=1.024k
+BM_BestLevelChurn/10000              489052 ns       489039 ns         1439 items_per_second=20.4483M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=1.024k
+BM_BestLevelChurn/10000_mean         486314 ns       486299 ns            5 items_per_second=20.5638M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=1.024k
+BM_BestLevelChurn/10000_median       485644 ns       485593 ns            5 items_per_second=20.5934M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=1.024k
+BM_BestLevelChurn/10000_stddev         2058 ns         2130 ns            5 items_per_second=89.9674k/s max_live_orders=233.24n preload_orders=233.24n reserve_order_capacity=8.52992u
+BM_BestLevelChurn/10000_cv             0.42 %          0.44 %             5 items_per_second=0.44% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%
+BM_BestLevelChurn/100000            5081805 ns      5083551 ns          137 items_per_second=19.6713M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=10k
+BM_BestLevelChurn/100000            5116395 ns      5118537 ns          137 items_per_second=19.5368M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=10k
+BM_BestLevelChurn/100000            5119877 ns      5121482 ns          137 items_per_second=19.5256M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=10k
+BM_BestLevelChurn/100000            5033967 ns      5035677 ns          137 items_per_second=19.8583M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=10k
+BM_BestLevelChurn/100000            5092723 ns      5094572 ns          137 items_per_second=19.6287M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=10k
+BM_BestLevelChurn/100000_mean       5088953 ns      5090764 ns            5 items_per_second=19.6442M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=10k
+BM_BestLevelChurn/100000_median     5092723 ns      5094572 ns            5 items_per_second=19.6287M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=10k
+BM_BestLevelChurn/100000_stddev       34634 ns        34699 ns            5 items_per_second=134.543k/s max_live_orders=233.24n preload_orders=233.24n reserve_order_capacity=83.3u
+BM_BestLevelChurn/100000_cv            0.68 %          0.68 %             5 items_per_second=0.68% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%
+BM_BestLevelChurn/1000000          66230195 ns     66225160 ns           11 items_per_second=15.1M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=100k
+BM_BestLevelChurn/1000000         100788838 ns    100786858 ns           11 items_per_second=9.92193M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=100k
+BM_BestLevelChurn/1000000         120381879 ns    120375966 ns           11 items_per_second=8.30731M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=100k
+BM_BestLevelChurn/1000000          62891984 ns     62888503 ns           11 items_per_second=15.9012M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=100k
+BM_BestLevelChurn/1000000          64340111 ns     64339634 ns           11 items_per_second=15.5425M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=100k
+BM_BestLevelChurn/1000000_mean     82926601 ns     82923225 ns            5 items_per_second=12.9546M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=100k
+BM_BestLevelChurn/1000000_median   66230195 ns     66225160 ns            5 items_per_second=15.1M/s max_live_orders=28 preload_orders=28 reserve_order_capacity=100k
+BM_BestLevelChurn/1000000_stddev   26208638 ns     26207740 ns            5 items_per_second=3.56289M/s max_live_orders=233.24n preload_orders=233.24n reserve_order_capacity=833u
+BM_BestLevelChurn/1000000_cv          31.60 %         31.60 %             5 items_per_second=27.50% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%

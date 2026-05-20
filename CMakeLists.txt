@@ -168,6 +168,24 @@ if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
             benchmark::benchmark_main
     )
 
+    add_executable(best_level_churn_benchmark benchmarks/best_level_churn_benchmark.cpp)
+    target_link_libraries(best_level_churn_benchmark
+        PRIVATE
+            engine
+            benchmark::benchmark
+            benchmark::benchmark_main
+    )
+
+    add_executable(level_create_delete_churn_benchmark
+        benchmarks/level_create_delete_churn_benchmark.cpp
+    )
+    target_link_libraries(level_create_delete_churn_benchmark
+        PRIVATE
+            engine
+            benchmark::benchmark
+            benchmark::benchmark_main
+    )
+
     add_executable(latency_benchmark benchmark/latency_benchmark.cpp)
     target_link_libraries(latency_benchmark
         PRIVATE

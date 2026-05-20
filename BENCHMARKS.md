@@ -37,6 +37,13 @@ automatically by CMake or CI until that workflow is added intentionally.
   churn with many occupied price levels and only one to two orders per level.
   This "deep sparse" shape stresses price-level map/tree traversal and level
   cleanup more than long FIFO queues at one price.
+- `best_level_churn_benchmark` measures direct `OrderBook` hot-path churn at
+  the inside market. It repeatedly cancels current best-level orders, submits
+  one-tick inside-improving liquidity, sends small marketable orders, and
+  occasionally modifies live orders.
+- `level_create_delete_churn_benchmark` measures direct `OrderBook` hot-path
+  churn that repeatedly creates tiny fresh price levels and then erases each
+  entire level by canceling or matching the final resting order.
 - `latency_benchmark` runs a separate amortized batch latency suite over the
   same hot paths. It is not a Google Benchmark replacement and does not rename
   or replace the throughput benchmark binaries.
@@ -267,6 +274,113 @@ Artifact files:
 - `benchmarks/deep_sparse_gtc_mixed_results.txt`
 - `benchmarks/deep_sparse_gtc_mixed_results.json`
 - `benchmarks/deep_sparse_gtc_mixed_environment.txt`
+
+## OrderBook Best-Level Churn Hot Path
+
+`BM_BestLevelChurn` is an `OrderBook`-only Google Benchmark throughput case for
+repeated top-of-book mutation. It seeds bid levels `99_990..100_000` and ask
+levels `100_010..100_020`, keeps small queue depth at the best levels, and then
+interleaves best-level cancels, one-tick inside-improving submits, marketable
+taker orders, and occasional modifies.
+
+The workload stresses top-of-book mutation, price-level deletion near the inside
+market, tree pointer chasing/rotations, and best-price maintenance. It bypasses
+Parser, Exchange, filesystem I/O, and string formatting. It uses fixed RNG
+seeds, reusable caller-owned `std::vector<Event>` buffers, and the current
+mixed-workload reserve heuristic:
+
+`reserve_order_capacity = max(1024, operation_count / 10)`
+
+The EC2 runner supports focused passes with
+`BENCHMARK_TARGETS=best_level_churn`, which runs correctness tests followed by
+only this benchmark target. It also fails fast if macOS `._*` sidecar files are
+present in the transferred source tree, so bogus replay fixtures are not
+discovered by CTest.
+
+Artifact files:
+
+- `benchmarks/best_level_churn_results.txt`
+- `benchmarks/best_level_churn_results.json`
+- `benchmarks/best_level_churn_environment.txt`
+
+Latest EC2 Best-Level Churn run metadata:
+
+- Host: AWS EC2 `t3.small`
+- OS: Ubuntu 26.04 LTS
+- Kernel: `7.0.0-1004-aws`
+- CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
+- Compiler: GCC/G++ 15.2.0
+- Commit: `eb048b5` plus local Best-Level Churn benchmark changes
+- Build type: `Release`
+- Release flags: `-O3 -DNDEBUG`
+- Correctness tests: 124/124 passed before benchmark execution
+- Run date: `2026-05-20T04:38:07Z`
+- Command: `BENCHMARK_TARGETS=best_level_churn`, pinned
+  `best_level_churn_benchmark` with 5 repetitions and
+  `--benchmark_filter="^BM_BestLevelChurn"`
+- Transfer hygiene: source was synced without `.git`, build directories,
+  `.DS_Store`, or macOS `._*` sidecar files
+
+Latest EC2 Best-Level Churn throughput results:
+
+| Benchmark | Timed Operations | CPU Time | Throughput | Reserve Capacity | Preload Orders | Max Live Orders |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `BM_BestLevelChurn/10000` | 10,000 | 485593 ns | 20.593M items/s | 1,024 | 28 | 28 |
+| `BM_BestLevelChurn/100000` | 100,000 | 5094572 ns | 19.629M items/s | 10,000 | 28 | 28 |
+| `BM_BestLevelChurn/1000000` | 1,000,000 | 66225160 ns | 15.100M items/s | 100,000 | 28 | 28 |
+
+The 1,000,000-operation run had noisy outliers in two of five repetitions
+(`cv=31.60%`), so the median is more representative than the mean for that
+size.
+
+## OrderBook Level Create/Delete Churn Hot Path
+
+`BM_LevelCreateDeleteChurn` is an `OrderBook`-only Google Benchmark throughput
+case for repeated price-level allocation and cleanup. It pre-seeds stable bid
+and ask liquidity away from the churn price ranges, then interleaves tiny
+one-to-three-order levels across both bid and ask sides. Each temporary level is
+created at a fresh wide-range price and erased immediately by canceling or
+matching the final resting order at that level.
+
+This workload stresses price-level allocation/deallocation, tree insert/erase
+cost, empty-level cleanup, allocator pressure, fragmentation, and cache
+locality. It bypasses Parser, Exchange, filesystem I/O, and string/event
+formatting. It uses fixed RNG seeds, reusable caller-owned `std::vector<Event>`
+buffers, and reserves order storage from the modeled peak live-order count
+rather than the total number of transient operations.
+
+The EC2 runner supports focused passes with
+`BENCHMARK_TARGETS=level_create_delete_churn`, which runs correctness tests
+first and then writes:
+
+- `benchmarks/level_create_delete_churn_results.txt`
+- `benchmarks/level_create_delete_churn_results.json`
+
+Latest EC2 Level Create/Delete Churn run metadata:
+
+- Host: AWS EC2 `t3.small`
+- OS: Ubuntu 26.04 LTS
+- Kernel: `7.0.0-1004-aws`
+- CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
+- Compiler: GCC/G++ 15.2.0
+- Commit: `eb048b5` plus local Level Create/Delete Churn benchmark changes
+- Build type: `Release`
+- Release flags: `-O3 -DNDEBUG`
+- Correctness tests: 124/124 passed before benchmark execution
+- Run date: `2026-05-20T04:52:47Z`
+- Command: `BENCHMARK_TARGETS=level_create_delete_churn`, pinned
+  `level_create_delete_churn_benchmark` with 5 repetitions and
+  `--benchmark_filter="^BM_LevelCreateDeleteChurn"`
+- Transfer hygiene: source was synced without `.git`, build directories,
+  `.DS_Store`, or macOS `._*` sidecar files
+
+Latest EC2 Level Create/Delete Churn throughput results:
+
+| Benchmark | Timed Operations | CPU Time | Throughput | Reserve Capacity | Preload Orders | Max Live Orders | Churn Cycles |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `BM_LevelCreateDeleteChurn/10000` | 10,000 | 409456 ns | 24.423M items/s | 1,024 | 128 | 131 | 2,511 |
+| `BM_LevelCreateDeleteChurn/100000` | 100,000 | 4215927 ns | 23.720M items/s | 1,024 | 128 | 131 | 24,975 |
+| `BM_LevelCreateDeleteChurn/1000000` | 1,000,000 | 42322715 ns | 23.628M items/s | 1,024 | 128 | 131 | 250,311 |
 
 ## End-to-end benchmarks
 
