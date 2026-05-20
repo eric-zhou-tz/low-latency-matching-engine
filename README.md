@@ -78,7 +78,7 @@ a single `CancelResult` and does not need an event buffer.
 Additional documentation:
 
 - [Architecture](docs/ARCHITECTURE.md)
-- [Benchmarks](BENCHMARKS.md)
+- [Benchmarks](Benchmarks.md)
 - [Benchmark History](docs/benchmark_history.md)
 - [Hot Path Analysis](docs/HOTPATH.md)
 - [Changelog](docs/CHANGELOG.md)
@@ -185,13 +185,13 @@ Example Release build:
 ```bash
 cmake -S . -B build -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_CXX_FLAGS_RELEASE="-O3 -march=native"
+  -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native"
 
 cmake --build build
 ```
 
 Detailed benchmark results and methodology are available in
-[BENCHMARKS.md](BENCHMARKS.md).
+[Benchmarks.md](Benchmarks.md).
 
 ## Linux Development
 

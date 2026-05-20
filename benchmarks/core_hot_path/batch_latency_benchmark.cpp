@@ -58,7 +58,7 @@ struct MixedOperation {
 };
 
 struct Options {
-    std::filesystem::path output_dir{"benchmarks"};
+    std::filesystem::path output_dir{"benchmarks/results"};
     std::size_t sample_count{kDefaultSampleCount};
     std::size_t warmup_batches{kDefaultWarmupBatches};
     std::size_t trial_count{kDefaultTrialCount};

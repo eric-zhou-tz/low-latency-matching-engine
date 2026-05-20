@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${BUILD_DIR:-"$ROOT_DIR/build-release"}"
-OUTPUT_DIR="${OUTPUT_DIR:-"$ROOT_DIR/benchmarks"}"
+OUTPUT_DIR="${OUTPUT_DIR:-"$ROOT_DIR/benchmarks/results"}"
 PIN_CPU="${PIN_CPU:-0}"
 LATENCY_SAMPLES="${LATENCY_SAMPLES:-1024}"
 LATENCY_WARMUP_BATCHES="${LATENCY_WARMUP_BATCHES:-128}"

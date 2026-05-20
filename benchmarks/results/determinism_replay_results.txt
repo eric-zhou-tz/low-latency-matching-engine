@@ -1,0 +1,12 @@
+-----------------------------------------------------------------------------------------------------
+Benchmark                                           Time             CPU   Iterations UserCounters...
+-----------------------------------------------------------------------------------------------------
+BM_Replay_GoldenFixtures_Throughput             59965 ns        59960 ns        11782 fixture_count=16 input_bytes=856 items_per_second=266.845k/s
+BM_Replay_GoldenFixtures_Throughput             59557 ns        59555 ns        11782 fixture_count=16 input_bytes=856 items_per_second=268.658k/s
+BM_Replay_GoldenFixtures_Throughput             59604 ns        59599 ns        11782 fixture_count=16 input_bytes=856 items_per_second=268.463k/s
+BM_Replay_GoldenFixtures_Throughput             60014 ns        60010 ns        11782 fixture_count=16 input_bytes=856 items_per_second=266.621k/s
+BM_Replay_GoldenFixtures_Throughput             59674 ns        59668 ns        11782 fixture_count=16 input_bytes=856 items_per_second=268.149k/s
+BM_Replay_GoldenFixtures_Throughput_mean        59763 ns        59758 ns            5 fixture_count=16 input_bytes=856 items_per_second=267.747k/s
+BM_Replay_GoldenFixtures_Throughput_median      59674 ns        59668 ns            5 fixture_count=16 input_bytes=856 items_per_second=268.149k/s
+BM_Replay_GoldenFixtures_Throughput_stddev        212 ns          212 ns            5 fixture_count=133.28n input_bytes=7.13048u items_per_second=946.816/s
+BM_Replay_GoldenFixtures_Throughput_cv           0.35 %          0.35 %             5 fixture_count=0.00% input_bytes=0.00% items_per_second=0.35%

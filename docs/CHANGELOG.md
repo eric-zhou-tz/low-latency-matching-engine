@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## v0.7.1 -> Added Path for Toy std Baselin
+## v0.8.0 -> Refreshed Full Benchmark Suite
+
+- Refreshed the full EC2/Linux benchmark suite on the pinned `t3.small` host with a Release `-O3 -DNDEBUG -march=native` build and 127/127 CTest cases passing before benchmark execution.
+- Reworked `BENCHMARKS.md` into a recruiter-facing current-results report covering core hot path, realistic flow, stress, and determinism/replay workloads.
+- Added latest benchmark artifacts for core hot path, realistic flow, stress, replay, and batch latency runs under `benchmarks/results/`.
+- Moved benchmark output defaults from `benchmarks/` to `benchmarks/results/` in the EC2 benchmark runner, perf-counter runner, and standalone batch-latency runner.
+- Documented transfer hygiene for EC2 runs so `.git`, local build directories, `.DS_Store`, and macOS `._*` sidecar files stay out of remote benchmark source trees.
+
+## v0.7.2 -> Added Path for Toy std Baseline
+
+- Added the `toy/` path for the std baseline implementation.
 
 ## v0.7.1 -> Reversion to Stable Patch
 

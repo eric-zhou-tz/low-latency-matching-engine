@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${BUILD_DIR:-"$ROOT_DIR/build-release"}"
-OUTPUT_DIR="${OUTPUT_DIR:-"$ROOT_DIR/benchmarks"}"
+OUTPUT_DIR="${OUTPUT_DIR:-"$ROOT_DIR/benchmarks/results"}"
 BUILD_TYPE="${CMAKE_BUILD_TYPE:-Release}"
 RELEASE_FLAGS="${CMAKE_CXX_FLAGS_RELEASE:--O3 -DNDEBUG}"
 THROUGHPUT_REPETITIONS="${THROUGHPUT_REPETITIONS:-5}"
