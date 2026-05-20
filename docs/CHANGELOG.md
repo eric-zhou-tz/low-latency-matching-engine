@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.8.1 -> Queryable Benchmark History
+
+- Added a recruiter-friendly SQLite benchmark history database at `benchmarks/benchmark_history.db` while keeping `BENCHMARKS.md` and `docs/benchmark_history.md` as the primary Markdown views.
+- Added `benchmarks/schema.sql` and `benchmarks/benchmark_history.sql` so technical reviewers can inspect or recreate the benchmark database without relying on the binary artifact.
+- Added `benchmarks/README.md` with simple `sqlite3` usage instructions and example queries for latest runs, throughput leaders, and latency rows.
+- Populated the database from the existing benchmark history, current benchmark summary, changelog context, and checked-in benchmark result artifacts, preserving missing values as `NULL` instead of inventing precision.
+- Linked the queryable benchmark artifacts from the benchmark summary and historical benchmark log.
+
 ## v0.8.0 -> Refreshed Full Benchmark Suite
 
 - Refreshed the full EC2/Linux benchmark suite on the pinned `t3.small` host with a Release `-O3 -DNDEBUG -march=native` build and 127/127 CTest cases passing before benchmark execution.

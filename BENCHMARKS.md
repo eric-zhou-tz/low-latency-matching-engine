@@ -189,6 +189,8 @@ Engineering notes:
 | v0.6.4-v0.6.6 | Added stress/soak, shallow/deep, best-level, and level churn workloads. | Exposed behavior under sustained churn and adversarial book shapes. |
 | v0.7.1 | Reverted an experimental storage comparison after regressions. | Preserved the stable implementation when benchmark evidence did not support the change. |
 
+Queryable history for technical review is available in `benchmarks/benchmark_history.db`, with the regenerating SQL dump in `benchmarks/benchmark_history.sql`.
+
 ## Reproducibility
 
 Build and test:
@@ -230,6 +232,7 @@ Artifact expectations:
 | `benchmarks/results/stress_benchmark_results.{txt,json}` | Stress workload throughput |
 | `benchmarks/results/determinism_replay_results.{txt,json}` | Replay throughput |
 | `benchmarks/results/batch_latency_results.{txt,json}` | Amortized fixed-batch latency |
+| `benchmarks/benchmark_history.{db,sql}` | Queryable benchmark history and a plain SQL recreation path |
 
 EC2 transfer hygiene:
 

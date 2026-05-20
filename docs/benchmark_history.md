@@ -2,6 +2,8 @@
 
 This file tracks benchmark results over time. Current results are summarized in
 `../BENCHMARKS.md`; this table keeps the comparable run history.
+For SQL queries, see `../benchmarks/benchmark_history.db` and the plain-text
+dump at `../benchmarks/benchmark_history.sql`.
 
 | Date | Version / Tag | Commit | Environment | Build Type | Workload | Input Size | Time | CPU Time | Throughput | p50 Latency | p95 Latency | p99 Latency | p999 Latency | Max Latency | Notes |
 | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- | --- | --- | --- |
