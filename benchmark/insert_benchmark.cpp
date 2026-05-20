@@ -42,7 +42,7 @@ constexpr std::uint64_t kQuantity = 1;
  * This isolates the order-book path that accepts and appends orders to FIFO
  * price levels without parser, file, stdin, or logging overhead.
  */
-void BM_RestingLimitOrderInsert(benchmark::State& state) {
+void BM_OrderBook_PassiveInsert(benchmark::State& state) {
     const auto order_count = state.range(0);
     // Reserve capacity is sized to expected peak live/resting orders, not total
     // processed operations. Submit-only workloads rest every submitted order.
@@ -74,6 +74,6 @@ void BM_RestingLimitOrderInsert(benchmark::State& state) {
     state.SetItemsProcessed(state.iterations() * order_count);
 }
 
-BENCHMARK(BM_RestingLimitOrderInsert)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_OrderBook_PassiveInsert)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 
 } // namespace

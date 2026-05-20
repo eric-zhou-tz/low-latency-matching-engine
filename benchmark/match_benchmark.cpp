@@ -67,7 +67,7 @@ void preload_book(OrderBook& book, const std::vector<Order>& resting_orders) {
  * scenario. That is intentionally different from the resting insert workload,
  * which measures orders that do not trade and instead remain on the book.
  */
-void BM_CrossingLimitOrderMatch(benchmark::State& state) {
+void BM_OrderBook_OneLevelCrossingMatch(benchmark::State& state) {
     const auto order_count = state.range(0);
     // Reserve capacity is sized to expected peak live/resting orders, not total
     // processed operations. This match-only benchmark has one resting order per
@@ -102,6 +102,6 @@ void BM_CrossingLimitOrderMatch(benchmark::State& state) {
     state.SetItemsProcessed(state.iterations() * order_count);
 }
 
-BENCHMARK(BM_CrossingLimitOrderMatch)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_OrderBook_OneLevelCrossingMatch)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 
 } // namespace

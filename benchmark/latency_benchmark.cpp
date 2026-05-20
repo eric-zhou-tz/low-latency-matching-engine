@@ -615,10 +615,10 @@ template <typename Operation>
                                              std::size_t batch_size,
                                              std::size_t sample_count,
                                              std::size_t warmup_batches) {
-    if (benchmark_name == "RestingLimitOrderInsert") {
+    if (benchmark_name == "OrderBook_PassiveInsert") {
         return run_resting_insert_latency(batch_size, sample_count, warmup_batches);
     }
-    if (benchmark_name == "CrossingLimitOrderMatch") {
+    if (benchmark_name == "OrderBook_OneLevelCrossingMatch") {
         return run_crossing_match_latency(batch_size, sample_count, warmup_batches);
     }
     if (benchmark_name == "CancelFront") {
@@ -655,9 +655,10 @@ template <typename Operation>
  * @return Deterministically ordered result rows.
  */
 [[nodiscard]] std::vector<LatencyResult> run_all_latency_benchmarks(const Options& options) {
-    constexpr std::string_view workloads[] = {"RestingLimitOrderInsert", "CrossingLimitOrderMatch",
-                                              "CancelFront", "CancelBack", "CancelRandom",
-                                              "CancelUnknown", "MixedSubmitCancel",
+    constexpr std::string_view workloads[] = {"OrderBook_PassiveInsert",
+                                              "OrderBook_OneLevelCrossingMatch",
+                                              "CancelRandom",
+                                              "CancelUnknown",
                                               "OrderBookTrueMixed"};
     constexpr std::size_t batch_sizes[] = {64, 256, 1'024};
     std::vector<LatencyResult> results;

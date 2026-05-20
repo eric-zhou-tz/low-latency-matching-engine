@@ -461,11 +461,17 @@ void BM_MixedSubmitCancelReserveSweep(benchmark::State& state) {
     run_mixed_submit_cancel_with_reserve(state, static_cast<std::size_t>(state.range(1)));
 }
 
-BENCHMARK(BM_CancelFront)->Arg(1'000)->Arg(10'000)->Arg(100'000);
-BENCHMARK(BM_CancelBack)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 BENCHMARK(BM_CancelRandom)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 BENCHMARK(BM_CancelUnknown)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+
+#if defined(MATCHING_ENGINE_ENABLE_CANCEL_DIAGNOSTICS)
+BENCHMARK(BM_CancelFront)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_CancelBack)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+#endif
+
+#if defined(MATCHING_ENGINE_ENABLE_LEGACY_MIXED_BENCHMARK)
 BENCHMARK(BM_MixedSubmitCancel)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+#endif
 
 #if defined(MATCHING_ENGINE_ENABLE_RESERVE_SWEEP)
 BENCHMARK(BM_MixedSubmitCancelReserveSweep)

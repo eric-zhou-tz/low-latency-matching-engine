@@ -76,7 +76,9 @@ Local artifact:
 
 ## Benchmark Comparison
 
-The first pass compared cancel variants at 100,000 resting orders.
+The first pass compared cancel variants at 100,000 resting orders. Front and
+back cancels are now diagnostic-only benchmark registrations; random and
+unknown cancels remain in the default suite.
 
 | Workload | CPU Time | Throughput | Read |
 | --- | ---: | ---: | --- |

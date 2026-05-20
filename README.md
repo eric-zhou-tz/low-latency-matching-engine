@@ -158,8 +158,8 @@ Current benchmark coverage includes:
 
 - Resting limit-order insertion
 - Aggressive crossing-order matching
-- FIFO cancel-order performance
-- Mixed submit/cancel/match workloads
+- Random and rejected cancel-order performance
+- True mixed OrderBook workloads with GTC, cancel, modify, IOC, market, and FOK flow
 - Amortized batch latency for matching-engine hot paths
 - End-to-end CLI-style parse/process/format throughput
 
