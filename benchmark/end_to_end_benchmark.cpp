@@ -341,7 +341,7 @@ void run_end_to_end_script(const std::vector<std::string>& commands,
 /**
  * @brief Measures full parser/exchange/order-book/formatter throughput.
  */
-void BM_EndToEnd_ParseProcessFormat(benchmark::State& state) {
+void BM_EndToEnd_RestingSubmitOnly_Throughput(benchmark::State& state) {
     const auto command_count = state.range(0);
     // Reserve capacity is sized to expected peak live/resting orders, not total
     // processed operations. Submit/cancel/modify-heavy workloads usually have
@@ -442,7 +442,7 @@ void BM_EndToEnd_MixedOrderFlow_Latency(benchmark::State& state) {
         static_cast<double>(workload.reserve_order_capacity);
 }
 
-BENCHMARK(BM_EndToEnd_ParseProcessFormat)->Arg(1'000)->Arg(10'000)->Arg(100'000);
+BENCHMARK(BM_EndToEnd_RestingSubmitOnly_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 BENCHMARK(BM_EndToEnd_MixedOrderFlow_Throughput)->Arg(1'000)->Arg(10'000)->Arg(100'000);
 BENCHMARK(BM_EndToEnd_MixedOrderFlow_Latency)
     ->Arg(64)

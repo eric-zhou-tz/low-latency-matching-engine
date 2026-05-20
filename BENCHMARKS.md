@@ -393,7 +393,7 @@ filesystem I/O inside the timed loop, and include event formatting in the timed
 work. These are parser/exchange/formatter overhead measurements and should not
 be compared directly to OrderBook hot-path microbenchmarks.
 
-`BM_EndToEnd_ParseProcessFormat` uses deterministic non-crossing multi-symbol
+`BM_EndToEnd_RestingSubmitOnly_Throughput` uses deterministic non-crossing multi-symbol
 limit-order input to focus on parse, route, accept, and format cost.
 `BM_EndToEnd_MixedOrderFlow_Throughput` uses the same deterministic mixed-flow
 methodology as the OrderBook-only true mixed benchmark, but translates each
@@ -444,9 +444,9 @@ Latest EC2 median throughput results:
 
 | Benchmark | Commands | CPU Time | Throughput |
 | --- | ---: | ---: | ---: |
-| `BM_EndToEnd_ParseProcessFormat/1000` | 1,000 | 651418 ns | 1.535M commands/s |
-| `BM_EndToEnd_ParseProcessFormat/10000` | 10,000 | 6991258 ns | 1.430M commands/s |
-| `BM_EndToEnd_ParseProcessFormat/100000` | 100,000 | 95509290 ns | 1.047M commands/s |
+| `BM_EndToEnd_RestingSubmitOnly_Throughput/1000` | 1,000 | 651418 ns | 1.535M commands/s |
+| `BM_EndToEnd_RestingSubmitOnly_Throughput/10000` | 10,000 | 6991258 ns | 1.430M commands/s |
+| `BM_EndToEnd_RestingSubmitOnly_Throughput/100000` | 100,000 | 95509290 ns | 1.047M commands/s |
 | `BM_EndToEnd_MixedOrderFlow_Throughput/1000` | 1,000 | 727879 ns | 1.374M commands/s |
 | `BM_EndToEnd_MixedOrderFlow_Throughput/10000` | 10,000 | 7268960 ns | 1.376M commands/s |
 | `BM_EndToEnd_MixedOrderFlow_Throughput/100000` | 100,000 | 74442924 ns | 1.343M commands/s |
