@@ -69,14 +69,14 @@ bool Exchange::add_symbol(const std::string& symbol, PriceLevelMode price_level_
 }
 
 /**
- * @brief Registers a symbol with ladder metadata while keeping map-backed matching.
+ * @brief Registers a symbol with vector-backed ladder price storage.
  */
 bool Exchange::add_symbol(const std::string& symbol, PriceTick base_tick, PriceTick tick_range) {
     if (symbol.empty() || tick_range < 0 || books_by_symbol_.contains(symbol)) {
         return false;
     }
 
-    // Ladder construction records metadata only; matching still runs through std::map levels.
+    // Ladder construction fixes the valid price window for this symbol.
     auto book = std::make_unique<OrderBook>(reserve_order_capacity_, base_tick, tick_range);
     books_by_symbol_.emplace(symbol, std::move(book));
     return true;

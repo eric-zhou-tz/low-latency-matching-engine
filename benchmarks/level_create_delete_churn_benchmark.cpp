@@ -19,16 +19,26 @@ using matching_engine::Price;
 using matching_engine::Side;
 using matching_engine::TimeInForce;
 
-constexpr Price kStableBidBase = 900'000;
-constexpr Price kStableAskBase = 2'100'000;
-constexpr Price kBidChurnBase = 1'000'000;
-constexpr Price kAskChurnBase = 1'500'000;
+constexpr Price kStableBidBase = 9'000;
+constexpr Price kStableAskBase = 11'000;
+constexpr Price kBidChurnBase = 9'500;
+constexpr Price kAskChurnBase = 10'500;
 constexpr Price kPriceStride = 17;
 constexpr std::size_t kStableLevelsPerSide = 64;
-constexpr std::size_t kPriceSlotsPerSide = 131'071;
+constexpr std::size_t kPriceSlotsPerSide = 511;
 constexpr std::uint64_t kFirstChurnOrderId = 1'000'000;
 constexpr std::uint64_t kFirstMatcherOrderId = 2'000'000'000;
 constexpr std::uint32_t kDepthSeed = 0x1EAF'CAFE;
+constexpr Price kLadderBasePrice = 10'000;
+constexpr Price kLadderRange = 1'500;
+
+/**
+ * @brief Price-level storage mode selected for a benchmark run.
+ */
+enum class StorageMode {
+    Tree,
+    Ladder
+};
 
 enum class ActionKind {
     Submit,
@@ -261,6 +271,27 @@ void preload_book(OrderBook& book,
 }
 
 /**
+ * @brief Constructs a tree or ladder book for side-by-side replay.
+ *
+ * @param book Optional storage receiving the constructed book.
+ * @param mode Price-level storage mode under test.
+ * @param reserve_order_capacity Live-order reserve hint for the run.
+ */
+void construct_book(std::optional<OrderBook>& book,
+                    StorageMode mode,
+                    std::size_t reserve_order_capacity) {
+    if (mode == StorageMode::Ladder) {
+        // The wide sparse window covers stable guard levels and temporary churn prices.
+        book.emplace(reserve_order_capacity, kLadderBasePrice, kLadderRange);
+        return;
+    }
+
+    // Preserve the original tree benchmark construction path.
+    book.emplace();
+    book->reserve_order_capacity(reserve_order_capacity);
+}
+
+/**
  * @brief Executes one pre-generated OrderBook action.
  *
  * @param book Book under test.
@@ -282,7 +313,7 @@ void preload_book(OrderBook& book,
 /**
  * @brief Measures repeated creation and deletion of whole price levels.
  */
-void BM_LevelCreateDeleteChurn(benchmark::State& state) {
+void run_level_create_delete_churn(benchmark::State& state, StorageMode mode) {
     const auto operation_count = static_cast<std::size_t>(state.range(0));
     const auto workload = make_workload(operation_count);
     std::optional<OrderBook> book;
@@ -291,8 +322,7 @@ void BM_LevelCreateDeleteChurn(benchmark::State& state) {
 
     for (auto _ : state) {
         state.PauseTiming();
-        book.emplace();
-        book->reserve_order_capacity(workload.reserve_order_capacity);
+        construct_book(book, mode, workload.reserve_order_capacity);
         preload_book(*book, workload.preload_orders, events);
         state.ResumeTiming();
 
@@ -323,8 +353,25 @@ void BM_LevelCreateDeleteChurn(benchmark::State& state) {
     state.counters["cancel_deleted_levels"] =
         static_cast<double>(workload.cancel_deleted_levels);
     state.counters["match_deleted_levels"] = static_cast<double>(workload.match_deleted_levels);
+    state.counters["ladder_range"] =
+        mode == StorageMode::Ladder ? static_cast<double>(kLadderRange) : 0.0;
+}
+
+/**
+ * @brief Measures the original tree-backed level create/delete churn workload.
+ */
+void BM_LevelCreateDeleteChurn(benchmark::State& state) {
+    run_level_create_delete_churn(state, StorageMode::Tree);
+}
+
+/**
+ * @brief Measures the ladder-backed level create/delete workload with the same action stream.
+ */
+void BM_LevelCreateDeleteChurnLadder(benchmark::State& state) {
+    run_level_create_delete_churn(state, StorageMode::Ladder);
 }
 
 BENCHMARK(BM_LevelCreateDeleteChurn)->Arg(10'000)->Arg(100'000)->Arg(1'000'000);
+BENCHMARK(BM_LevelCreateDeleteChurnLadder)->Arg(10'000)->Arg(100'000)->Arg(1'000'000);
 
 } // namespace

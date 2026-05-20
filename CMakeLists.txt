@@ -9,6 +9,32 @@ project(
 
 include(FetchContent)
 
+if(POLICY CMP0169)
+    cmake_policy(SET CMP0169 OLD)
+endif()
+
+find_package(absl CONFIG QUIET)
+
+if(NOT absl_FOUND)
+    FetchContent_Declare(
+        abseil_cpp
+        URL https://github.com/abseil/abseil-cpp/archive/refs/tags/20240116.2.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+
+    FetchContent_GetProperties(abseil_cpp)
+    if(NOT abseil_cpp_POPULATED)
+        FetchContent_Populate(abseil_cpp)
+    endif()
+
+    add_library(absl_btree_headers INTERFACE)
+    add_library(absl::btree ALIAS absl_btree_headers)
+    target_include_directories(absl_btree_headers
+        INTERFACE
+            ${abseil_cpp_SOURCE_DIR}
+    )
+endif()
+
 FetchContent_Declare(
     unordered_dense
     URL https://github.com/martinus/unordered_dense/archive/refs/tags/v4.8.1.zip
@@ -21,6 +47,7 @@ add_library(engine
     src/io/parser.cpp
     src/io/script_runner.cpp
     src/book/order_book.cpp
+    src/book/order_book_price_levels.cpp
     src/exchange.cpp
 )
 
@@ -33,6 +60,7 @@ target_include_directories(engine
 
 target_link_libraries(engine
     PUBLIC
+        absl::btree
         unordered_dense::unordered_dense
 )
 

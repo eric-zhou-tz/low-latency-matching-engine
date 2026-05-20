@@ -18,6 +18,44 @@ automatically by CMake or CI until that workflow is added intentionally.
 - Run date: `2026-05-19T21:04:32Z`
 - Command: pinned `end_to_end_benchmark --benchmark_repetitions=5`
 
+## Latest Price-Level Backend Comparison
+
+The latest focused EC2 run compared the existing `std::map` TreeLevels helper
+baseline against an `absl::btree_map` TreeLevels backend. Full comparison notes
+are in `docs/bid_ask_comparison.md`, and longitudinal rows are in
+`docs/benchmark_history.md`.
+
+Run metadata:
+
+- Date: `2026-05-20T08:00:24Z`
+- Commit: `9a032e3` plus local `absl::btree_map` TreeLevels changes
+- Host: AWS EC2 `t3.small`, Ubuntu 26.04, Linux `7.0.0-1004-aws`
+- Compiler/build: GCC 15.2.0, Release, `-O3 -DNDEBUG`
+- Correctness: `141/141` CTest cases passed first
+- Command: `BENCHMARK_TARGETS=deep_sparse_gtc_mixed,best_level_churn,level_create_delete_churn,true_mixed THROUGHPUT_REPETITIONS=5 PIN_CPU=0 ./benchmarks/run_ec2_benchmarks.sh`
+
+Median throughput results:
+
+| Workload | Input size | std::map | absl::btree_map | Delta |
+| --- | ---: | ---: | ---: | ---: |
+| True mixed | 1,000 | 18.589M/s | 17.085M/s | -8.09% |
+| True mixed | 10,000 | 16.116M/s | 15.465M/s | -4.04% |
+| True mixed | 100,000 | 14.563M/s | 14.168M/s | -2.71% |
+| Deep sparse GTC mixed | 1,000 / 50,000 levels | 1.346M/s | 2.644M/s | +96.43% |
+| Deep sparse GTC mixed | 10,000 / 50,000 levels | 1.675M/s | 2.591M/s | +54.66% |
+| Deep sparse GTC mixed | 100,000 / 50,000 levels | 1.627M/s | 2.498M/s | +53.55% |
+| Best-level churn | 10,000 | 18.010M/s | 17.597M/s | -2.29% |
+| Best-level churn | 100,000 | 17.426M/s | 17.105M/s | -1.84% |
+| Best-level churn | 1,000,000 | 14.458M/s | 14.025M/s | -2.99% |
+| Level create/delete churn | 10,000 | 19.884M/s | 16.086M/s | -19.10% |
+| Level create/delete churn | 100,000 | 19.515M/s | 15.719M/s | -19.45% |
+| Level create/delete churn | 1,000,000 | 19.478M/s | 15.575M/s | -20.04% |
+
+Interpretation: `absl::btree_map` materially improved the deep sparse
+50,000-level workload, but slightly regressed true mixed and best-level churn
+and regressed level create/delete churn by about 19-20%. Treat the deepest
+level create/delete row as noisy, but not directionally ambiguous.
+
 ## Workloads
 
 - `insert_benchmark` measures passive BUY/SELL limit orders that do not cross,

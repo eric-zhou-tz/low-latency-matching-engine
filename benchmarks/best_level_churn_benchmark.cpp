@@ -38,6 +38,16 @@ constexpr std::size_t kMinimumReserveOrderCapacity = 1'024;
 constexpr std::uint32_t kSeed = 0xB357'1EAFU;
 constexpr OrderId kPreloadIdBase = 40'000'000'000ULL;
 constexpr OrderId kTimedIdBase = 50'000'000'000ULL;
+constexpr Price kLadderBasePrice = kMidPrice;
+constexpr Price kLadderRange = 256;
+
+/**
+ * @brief Price-level storage mode selected for a benchmark run.
+ */
+enum class StorageMode {
+    Tree,
+    Ladder
+};
 
 /**
  * @brief Direct OrderBook operation emitted by the best-level churn generator.
@@ -651,6 +661,27 @@ void preload_book(OrderBook& book,
 }
 
 /**
+ * @brief Constructs a tree or ladder book for side-by-side replay.
+ *
+ * @param book Optional storage receiving the constructed book.
+ * @param mode Price-level storage mode under test.
+ * @param reserve_order_capacity Live-order reserve hint for the run.
+ */
+void construct_book(std::optional<OrderBook>& book,
+                    StorageMode mode,
+                    std::size_t reserve_order_capacity) {
+    if (mode == StorageMode::Ladder) {
+        // The range is intentionally wide enough for inside-price drift during long churn runs.
+        book.emplace(reserve_order_capacity, kLadderBasePrice, kLadderRange);
+        return;
+    }
+
+    // Preserve the original tree benchmark construction path.
+    book.emplace();
+    book->reserve_order_capacity(reserve_order_capacity);
+}
+
+/**
  * @brief Replays one direct OrderBook action.
  *
  * @param book Book under test.
@@ -681,7 +712,7 @@ void preload_book(OrderBook& book,
 /**
  * @brief Measures repeated top-of-book mutation on the direct OrderBook hot path.
  */
-void BM_BestLevelChurn(benchmark::State& state) {
+void run_best_level_churn(benchmark::State& state, StorageMode mode) {
     const auto operation_count = static_cast<std::size_t>(state.range(0));
     const auto workload = make_workload(operation_count);
     std::optional<OrderBook> book;
@@ -690,8 +721,7 @@ void BM_BestLevelChurn(benchmark::State& state) {
 
     for (auto _ : state) {
         state.PauseTiming();
-        book.emplace();
-        book->reserve_order_capacity(workload.reserve_order_capacity);
+        construct_book(book, mode, workload.reserve_order_capacity);
         preload_book(*book, workload.preload_orders, events);
         state.ResumeTiming();
 
@@ -715,8 +745,25 @@ void BM_BestLevelChurn(benchmark::State& state) {
     state.counters["reserve_order_capacity"] =
         static_cast<double>(workload.reserve_order_capacity);
     state.counters["max_live_orders"] = static_cast<double>(workload.max_live_orders);
+    state.counters["ladder_range"] =
+        mode == StorageMode::Ladder ? static_cast<double>(kLadderRange) : 0.0;
+}
+
+/**
+ * @brief Measures the original tree-backed best-level churn workload.
+ */
+void BM_BestLevelChurn(benchmark::State& state) {
+    run_best_level_churn(state, StorageMode::Tree);
+}
+
+/**
+ * @brief Measures the ladder-backed best-level churn workload with the same action stream.
+ */
+void BM_BestLevelChurnLadder(benchmark::State& state) {
+    run_best_level_churn(state, StorageMode::Ladder);
 }
 
 BENCHMARK(BM_BestLevelChurn)->Arg(10'000)->Arg(100'000)->Arg(1'000'000);
+BENCHMARK(BM_BestLevelChurnLadder)->Arg(10'000)->Arg(100'000)->Arg(1'000'000);
 
 } // namespace

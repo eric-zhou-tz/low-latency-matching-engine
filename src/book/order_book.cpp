@@ -10,12 +10,24 @@ namespace {
 
 constexpr float kOrderIdMaxLoadFactor = 0.80F;
 
+/**
+ * @brief Computes the number of vector slots required for a ladder range.
+ */
+[[nodiscard]] std::size_t ladder_size_from_range(PriceTick tick_range) noexcept {
+    // Negative ranges are invalid at the exchange boundary; keep direct construction bounded.
+    if (tick_range < 0) {
+        return 0;
+    }
+
+    return static_cast<std::size_t>((tick_range * 2) + 1);
+}
+
 } // namespace
 
 /**
  * @brief Creates an empty book with fixed order-id lookup tuning.
  */
-OrderBook::OrderBook() {
+OrderBook::OrderBook() : bids_(TreeLevels{}), asks_(TreeLevels{}) {
     // Benchmark sweeps selected 0.8 as the stable order-id hash-table density.
     configure_order_id_lookup();
 }
@@ -23,16 +35,20 @@ OrderBook::OrderBook() {
 /**
  * @brief Creates an empty book and applies a reserve-capacity tuning hint.
  */
-OrderBook::OrderBook(std::size_t reserve_order_capacity) {
+OrderBook::OrderBook(std::size_t reserve_order_capacity) : bids_(TreeLevels{}), asks_(TreeLevels{}) {
     // Configure lookup density before reserving so bucket sizing uses the fixed policy.
     configure_order_id_lookup();
     this->reserve_order_capacity(reserve_order_capacity);
 }
 
 /**
- * @brief Creates a reserved ladder-prepared book while retaining map-backed matching.
+ * @brief Creates a reserved ladder-backed book with preallocated price slots.
  */
-OrderBook::OrderBook(std::size_t reserve_order_capacity, PriceTick base_tick, PriceTick tick_range) {
+OrderBook::OrderBook(std::size_t reserve_order_capacity,
+                     PriceTick base_tick,
+                     PriceTick tick_range)
+    : bids_(LadderLevels(ladder_size_from_range(tick_range))),
+      asks_(LadderLevels(ladder_size_from_range(tick_range))) {
     // Configure metadata and lookup density before reserving storage for live orders.
     configure_order_id_lookup();
     configure_ladder_metadata(base_tick, tick_range);
@@ -138,7 +154,7 @@ void OrderBook::submit(Order order, std::vector<Event>& out) {
  * unmatched remainder produces a rejection event instead of resting.
  */
 void OrderBook::submit_market(Order order, std::vector<Event>& out) {
-    if (!prepare_incoming_order(order, out)) {
+    if (!prepare_incoming_order(order, out, false)) {
         return;
     }
 
@@ -196,6 +212,11 @@ void OrderBook::modify(OrderId order_id,
         return;
     }
 
+    if (!price_in_range(new_price)) {
+        out.push_back(RejectedEvent{.reason = RejectReason::InvalidOrder, .order_id = order_id});
+        return;
+    }
+
     const Price old_price = existing->price;
     const Quantity old_quantity = existing->quantity;
     const Side side = existing->side;
@@ -203,11 +224,7 @@ void OrderBook::modify(OrderId order_id,
     if (new_price == old_price && new_quantity < old_quantity) {
         // a pure size reduction preserves the order's FIFO priority.
         const Quantity reduced_by = old_quantity - new_quantity;
-        if (side == Side::Buy) {
-            bids_.find(old_price)->second.total_volume -= reduced_by;
-        } else {
-            asks_.find(old_price)->second.total_volume -= reduced_by;
-        }
+        require_level(side, old_price).total_volume -= reduced_by;
 
         existing->quantity = new_quantity;
         out.push_back(ModifiedEvent{.order_id = order_id,
@@ -284,21 +301,34 @@ PriceTick OrderBook::max_tick() const noexcept {
 }
 
 /**
+ * @brief Returns the current ladder slot count.
+ */
+std::size_t OrderBook::ladder_size() const noexcept {
+    const auto* ladder = std::get_if<LadderLevels>(&bids_);
+    if (ladder == nullptr) {
+        return 0;
+    }
+
+    // Bids and asks are constructed with the same slot count.
+    return ladder->size();
+}
+
+/**
  * @brief Produces a compact representation of resting orders.
  */
 std::string OrderBook::snapshot() const {
     std::ostringstream output;
     output << "orders=" << orders_by_id_.size();
 
-    for (const auto& [_, level] : bids_) {
-        for (const Order* order = level.head; order != nullptr; order = order->next) {
+    for (const auto level : ordered_levels(Side::Buy)) {
+        for (const Order* order = level.queue->head; order != nullptr; order = order->next) {
             output << " [" << order->id << ' ' << to_string(order->side) << ' ' << order->price
                    << 'x' << order->quantity << ']';
         }
     }
 
-    for (const auto& [_, level] : asks_) {
-        for (const Order* order = level.head; order != nullptr; order = order->next) {
+    for (const auto level : ordered_levels(Side::Sell)) {
+        for (const Order* order = level.queue->head; order != nullptr; order = order->next) {
             output << " [" << order->id << ' ' << to_string(order->side) << ' ' << order->price
                    << 'x' << order->quantity << ']';
         }
@@ -312,8 +342,8 @@ std::string OrderBook::snapshot() const {
  */
 OrderBook::DebugSnapshot OrderBook::debug_snapshot() const {
     DebugSnapshot snapshot;
-    snapshot.bids.reserve(bids_.size());
-    snapshot.asks.reserve(asks_.size());
+    snapshot.bids.reserve(level_count(Side::Buy));
+    snapshot.asks.reserve(level_count(Side::Sell));
     snapshot.indexed_order_ids.reserve(orders_by_id_.size());
 
     for (const auto& [order_id, _] : orders_by_id_) {
@@ -321,10 +351,11 @@ OrderBook::DebugSnapshot OrderBook::debug_snapshot() const {
         snapshot.indexed_order_ids.insert(order_id);
     }
 
-    for (const auto& [price, source_level] : bids_) {
-        DebugPriceLevel level{.price = price, .total_volume = source_level.total_volume};
+    for (const auto source_level : ordered_levels(Side::Buy)) {
+        DebugPriceLevel level{.price = source_level.price,
+                              .total_volume = source_level.queue->total_volume};
 
-        for (const Order* order = source_level.head; order != nullptr; order = order->next) {
+        for (const Order* order = source_level.queue->head; order != nullptr; order = order->next) {
             // Copy only stable logical fields so tests cannot mutate intrusive links.
             level.orders.push_back(DebugOrder{.id = order->id,
                                               .side = order->side,
@@ -335,10 +366,11 @@ OrderBook::DebugSnapshot OrderBook::debug_snapshot() const {
         snapshot.bids.push_back(std::move(level));
     }
 
-    for (const auto& [price, source_level] : asks_) {
-        DebugPriceLevel level{.price = price, .total_volume = source_level.total_volume};
+    for (const auto source_level : ordered_levels(Side::Sell)) {
+        DebugPriceLevel level{.price = source_level.price,
+                              .total_volume = source_level.queue->total_volume};
 
-        for (const Order* order = source_level.head; order != nullptr; order = order->next) {
+        for (const Order* order = source_level.queue->head; order != nullptr; order = order->next) {
             // Copy only stable logical fields so tests cannot mutate intrusive links.
             level.orders.push_back(DebugOrder{.id = order->id,
                                               .side = order->side,
@@ -372,10 +404,10 @@ void OrderBook::configure_order_id_lookup() noexcept {
 }
 
 /**
- * @brief Stores ladder metadata without changing the active price-level containers.
+ * @brief Stores ladder metadata for vector-backed price levels.
  */
 void OrderBook::configure_ladder_metadata(PriceTick base_tick, PriceTick tick_range) noexcept {
-    // Ladder mode is only a configuration marker until vector-backed levels are implemented.
+    // The bounds are derived once so ladder helpers can validate and index in constant time.
     price_level_mode_ = PriceLevelMode::Ladder;
     base_tick_ = base_tick;
     tick_range_ = tick_range;
@@ -388,13 +420,15 @@ void OrderBook::configure_ladder_metadata(PriceTick base_tick, PriceTick tick_ra
  */
 void OrderBook::add_resting_order(const Order& order) {
     Order* stored_order = order_pool_.create(order);
-    if (order.side == Side::Buy) {
-        auto& level = bids_[order.price];
-        level.push_back(stored_order);
-    } else {
-        auto& level = asks_[order.price];
-        level.push_back(stored_order);
+    OrderQueue* level = get_or_create_level(order.side, order.price);
+    if (level == nullptr) {
+        // Validation should reject out-of-range ladder orders before storage is touched.
+        order_pool_.release(stored_order);
+        return;
     }
+
+    // Appending to the level preserves FIFO priority behind older same-price orders.
+    level->push_back(stored_order);
 
     orders_by_id_.emplace(stored_order->id, stored_order);
 }
@@ -418,22 +452,11 @@ void OrderBook::remove_resting_order(Order* order) {
     const auto side = order->side;
     const auto price = order->price;
 
-    if (side == Side::Buy) {
-        auto level = bids_.find(price);
-        if (level != bids_.end()) {
-            level->second.remove(order);
-            if (level->second.empty()) {
-                bids_.erase(level);
-            }
-        }
-    } else {
-        auto level = asks_.find(price);
-        if (level != asks_.end()) {
-            level->second.remove(order);
-            if (level->second.empty()) {
-                asks_.erase(level);
-            }
-        }
+    OrderQueue* level = find_level(side, price);
+    if (level != nullptr) {
+        // Remove the intrusive node, then drop the price level if it lost its final order.
+        level->remove(order);
+        erase_level_if_empty(side, price);
     }
 
     orders_by_id_.erase(order->id);
@@ -443,7 +466,9 @@ void OrderBook::remove_resting_order(Order* order) {
 /**
  * @brief Resets incoming order links and rejects duplicate live ids.
  */
-bool OrderBook::prepare_incoming_order(Order& order, std::vector<Event>& out) const {
+bool OrderBook::prepare_incoming_order(Order& order,
+                                       std::vector<Event>& out,
+                                       bool validate_limit_price) const {
     out.clear();
 
     order.prev = nullptr;
@@ -454,6 +479,11 @@ bool OrderBook::prepare_incoming_order(Order& order, std::vector<Event>& out) co
         return false;
     }
 
+    if (validate_limit_price && !price_in_range(order.price)) {
+        out.push_back(RejectedEvent{.reason = RejectReason::InvalidOrder, .order_id = order.id});
+        return false;
+    }
+
     return true;
 }
 
@@ -461,35 +491,8 @@ bool OrderBook::prepare_incoming_order(Order& order, std::vector<Event>& out) co
  * @brief Checks whether crossing liquidity can completely fill an order.
  */
 bool OrderBook::can_fully_fill(const Order& order) const {
-    std::uint64_t remaining = order.quantity;
-
-    if (order.side == Side::Buy) {
-        for (const auto& [price, level] : asks_) {
-            if (price > order.price) {
-                break;
-            }
-
-            // aggregate level volume avoids scanning FIFO orders during fok preflight.
-            if (level.total_volume >= remaining) {
-                return true;
-            }
-            remaining -= level.total_volume;
-        }
-    } else {
-        for (const auto& [price, level] : bids_) {
-            if (price < order.price) {
-                break;
-            }
-
-            // aggregate level volume avoids scanning FIFO orders during fok preflight.
-            if (level.total_volume >= remaining) {
-                return true;
-            }
-            remaining -= level.total_volume;
-        }
-    }
-
-    return false;
+    // The helper owns side ordering so the preflight stays independent of map layout.
+    return has_crossing_liquidity(order);
 }
 
 /**
@@ -511,8 +514,7 @@ void OrderBook::execute_incoming_order(Order order, std::vector<Event>& out) {
  * @brief Clears all price levels, indexes, and arena storage.
  */
 void OrderBook::clear() noexcept {
-    bids_.clear();
-    asks_.clear();
+    clear_price_levels();
     orders_by_id_.clear();
 
     order_pool_.clear();
@@ -529,23 +531,41 @@ void OrderBook::copy_from(const OrderBook& other) {
     min_tick_ = other.min_tick_;
     max_tick_ = other.max_tick_;
 
+    if (price_level_mode_ == PriceLevelMode::Ladder) {
+        // Recreate empty ladder vectors before replaying live levels into their slots.
+        bids_ = LadderLevels(other.ladder_size());
+        asks_ = LadderLevels(other.ladder_size());
+    } else {
+        // Tree copies start from empty maps so erased source levels are not retained.
+        bids_ = TreeLevels{};
+        asks_ = TreeLevels{};
+    }
+
     configure_order_id_lookup();
     reserve_order_capacity(other.orders_by_id_.size());
 
-    for (const auto& [price, source_level] : other.bids_) {
-        auto& target_level = bids_[price];
-        for (const Order* source = source_level.head; source != nullptr; source = source->next) {
+    for (const auto source_level : other.ordered_levels(Side::Buy)) {
+        OrderQueue* target_level = get_or_create_level(Side::Buy, source_level.price);
+        if (target_level == nullptr) {
+            continue;
+        }
+        for (const Order* source = source_level.queue->head; source != nullptr;
+             source = source->next) {
             Order* clone = order_pool_.create(*source);
-            target_level.push_back(clone);
+            target_level->push_back(clone);
             orders_by_id_.emplace(clone->id, clone);
         }
     }
 
-    for (const auto& [price, source_level] : other.asks_) {
-        auto& target_level = asks_[price];
-        for (const Order* source = source_level.head; source != nullptr; source = source->next) {
+    for (const auto source_level : other.ordered_levels(Side::Sell)) {
+        OrderQueue* target_level = get_or_create_level(Side::Sell, source_level.price);
+        if (target_level == nullptr) {
+            continue;
+        }
+        for (const Order* source = source_level.queue->head; source != nullptr;
+             source = source->next) {
             Order* clone = order_pool_.create(*source);
-            target_level.push_back(clone);
+            target_level->push_back(clone);
             orders_by_id_.emplace(clone->id, clone);
         }
     }
@@ -558,13 +578,13 @@ void OrderBook::copy_from(const OrderBook& other) {
  * to back preserves FIFO price-time priority.
  */
 void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& out) {
-    while (incoming.quantity > 0 && !asks_.empty()) {
-        auto best_ask = asks_.begin();
-        if (best_ask->first > incoming.price) {
+    while (incoming.quantity > 0 && !levels_empty(Side::Sell)) {
+        const auto best_ask = best_level(Side::Sell);
+        if (!best_ask.has_value() || best_ask->price > incoming.price) {
             break;
         }
 
-        auto& resting_orders = best_ask->second;
+        auto& resting_orders = *best_ask->queue;
         Order* resting = resting_orders.front();
         const auto trade_quantity = std::min(incoming.quantity, resting->quantity);
 
@@ -586,7 +606,7 @@ void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& out) {
         }
 
         if (resting_orders.empty()) {
-            asks_.erase(best_ask);
+            erase_level(Side::Sell, best_ask->price);
         }
     }
 }
@@ -594,16 +614,16 @@ void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& out) {
 /**
  * @brief Consumes resting bids while their price is at or above the sell limit.
  *
- * Bids are sorted descending, so begin() is always the highest-priced bid.
+ * The best-level helper selects the highest bid while storage remains ascending.
  */
 void OrderBook::match_sell_order(Order& incoming, std::vector<Event>& out) {
-    while (incoming.quantity > 0 && !bids_.empty()) {
-        auto best_bid = bids_.begin();
-        if (best_bid->first < incoming.price) {
+    while (incoming.quantity > 0 && !levels_empty(Side::Buy)) {
+        const auto best_bid = best_level(Side::Buy);
+        if (!best_bid.has_value() || best_bid->price < incoming.price) {
             break;
         }
 
-        auto& resting_orders = best_bid->second;
+        auto& resting_orders = *best_bid->queue;
         Order* resting = resting_orders.front();
         const auto trade_quantity = std::min(incoming.quantity, resting->quantity);
 
@@ -625,7 +645,7 @@ void OrderBook::match_sell_order(Order& incoming, std::vector<Event>& out) {
         }
 
         if (resting_orders.empty()) {
-            bids_.erase(best_bid);
+            erase_level(Side::Buy, best_bid->price);
         }
     }
 }

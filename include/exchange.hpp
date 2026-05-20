@@ -51,7 +51,7 @@ public:
     [[nodiscard]] bool add_symbol(const std::string& symbol, PriceLevelMode price_level_mode);
 
     /**
-     * @brief Registers a symbol prepared for future ladder-backed price storage.
+     * @brief Registers a symbol with vector-backed ladder price storage.
      *
      * @param symbol Symbol to create.
      * @param base_tick Center tick used to derive ladder metadata.

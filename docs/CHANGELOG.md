@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## v0.7.0 - Comparative Benchmark suite (RB Tree vs B Tree vs Price Ladder)
+
+- Added a semantic price-level helper layer around `OrderBook` so tree-backed
+  and ladder-backed storage can be compared without changing matching behavior.
+- Added vector-backed price ladder support behind the existing `PriceLevelMode`
+  path, including fixed ladder metadata, range validation, and parity coverage
+  for submit, match, cancel, modify, snapshot, copy, and exchange routing.
+- Added Abseil integration for the ordered TreeLevels backend: CMake now tries
+  `find_package(absl CONFIG QUIET)` first and falls back to fetching
+  `abseil-cpp`; `TreeLevels` now aliases `absl::btree_map<PriceTick,
+  OrderQueue>`.
+- Audited the tree helper path for `std::map`-specific assumptions before the
+  B-tree swap. No `TreeLevels` iterators, references, or `OrderQueue*` values
+  are retained across `bids_`/`asks_` insert or erase operations.
+- Preserved existing public parser behavior and matching semantics; no new
+  matching features were added as part of the storage comparison.
+- Ran the focused EC2 benchmark comparison for `deep_sparse_gtc_mixed`,
+  `best_level_churn`, `level_create_delete_churn`, and `true_mixed` using
+  Release `-O3 -DNDEBUG`, five pinned repetitions, and the existing
+  `BENCHMARK_TARGETS` runner flow.
+- Recorded the `std::map` vs `absl::btree_map` results in
+  `docs/bid_ask_comparison.md`, `BENCHMARKS.md`, and
+  `docs/benchmark_history.md`: B-tree improved the 50,000-level deep sparse GTC
+  workload by roughly 54-96%, while true mixed and best-level churn regressed
+  slightly and level create/delete churn regressed by roughly 19-20%.
+- Confirmed correctness on the EC2 Release run before benchmarking with
+  141/141 CTest cases passing.
+- Kept EC2 source transfer clean by excluding `.git`, build directories,
+  `.DS_Store`, and macOS `._*` sidecar files before extraction.
+
 ## v0.6.6 - Best Level Churn + Level create/delete churn
 
 - Added `best_level_churn_benchmark` for direct `OrderBook` top-of-book churn: best-level cancels, one-tick inside-improving submits, marketable taker flow, and occasional modifies.

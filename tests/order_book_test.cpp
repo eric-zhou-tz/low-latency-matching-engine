@@ -153,6 +153,106 @@ TEST(OrderBookTest, ReservedLadderConstructorStoresMetadataAndComputesBounds) {
     EXPECT_EQ(book.tick_range(), 5000);
     EXPECT_EQ(book.min_tick(), 13500);
     EXPECT_EQ(book.max_tick(), 23500);
+    EXPECT_EQ(book.ladder_size(), 10001U);
+}
+
+TEST(OrderBookTest, LadderIndexingUsesMinTickAsZeroSlot) {
+    OrderBook book{128, PriceTick{100}, PriceTick{2}};
+    std::vector<Event> events;
+
+    book.submit(make_order(1, Side::Buy, 98, 10), events);
+    ASSERT_EQ(events.size(), 1U);
+    expect_accepted(events.front());
+    book.submit(make_order(2, Side::Sell, 102, 12), events);
+    ASSERT_EQ(events.size(), 1U);
+    expect_accepted(events.front());
+
+    const auto snapshot = book.debug_snapshot();
+    ASSERT_EQ(snapshot.bids.size(), 1U);
+    ASSERT_EQ(snapshot.asks.size(), 1U);
+    EXPECT_EQ(snapshot.bids.front().price, 98);
+    EXPECT_EQ(snapshot.asks.front().price, 102);
+}
+
+TEST(OrderBookTest, LadderRejectsOutOfRangeLimitPriceSafely) {
+    OrderBook book{128, PriceTick{100}, PriceTick{2}};
+    std::vector<Event> events;
+
+    book.submit(make_order(1, Side::Buy, 103, 10), events);
+
+    ASSERT_EQ(events.size(), 1U);
+    expect_rejected(events.front(), RejectReason::InvalidOrder, 1);
+    EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
+}
+
+TEST(OrderBookTest, LadderPreservesPriceTimePriorityAtSamePrice) {
+    OrderBook book{128, PriceTick{100}, PriceTick{10}};
+    submit_accepted(book, make_order(10, Side::Sell, 100, 5));
+    submit_accepted(book, make_order(11, Side::Sell, 100, 5));
+    std::vector<Event> events;
+
+    book.submit(make_order(12, Side::Buy, 100, 7), events);
+
+    ASSERT_EQ(events.size(), 3U);
+    expect_accepted(events.front());
+    expect_trade(events[1], 10, 12, 100, 5);
+    expect_trade(events[2], 11, 12, 100, 2);
+    EXPECT_NE(book.snapshot().find("[11 SELL 100x3]"), std::string::npos);
+}
+
+TEST(OrderBookTest, LadderMatchesBestAskAndBestBid) {
+    OrderBook book{128, PriceTick{100}, PriceTick{10}};
+    submit_accepted(book, make_order(20, Side::Sell, 105, 3));
+    submit_accepted(book, make_order(21, Side::Sell, 103, 4));
+    std::vector<Event> events;
+
+    book.submit(make_order(22, Side::Buy, 110, 4), events);
+
+    ASSERT_EQ(events.size(), 2U);
+    expect_trade(events[1], 21, 22, 103, 4);
+    submit_accepted(book, make_order(23, Side::Buy, 99, 6));
+    submit_accepted(book, make_order(24, Side::Buy, 101, 7));
+
+    book.submit(make_order(25, Side::Sell, 90, 7), events);
+
+    ASSERT_EQ(events.size(), 2U);
+    expect_trade(events[1], 24, 25, 101, 7);
+}
+
+TEST(OrderBookTest, LadderCancelsAndRemovesEmptyPriceLevel) {
+    OrderBook book{128, PriceTick{100}, PriceTick{10}};
+    submit_accepted(book, make_order(30, Side::Buy, 99, 6));
+
+    const auto cancel_result = book.cancel(30);
+
+    expect_canceled(cancel_result, 30);
+    const auto snapshot = book.debug_snapshot();
+    EXPECT_TRUE(snapshot.bids.empty());
+    EXPECT_NE(book.snapshot().find("orders=0"), std::string::npos);
+}
+
+TEST(OrderBookTest, LadderModifiesRestingOrdersAndRejectsOutOfRangeReplace) {
+    OrderBook book{128, PriceTick{100}, PriceTick{10}};
+    submit_accepted(book, make_order(40, Side::Buy, 99, 10));
+    std::vector<Event> events;
+
+    book.modify(40, 99, 4, events);
+
+    ASSERT_EQ(events.size(), 1U);
+    expect_modified(events.front(), 40, 99, 99, 10, 4);
+    EXPECT_NE(book.snapshot().find("[40 BUY 99x4]"), std::string::npos);
+
+    book.modify(40, 111, 5, events);
+
+    ASSERT_EQ(events.size(), 1U);
+    expect_rejected(events.front(), RejectReason::InvalidOrder, 40);
+    EXPECT_NE(book.snapshot().find("[40 BUY 99x4]"), std::string::npos);
+
+    book.modify(40, 98, 5, events);
+
+    ASSERT_EQ(events.size(), 1U);
+    expect_replaced(events.front(), 40, 99, 98, 4, 5);
+    EXPECT_NE(book.snapshot().find("[40 BUY 98x5]"), std::string::npos);
 }
 
 TEST(OrderBookTest, AcceptedOrderRestsOnBookWhenNotCrossing) {

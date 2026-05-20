@@ -261,7 +261,7 @@ TEST(ExchangeTest, SubmitAfterAddSymbolWorks) {
     expect_accepted(events);
 }
 
-TEST(ExchangeTest, AddSymbolLadderStillUsesCurrentMatchingBehavior) {
+TEST(ExchangeTest, AddSymbolLadderThenSubmitWorks) {
     Exchange exchange;
     std::vector<Event> events;
     exchange.process(Action{AddSymbolAction{.symbol = "AAPL",
@@ -271,13 +271,30 @@ TEST(ExchangeTest, AddSymbolLadderStillUsesCurrentMatchingBehavior) {
                      events);
     EXPECT_TRUE(events.empty());
 
-    submit(exchange, make_submit(1, "AAPL", Side::Sell, 100, 5), events);
+    submit(exchange, make_submit(1, "AAPL", Side::Sell, 18500, 5), events);
     expect_accepted(events);
-    submit(exchange, make_submit(2, "AAPL", Side::Buy, 100, 5), events);
+    submit(exchange, make_submit(2, "AAPL", Side::Buy, 18500, 5), events);
 
     ASSERT_EQ(events.size(), 2U);
     expect_accepted(events);
-    expect_trade(events[1], 1, 2, 100, 5);
+    expect_trade(events[1], 1, 2, 18500, 5);
+}
+
+TEST(ExchangeTest, LadderSubmitOutsideRangeRejectsWithoutCreatingRoute) {
+    Exchange exchange;
+    std::vector<Event> events;
+    exchange.process(Action{AddSymbolAction{.symbol = "AAPL",
+                                            .price_level_mode = PriceLevelMode::Ladder,
+                                            .base_tick = 100,
+                                            .tick_range = 2}},
+                     events);
+    EXPECT_TRUE(events.empty());
+
+    submit(exchange, make_submit(1, "AAPL", Side::Buy, 103, 5), events);
+
+    expect_rejected(events, "invalid order 1");
+    cancel(exchange, 1, events);
+    expect_rejected(events, "unknown order id 1");
 }
 
 TEST(ExchangeTest, CancelRoutesDirectlyToOwningSymbolBook) {

@@ -114,7 +114,7 @@ std::optional<Action> Parser::parse_line(const std::string& line) const {
         }
 
         if (price_level_type == "LADDER") {
-            // Ladder commands must carry explicit metadata, but matching still uses maps.
+            // Ladder commands must carry explicit metadata so the book can bound its vector.
             action.price_level_mode = PriceLevelMode::Ladder;
             if (!parse_ladder_fields(input, action)) {
                 return std::nullopt;
