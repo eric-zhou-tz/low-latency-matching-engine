@@ -12,6 +12,7 @@ namespace {
 
 using matching_engine::AcceptedEvent;
 using matching_engine::Action;
+using matching_engine::AddSymbolAction;
 using matching_engine::BookSnapshotEvent;
 using matching_engine::CancelOrderAction;
 using matching_engine::CanceledEvent;
@@ -21,6 +22,7 @@ using matching_engine::MarketOrderAction;
 using matching_engine::Order;
 using matching_engine::OrderBook;
 using matching_engine::PrintBookAction;
+using matching_engine::PriceLevelMode;
 using matching_engine::RejectedEvent;
 using matching_engine::RejectReason;
 using matching_engine::Side;
@@ -138,6 +140,17 @@ void submit_accepted(OrderBook& book, Order order) {
 void process(Exchange& exchange, Action action, std::vector<Event>& events) {
     // Reuse one buffer so every assertion reads only events from the latest action.
     exchange.process(action, events);
+}
+
+/**
+ * @brief Registers a tree-backed symbol for exchange regression setup.
+ */
+void add_symbol(Exchange& exchange, const std::string& symbol, std::vector<Event>& events) {
+    // Explicit symbol creation is required before order routing can reach a book.
+    process(exchange,
+            AddSymbolAction{.symbol = symbol, .price_level_mode = PriceLevelMode::Tree},
+            events);
+    ASSERT_TRUE(events.empty());
 }
 
 /**
@@ -285,6 +298,9 @@ TEST(ExchangeRegressionTest, MultiSymbolBooksStayIndependent) {
     // Seed two symbols, then mutate only AAPL through a trade and cancel.
     Exchange exchange;
     std::vector<Event> events;
+    add_symbol(exchange, "AAPL", events);
+    add_symbol(exchange, "MSFT", events);
+
     process(exchange, make_submit(1, "AAPL", Side::Sell, 100, 5), events);
     ASSERT_EQ(events.size(), 1U);
     expect_accepted(events.front(), 1);

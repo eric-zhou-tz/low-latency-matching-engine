@@ -41,7 +41,36 @@ public:
      */
     void process(const Action& action, std::vector<Event>& out);
 
+    /**
+     * @brief Registers a symbol with the current tree-backed book behavior.
+     *
+     * @param symbol Symbol to create.
+     * @param price_level_mode Storage mode metadata for the symbol.
+     * @return True when the symbol was created.
+     */
+    [[nodiscard]] bool add_symbol(const std::string& symbol, PriceLevelMode price_level_mode);
+
+    /**
+     * @brief Registers a symbol prepared for future ladder-backed price storage.
+     *
+     * @param symbol Symbol to create.
+     * @param base_tick Center tick used to derive ladder metadata.
+     * @param tick_range Distance from the center tick to each side of the window.
+     * @return True when the symbol was created.
+     */
+    [[nodiscard]] bool add_symbol(const std::string& symbol,
+                                  PriceTick base_tick,
+                                  PriceTick tick_range);
+
 private:
+    /**
+     * @brief Handles explicit symbol registration.
+     *
+     * @param action Symbol creation action to apply.
+     * @param out Caller-owned event buffer filled with emitted rejections.
+     */
+    void process_action(const AddSymbolAction& action, std::vector<Event>& out);
+
     /**
      * @brief Handles a new-order submission.
      *
@@ -83,12 +112,12 @@ private:
     void process_action(const PrintBookAction& action, std::vector<Event>& out) const;
 
     /**
-     * @brief Returns the existing book for a symbol or creates it.
+     * @brief Returns the existing book for a symbol.
      *
      * @param symbol Symbol whose book should receive an action.
-     * @return Stable pointer to the owned book.
+     * @return Stable pointer to the owned book, or nullptr when unregistered.
      */
-    [[nodiscard]] OrderBook* get_or_create_book(const std::string& symbol);
+    [[nodiscard]] OrderBook* find_book(const std::string& symbol) const;
 
     /**
      * @brief Removes filled resting orders from the exchange-level live index.

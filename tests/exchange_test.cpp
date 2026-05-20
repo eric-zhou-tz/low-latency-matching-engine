@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
+#include <initializer_list>
 #include <sstream>
 #include <string>
 #include <variant>
@@ -13,6 +14,7 @@ namespace {
 
 using matching_engine::AcceptedEvent;
 using matching_engine::Action;
+using matching_engine::AddSymbolAction;
 using matching_engine::BookSnapshotEvent;
 using matching_engine::CancelOrderAction;
 using matching_engine::CanceledEvent;
@@ -22,7 +24,9 @@ using matching_engine::MarketOrderAction;
 using matching_engine::ModifyOrderAction;
 using matching_engine::ModifiedEvent;
 using matching_engine::PrintBookAction;
+using matching_engine::PriceLevelMode;
 using matching_engine::RejectedEvent;
+using matching_engine::RejectReason;
 using matching_engine::ReplacedEvent;
 using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
@@ -68,6 +72,31 @@ void submit(Exchange& exchange, SubmitOrderAction action, std::vector<Event>& ou
  */
 void submit_market(Exchange& exchange, MarketOrderAction action, std::vector<Event>& out) {
     exchange.process(Action{std::move(action)}, out);
+}
+
+/**
+ * @brief Registers a tree-backed symbol through the public exchange action path.
+ */
+void add_symbol(Exchange& exchange, const std::string& symbol, std::vector<Event>& out) {
+    exchange.process(Action{AddSymbolAction{.symbol = symbol,
+                                            .price_level_mode = PriceLevelMode::Tree}},
+                     out);
+}
+
+/**
+ * @brief Builds an exchange with the requested tree-backed symbols already registered.
+ */
+[[nodiscard]] Exchange make_exchange_with_symbols(std::initializer_list<std::string> symbols) {
+    Exchange exchange;
+    std::vector<Event> events;
+
+    for (const auto& symbol : symbols) {
+        // Tests that focus on order flow start from explicit symbol registration.
+        add_symbol(exchange, symbol, events);
+        EXPECT_TRUE(events.empty());
+    }
+
+    return exchange;
 }
 
 /**
@@ -193,8 +222,66 @@ void expect_script_output(const std::string& script, const std::string& expected
 
 } // namespace
 
-TEST(ExchangeTest, CancelRoutesDirectlyToOwningSymbolBook) {
+TEST(ExchangeTest, DuplicateAddSymbolIsRejected) {
     Exchange exchange;
+    std::vector<Event> events;
+    add_symbol(exchange, "AAPL", events);
+    EXPECT_TRUE(events.empty());
+
+    add_symbol(exchange, "AAPL", events);
+
+    ASSERT_EQ(events.size(), 1U);
+    ASSERT_TRUE(std::holds_alternative<RejectedEvent>(events.front()));
+    const auto& rejected = std::get<RejectedEvent>(events.front());
+    EXPECT_EQ(rejected.reason, RejectReason::DuplicateSymbol);
+    EXPECT_EQ(rejected.order_id, 0U);
+}
+
+TEST(ExchangeTest, SubmitBeforeAddSymbolIsRejected) {
+    Exchange exchange;
+    std::vector<Event> events;
+
+    submit(exchange, make_submit(1, "AAPL", Side::Buy, 100, 10), events);
+
+    ASSERT_EQ(events.size(), 1U);
+    ASSERT_TRUE(std::holds_alternative<RejectedEvent>(events.front()));
+    const auto& rejected = std::get<RejectedEvent>(events.front());
+    EXPECT_EQ(rejected.reason, RejectReason::UnknownSymbol);
+    EXPECT_EQ(rejected.order_id, 1U);
+}
+
+TEST(ExchangeTest, SubmitAfterAddSymbolWorks) {
+    Exchange exchange;
+    std::vector<Event> events;
+    add_symbol(exchange, "AAPL", events);
+    EXPECT_TRUE(events.empty());
+
+    submit(exchange, make_submit(1, "AAPL", Side::Buy, 100, 10), events);
+
+    expect_accepted(events);
+}
+
+TEST(ExchangeTest, AddSymbolLadderStillUsesCurrentMatchingBehavior) {
+    Exchange exchange;
+    std::vector<Event> events;
+    exchange.process(Action{AddSymbolAction{.symbol = "AAPL",
+                                            .price_level_mode = PriceLevelMode::Ladder,
+                                            .base_tick = 18500,
+                                            .tick_range = 5000}},
+                     events);
+    EXPECT_TRUE(events.empty());
+
+    submit(exchange, make_submit(1, "AAPL", Side::Sell, 100, 5), events);
+    expect_accepted(events);
+    submit(exchange, make_submit(2, "AAPL", Side::Buy, 100, 5), events);
+
+    ASSERT_EQ(events.size(), 2U);
+    expect_accepted(events);
+    expect_trade(events[1], 1, 2, 100, 5);
+}
+
+TEST(ExchangeTest, CancelRoutesDirectlyToOwningSymbolBook) {
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(1, "AAPL", Side::Buy, 100, 10), events);
     expect_accepted(events);
@@ -209,7 +296,7 @@ TEST(ExchangeTest, CancelRoutesDirectlyToOwningSymbolBook) {
 }
 
 TEST(ExchangeTest, DuplicateOrderIdAcrossSymbolsIsRejectedUntilOriginalLeavesIndex) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(1, "AAPL", Side::Buy, 100, 10), events);
     expect_accepted(events);
@@ -226,7 +313,7 @@ TEST(ExchangeTest, DuplicateOrderIdAcrossSymbolsIsRejectedUntilOriginalLeavesInd
 }
 
 TEST(ExchangeTest, MarketOrderDuplicateIdIsRejectedAgainstRestingOrder) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(2, "AAPL", Side::Buy, 100, 10), events);
     expect_accepted(events);
@@ -246,7 +333,7 @@ TEST(ExchangeTest, UnknownCancelStillReturnsRejectedEvent) {
 }
 
 TEST(ExchangeTest, CancelRemovesOrderFromExchangeIndex) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(10, "AAPL", Side::Sell, 105, 7), events);
     expect_accepted(events);
@@ -259,7 +346,7 @@ TEST(ExchangeTest, CancelRemovesOrderFromExchangeIndex) {
 }
 
 TEST(ExchangeTest, SameOrderIdCannotBeCanceledTwiceSuccessfully) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
     submit(exchange, make_submit(11, "AAPL", Side::Buy, 101, 4), events);
     expect_accepted(events);
@@ -272,7 +359,7 @@ TEST(ExchangeTest, SameOrderIdCannotBeCanceledTwiceSuccessfully) {
 }
 
 TEST(ExchangeTest, MultiSymbolCancelDoesNotInvalidateUnrelatedBook) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(20, "AAPL", Side::Sell, 110, 5), events);
     expect_accepted(events);
@@ -287,7 +374,7 @@ TEST(ExchangeTest, MultiSymbolCancelDoesNotInvalidateUnrelatedBook) {
 }
 
 TEST(ExchangeTest, CrossSymbolOrdersDoNotMatchOrAffectEachOther) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(22, "AAPL", Side::Sell, 100, 5), events);
     expect_accepted(events);
@@ -304,7 +391,7 @@ TEST(ExchangeTest, CrossSymbolOrdersDoNotMatchOrAffectEachOther) {
 }
 
 TEST(ExchangeTest, FilledRestingOrdersLeaveExchangeIndex) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(30, "AAPL", Side::Sell, 100, 5), events);
     expect_accepted(events);
@@ -322,7 +409,7 @@ TEST(ExchangeTest, FilledRestingOrdersLeaveExchangeIndex) {
 }
 
 TEST(ExchangeTest, PartialRestingFillKeepsRemainingOrderIndexed) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
     submit(exchange, make_submit(32, "AAPL", Side::Sell, 100, 7), events);
     expect_accepted(events);
@@ -338,7 +425,7 @@ TEST(ExchangeTest, PartialRestingFillKeepsRemainingOrderIndexed) {
 }
 
 TEST(ExchangeTest, IocRemainderDoesNotEnterCancelIndex) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange,
            make_submit(40, "AAPL", Side::Buy, 100, 5, TimeInForce::ImmediateOrCancel),
@@ -353,7 +440,7 @@ TEST(ExchangeTest, IocRemainderDoesNotEnterCancelIndex) {
 }
 
 TEST(ExchangeTest, FokRejectDoesNotEnterCancelIndex) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
     submit(exchange, make_submit(41, "AAPL", Side::Sell, 100, 3), events);
     expect_accepted(events);
@@ -366,7 +453,7 @@ TEST(ExchangeTest, FokRejectDoesNotEnterCancelIndex) {
 }
 
 TEST(ExchangeTest, MarketOrderTradesAndDoesNotEnterCancelIndex) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
     submit(exchange, make_submit(50, "AAPL", Side::Sell, 100, 3), events);
     expect_accepted(events);
@@ -386,7 +473,7 @@ TEST(ExchangeTest, MarketOrderTradesAndDoesNotEnterCancelIndex) {
 }
 
 TEST(ExchangeTest, IocOrderTradesAndDoesNotRestRemainder) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(60, "AAPL", Side::Sell, 100, 3), events);
     expect_accepted(events);
@@ -406,7 +493,7 @@ TEST(ExchangeTest, IocOrderTradesAndDoesNotRestRemainder) {
 }
 
 TEST(ExchangeTest, FullyFilledIocOrderRemovesRestingIndexAndDoesNotIndexIncoming) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
     submit(exchange, make_submit(62, "AAPL", Side::Sell, 100, 3), events);
     expect_accepted(events);
@@ -426,7 +513,7 @@ TEST(ExchangeTest, FullyFilledIocOrderRemovesRestingIndexAndDoesNotIndexIncoming
 }
 
 TEST(ExchangeTest, ModifyReductionKeepsExchangeIndexCancelable) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
     submit(exchange, make_submit(70, "AAPL", Side::Buy, 100, 10), events);
     expect_accepted(events);
@@ -439,7 +526,7 @@ TEST(ExchangeTest, ModifyReductionKeepsExchangeIndexCancelable) {
 }
 
 TEST(ExchangeTest, ReplacementModifyKeepsIndexWhenRemainderRests) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
     submit(exchange, make_submit(80, "AAPL", Side::Buy, 100, 5), events);
     expect_accepted(events);
@@ -452,7 +539,7 @@ TEST(ExchangeTest, ReplacementModifyKeepsIndexWhenRemainderRests) {
 }
 
 TEST(ExchangeTest, ReplacementModifyFullyExecutedLeavesNoIndex) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(90, "AAPL", Side::Sell, 99, 4), events);
     expect_accepted(events);
@@ -471,7 +558,7 @@ TEST(ExchangeTest, ReplacementModifyFullyExecutedLeavesNoIndex) {
 }
 
 TEST(ExchangeTest, ReplacementModifyEmitsReplaceBeforeTradesInPriceTimeOrder) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
     submit(exchange, make_submit(92, "AAPL", Side::Sell, 99, 2), events);
     expect_accepted(events);
@@ -492,7 +579,7 @@ TEST(ExchangeTest, ReplacementModifyEmitsReplaceBeforeTradesInPriceTimeOrder) {
 }
 
 TEST(ExchangeTest, ModifyUnknownAndNonRestingOrdersReject) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
 
     modify(exchange, 404, 100, 5, events);
@@ -507,7 +594,7 @@ TEST(ExchangeTest, ModifyUnknownAndNonRestingOrdersReject) {
 }
 
 TEST(ExchangeTest, ReplacementModifyDoesNotEmitCancelAcceptPair) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL"});
     std::vector<Event> events;
     submit(exchange, make_submit(110, "AAPL", Side::Buy, 100, 5), events);
     expect_accepted(events);
@@ -533,7 +620,7 @@ TEST(ExchangeTest, PrintEmptyExchangeEmitsSingleEmptySnapshot) {
 }
 
 TEST(ExchangeTest, PrintBookReportsEachSymbolWithoutCrossContamination) {
-    Exchange exchange;
+    Exchange exchange = make_exchange_with_symbols({"AAPL", "MSFT"});
     std::vector<Event> events;
     submit(exchange, make_submit(120, "AAPL", Side::Buy, 100, 4), events);
     expect_accepted(events);
@@ -554,7 +641,8 @@ TEST(ExchangeTest, PrintBookReportsEachSymbolWithoutCrossContamination) {
 }
 
 TEST(IntegrationTest, BasicSubmitAndPrint) {
-    expect_script_output(R"(SUBMIT 1 AAPL BUY 100 10
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 1 AAPL BUY 100 10
 PRINT
 )",
                          R"(ACCEPTED accepted order 1
@@ -563,7 +651,8 @@ book AAPL: orders=1 [1 BUY 100x10]
 }
 
 TEST(IntegrationTest, CrossingBuySellProducesTrades) {
-    expect_script_output(R"(SUBMIT 10 AAPL SELL 100 5
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 10 AAPL SELL 100 5
 SUBMIT 11 AAPL BUY 100 5
 PRINT
 )",
@@ -575,7 +664,8 @@ book AAPL: orders=0
 }
 
 TEST(IntegrationTest, PartialFillLeavesRemainderResting) {
-    expect_script_output(R"(SUBMIT 20 AAPL SELL 100 5
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 20 AAPL SELL 100 5
 SUBMIT 21 AAPL BUY 101 8
 PRINT
 )",
@@ -587,7 +677,8 @@ book AAPL: orders=1 [21 BUY 101x3]
 }
 
 TEST(IntegrationTest, CancelExistingOrder) {
-    expect_script_output(R"(SUBMIT 30 AAPL BUY 99 4
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 30 AAPL BUY 99 4
 CANCEL 30
 PRINT
 )",
@@ -605,7 +696,8 @@ TEST(IntegrationTest, CancelUnknownOrderRejects) {
 }
 
 TEST(IntegrationTest, DuplicateOrderIdRejects) {
-    expect_script_output(R"(SUBMIT 40 AAPL BUY 100 10
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 40 AAPL BUY 100 10
 SUBMIT 40 AAPL SELL 101 2
 PRINT
 )",
@@ -616,7 +708,8 @@ book AAPL: orders=1 [40 BUY 100x10]
 }
 
 TEST(IntegrationTest, ModifyExistingOrder) {
-    expect_script_output(R"(SUBMIT 50 AAPL BUY 100 10
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 50 AAPL BUY 100 10
 MODIFY 50 100 6
 PRINT
 )",
@@ -634,7 +727,8 @@ TEST(IntegrationTest, ModifyUnknownOrderRejects) {
 }
 
 TEST(IntegrationTest, MarketOrderFullFill) {
-    expect_script_output(R"(SUBMIT 60 AAPL SELL 100 4
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 60 AAPL SELL 100 4
 MARKET 61 AAPL BUY 4
 PRINT
 )",
@@ -646,7 +740,8 @@ book AAPL: orders=0
 }
 
 TEST(IntegrationTest, MarketOrderInsufficientLiquidityRejectsRemainder) {
-    expect_script_output(R"(SUBMIT 70 AAPL SELL 100 3
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 70 AAPL SELL 100 3
 MARKET 71 AAPL BUY 5
 PRINT
 )",
@@ -659,7 +754,8 @@ book AAPL: orders=0
 }
 
 TEST(IntegrationTest, IocPartialFillCancelsRemainder) {
-    expect_script_output(R"(SUBMIT 80 AAPL SELL 100 3
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 80 AAPL SELL 100 3
 SUBMIT 81 AAPL BUY 100 5 IOC
 PRINT
 )",
@@ -671,7 +767,8 @@ book AAPL: orders=0
 }
 
 TEST(IntegrationTest, FokFullFillSucceeds) {
-    expect_script_output(R"(SUBMIT 90 AAPL SELL 100 2
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 90 AAPL SELL 100 2
 SUBMIT 91 AAPL SELL 101 3
 SUBMIT 92 AAPL BUY 101 5 FOK
 PRINT
@@ -686,7 +783,8 @@ book AAPL: orders=0
 }
 
 TEST(IntegrationTest, FokRejectDoesNotMutateBook) {
-    expect_script_output(R"(SUBMIT 100 AAPL SELL 100 2
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+SUBMIT 100 AAPL SELL 100 2
 SUBMIT 101 AAPL BUY 100 3 FOK
 PRINT
 )",
@@ -697,7 +795,9 @@ book AAPL: orders=1 [100 SELL 100x2]
 }
 
 TEST(IntegrationTest, MultiSymbolRoutingKeepsBooksIndependent) {
-    expect_script_output(R"(SUBMIT 110 AAPL BUY 100 5
+    expect_script_output(R"(ADD_SYMBOL AAPL TREE
+ADD_SYMBOL MSFT TREE
+SUBMIT 110 AAPL BUY 100 5
 SUBMIT 111 MSFT SELL 200 7
 SUBMIT 112 AAPL SELL 100 2
 PRINT
@@ -712,7 +812,9 @@ book MSFT: orders=1 [111 SELL 200x7]
 }
 
 TEST(IntegrationTest, DeterministicReplayProducesIdenticalOutput) {
-    const std::string script = R"(SUBMIT 120 AAPL BUY 100 5
+    const std::string script = R"(ADD_SYMBOL AAPL TREE
+ADD_SYMBOL MSFT TREE
+SUBMIT 120 AAPL BUY 100 5
 SUBMIT 121 AAPL SELL 99 2
 SUBMIT 122 MSFT BUY 50 1
 PRINT

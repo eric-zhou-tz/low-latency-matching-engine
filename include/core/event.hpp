@@ -64,6 +64,8 @@ struct ReplacedEvent {
  */
 enum class RejectReason {
     DuplicateOrderId,
+    DuplicateSymbol,
+    UnknownSymbol,
     UnknownOrderId,
     InsufficientLiquidity,
     InvalidOrder,
@@ -110,6 +112,10 @@ using CancelResult = std::variant<CanceledEvent, RejectedEvent>;
     switch (reason) {
     case RejectReason::DuplicateOrderId:
         return "duplicate order id";
+    case RejectReason::DuplicateSymbol:
+        return "duplicate symbol";
+    case RejectReason::UnknownSymbol:
+        return "unknown symbol";
     case RejectReason::UnknownOrderId:
         return "unknown order id";
     case RejectReason::InsufficientLiquidity:

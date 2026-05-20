@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
 #include <deque>
 #include <optional>
 #include <random>
@@ -42,25 +41,6 @@ struct MixedWorkload {
     std::vector<MixedOperation> operations;
     std::size_t max_live_orders{};
 };
-
-/**
- * @brief Reads the benchmark order-id load factor tuning knob.
- *
- * @return Requested max load factor, or the benchmark baseline when unset.
- */
-[[nodiscard]] float benchmark_order_id_max_load_factor() {
-    const char* value = std::getenv("MATCHING_ENGINE_ORDER_ID_MAX_LOAD_FACTOR");
-    if (value == nullptr) {
-        return kDefaultOrderIdMaxLoadFactor;
-    }
-
-    const float load_factor = std::strtof(value, nullptr);
-    if (load_factor <= 0.0F) {
-        return kDefaultOrderIdMaxLoadFactor;
-    }
-
-    return load_factor;
-}
 
 /**
  * @brief Builds one same-price FIFO queue of resting buy orders.
@@ -177,13 +157,12 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
     // processed operations. Cancel-only workloads preload one live order for
     // each cancel operation.
     const auto reserve_order_capacity = static_cast<std::size_t>(order_count);
-    const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
     const auto resting_orders = make_same_price_resting_buys(order_count);
     std::optional<OrderBook> book;
 
     for (auto _ : state) {
         state.PauseTiming();
-        book.emplace(reserve_order_capacity, order_id_max_load_factor);
+        book.emplace(reserve_order_capacity);
         preload_book(*book, resting_orders);
         state.ResumeTiming();
 
@@ -201,7 +180,7 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
     }
 
     state.SetItemsProcessed(state.iterations() * order_count);
-    state.counters["order_id_max_load_factor"] = order_id_max_load_factor;
+    state.counters["order_id_max_load_factor"] = kDefaultOrderIdMaxLoadFactor;
 }
 
 /**
@@ -306,14 +285,11 @@ void run_cancel_workload(benchmark::State& state, const std::vector<std::uint64_
  * @brief Constructs a book for reserve-sweep experiments.
  *
  * @param reserve_capacity Explicit reserve size; zero means no reserve call.
- * @param order_id_max_load_factor Hash-table density to use for the run.
  * @return Empty book configured for the benchmark trial.
  */
-[[nodiscard]] OrderBook make_mixed_sweep_book(std::size_t reserve_capacity,
-                                              float order_id_max_load_factor) {
+[[nodiscard]] OrderBook make_mixed_sweep_book(std::size_t reserve_capacity) {
     // Construct manually so reserve_capacity zero really means no explicit reserve call.
     OrderBook book;
-    book.set_order_id_max_load_factor(order_id_max_load_factor);
 
     // Nonzero sweep points reserve both the hash index and order pool before timing.
     if (reserve_capacity > 0) {
@@ -333,7 +309,6 @@ void run_mixed_submit_cancel_with_reserve(benchmark::State& state,
                                           std::size_t reserve_capacity) {
     // Generate deterministic input and metadata outside the timed benchmark loop.
     const auto operation_count = state.range(0);
-    const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
     const auto workload = make_mixed_workload(operation_count);
     std::optional<OrderBook> book;
     std::vector<matching_engine::Event> events;
@@ -342,7 +317,7 @@ void run_mixed_submit_cancel_with_reserve(benchmark::State& state,
     for (auto _ : state) {
         // Keep reserve allocation and book construction out of the measured path.
         state.PauseTiming();
-        book.emplace(make_mixed_sweep_book(reserve_capacity, order_id_max_load_factor));
+        book.emplace(make_mixed_sweep_book(reserve_capacity));
         state.ResumeTiming();
 
         // Measure the same mixed stream while changing only setup-time reserve capacity.
@@ -369,7 +344,7 @@ void run_mixed_submit_cancel_with_reserve(benchmark::State& state,
 
     // Expose sweep metadata directly in Google Benchmark output and JSON artifacts.
     state.SetItemsProcessed(state.iterations() * operation_count);
-    state.counters["order_id_max_load_factor"] = order_id_max_load_factor;
+    state.counters["order_id_max_load_factor"] = kDefaultOrderIdMaxLoadFactor;
     state.counters["reserve_capacity"] = static_cast<double>(reserve_capacity);
     state.counters["max_live_orders"] = static_cast<double>(workload.max_live_orders);
 }
@@ -417,7 +392,6 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
     // end-to-end use 10% as the current benchmark-tuned proxy.
     const auto reserve_order_capacity =
         std::max<std::size_t>(1024, static_cast<std::size_t>(operation_count) / 10);
-    const auto order_id_max_load_factor = benchmark_order_id_max_load_factor();
     const auto operations = make_mixed_operations(operation_count);
     std::optional<OrderBook> book;
     std::vector<matching_engine::Event> events;
@@ -427,7 +401,7 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
         state.PauseTiming();
         // Apply the mixed-workload reserve proxy during setup so timing covers
         // operation processing rather than allocation policy.
-        book.emplace(reserve_order_capacity, order_id_max_load_factor);
+        book.emplace(reserve_order_capacity);
         state.ResumeTiming();
 
         for (const auto& operation : operations) {
@@ -450,7 +424,7 @@ void BM_MixedSubmitCancel(benchmark::State& state) {
     }
 
     state.SetItemsProcessed(state.iterations() * operation_count);
-    state.counters["order_id_max_load_factor"] = order_id_max_load_factor;
+    state.counters["order_id_max_load_factor"] = kDefaultOrderIdMaxLoadFactor;
 }
 
 /**

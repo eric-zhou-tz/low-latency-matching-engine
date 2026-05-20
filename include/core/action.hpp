@@ -38,6 +38,16 @@ struct MarketOrderAction {
 };
 
 /**
+ * @brief Action describing explicit creation of a symbol order book.
+ */
+struct AddSymbolAction {
+    std::string symbol;
+    PriceLevelMode price_level_mode{PriceLevelMode::Tree};
+    PriceTick base_tick{};
+    PriceTick tick_range{};
+};
+
+/**
  * @brief Action describing a request to cancel an existing order.
  */
 struct CancelOrderAction {
@@ -67,6 +77,7 @@ struct PrintBookAction {};
 using Action =
     std::variant<SubmitOrderAction,
                  MarketOrderAction,
+                 AddSymbolAction,
                  CancelOrderAction,
                  ModifyOrderAction,
                  PrintBookAction>;

@@ -111,6 +111,8 @@ Run the demo order stream:
 ## Supported Commands
 
 ```text
+ADD_SYMBOL <symbol> TREE
+ADD_SYMBOL <symbol> LADDER BASE <tick> RANGE <ticks>
 SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity> [GTC|IOC|FOK]
 MARKET <id> <symbol> <BUY|SELL> <quantity>
 CANCEL <id>

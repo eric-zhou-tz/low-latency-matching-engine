@@ -7,15 +7,45 @@
 namespace {
 
 using matching_engine::CancelOrderAction;
+using matching_engine::AddSymbolAction;
 using matching_engine::MarketOrderAction;
 using matching_engine::ModifyOrderAction;
 using matching_engine::Parser;
+using matching_engine::PriceLevelMode;
 using matching_engine::PrintBookAction;
 using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
 using matching_engine::TimeInForce;
 
 } // namespace
+
+TEST(ParserTest, ParsesAddSymbolTreeCommand) {
+    Parser parser;
+
+    const auto add_symbol = parser.parse_line("ADD_SYMBOL AAPL TREE");
+    ASSERT_TRUE(add_symbol.has_value());
+    ASSERT_TRUE(std::holds_alternative<AddSymbolAction>(*add_symbol));
+
+    const auto& action = std::get<AddSymbolAction>(*add_symbol);
+    EXPECT_EQ(action.symbol, "AAPL");
+    EXPECT_EQ(action.price_level_mode, PriceLevelMode::Tree);
+    EXPECT_EQ(action.base_tick, 0);
+    EXPECT_EQ(action.tick_range, 0);
+}
+
+TEST(ParserTest, ParsesAddSymbolLadderCommand) {
+    Parser parser;
+
+    const auto add_symbol = parser.parse_line("ADD_SYMBOL AAPL LADDER BASE 18500 RANGE 5000");
+    ASSERT_TRUE(add_symbol.has_value());
+    ASSERT_TRUE(std::holds_alternative<AddSymbolAction>(*add_symbol));
+
+    const auto& action = std::get<AddSymbolAction>(*add_symbol);
+    EXPECT_EQ(action.symbol, "AAPL");
+    EXPECT_EQ(action.price_level_mode, PriceLevelMode::Ladder);
+    EXPECT_EQ(action.base_tick, 18500);
+    EXPECT_EQ(action.tick_range, 5000);
+}
 
 TEST(ParserTest, ParsesSubmitOrderCommand) {
     matching_engine::Parser parser;
@@ -107,6 +137,20 @@ TEST(ParserTest, RejectsMalformedSubmitOrderCommand) {
 
     const auto invalid = parser.parse_line("SUBMIT bad");
     EXPECT_FALSE(invalid.has_value());
+}
+
+TEST(ParserTest, RejectsMalformedAddSymbolCommands) {
+    Parser parser;
+
+    EXPECT_FALSE(parser.parse_line("ADD_SYMBOL").has_value());
+    EXPECT_FALSE(parser.parse_line("ADD_SYMBOL AAPL").has_value());
+    EXPECT_FALSE(parser.parse_line("ADD_SYMBOL AAPL TREE EXTRA").has_value());
+    EXPECT_FALSE(parser.parse_line("ADD_SYMBOL AAPL HASH").has_value());
+    EXPECT_FALSE(parser.parse_line("ADD_SYMBOL AAPL LADDER").has_value());
+    EXPECT_FALSE(parser.parse_line("ADD_SYMBOL AAPL LADDER BASE 18500").has_value());
+    EXPECT_FALSE(parser.parse_line("ADD_SYMBOL AAPL LADDER RANGE 5000").has_value());
+    EXPECT_FALSE(parser.parse_line("ADD_SYMBOL AAPL LADDER BASE 18500 RANGE -1").has_value());
+    EXPECT_FALSE(parser.parse_line("ADD_SYMBOL AAPL LADDER BASE 18500 RANGE 5000 EXTRA").has_value());
 }
 
 TEST(ParserTest, RejectsSubmitOrderCommandWithExtraTokens) {

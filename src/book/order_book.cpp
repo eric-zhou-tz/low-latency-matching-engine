@@ -6,19 +6,36 @@
 #include <utility>
 
 namespace matching_engine {
+namespace {
+
+constexpr float kOrderIdMaxLoadFactor = 0.80F;
+
+} // namespace
+
+/**
+ * @brief Creates an empty book with fixed order-id lookup tuning.
+ */
+OrderBook::OrderBook() {
+    // Benchmark sweeps selected 0.8 as the stable order-id hash-table density.
+    configure_order_id_lookup();
+}
 
 /**
  * @brief Creates an empty book and applies a reserve-capacity tuning hint.
  */
 OrderBook::OrderBook(std::size_t reserve_order_capacity) {
+    // Configure lookup density before reserving so bucket sizing uses the fixed policy.
+    configure_order_id_lookup();
     this->reserve_order_capacity(reserve_order_capacity);
 }
 
 /**
- * @brief Creates an empty book with tuned lookup density and reserve capacity.
+ * @brief Creates a reserved ladder-prepared book while retaining map-backed matching.
  */
-OrderBook::OrderBook(std::size_t reserve_order_capacity, float order_id_max_load_factor) {
-    set_order_id_max_load_factor(order_id_max_load_factor);
+OrderBook::OrderBook(std::size_t reserve_order_capacity, PriceTick base_tick, PriceTick tick_range) {
+    // Configure metadata and lookup density before reserving storage for live orders.
+    configure_order_id_lookup();
+    configure_ladder_metadata(base_tick, tick_range);
     this->reserve_order_capacity(reserve_order_capacity);
 }
 
@@ -26,6 +43,7 @@ OrderBook::OrderBook(std::size_t reserve_order_capacity, float order_id_max_load
  * @brief Copies price levels and rebuilds intrusive links for the new book.
  */
 OrderBook::OrderBook(const OrderBook& other) {
+    // Copy metadata before live orders so the clone has the same storage-mode declaration.
     copy_from(other);
 }
 
@@ -47,10 +65,16 @@ OrderBook& OrderBook::operator=(const OrderBook& other) {
  * @brief Moves a book and preserves pointers into transferred order blocks.
  */
 OrderBook::OrderBook(OrderBook&& other) noexcept
-    : bids_(std::move(other.bids_)),
+    : price_level_mode_(other.price_level_mode_),
+      base_tick_(other.base_tick_),
+      tick_range_(other.tick_range_),
+      min_tick_(other.min_tick_),
+      max_tick_(other.max_tick_),
+      bids_(std::move(other.bids_)),
       asks_(std::move(other.asks_)),
       orders_by_id_(std::move(other.orders_by_id_)),
       order_pool_(std::move(other.order_pool_)) {
+    // Raw order pointers still point into order_pool_ blocks transferred above.
 }
 
 /**
@@ -62,6 +86,11 @@ OrderBook& OrderBook::operator=(OrderBook&& other) noexcept {
     }
 
     clear();
+    price_level_mode_ = other.price_level_mode_;
+    base_tick_ = other.base_tick_;
+    tick_range_ = other.tick_range_;
+    min_tick_ = other.min_tick_;
+    max_tick_ = other.max_tick_;
     bids_ = std::move(other.bids_);
     asks_ = std::move(other.asks_);
     orders_by_id_ = std::move(other.orders_by_id_);
@@ -215,6 +244,46 @@ bool OrderBook::contains_order(std::uint64_t order_id) const {
 }
 
 /**
+ * @brief Returns the configured price-level storage mode.
+ */
+PriceLevelMode OrderBook::price_level_mode() const noexcept {
+    // Matching still uses the map containers regardless of this preparation metadata.
+    return price_level_mode_;
+}
+
+/**
+ * @brief Returns the configured ladder base tick.
+ */
+PriceTick OrderBook::base_tick() const noexcept {
+    // Tree-backed books keep this at zero because no ladder window was configured.
+    return base_tick_;
+}
+
+/**
+ * @brief Returns the configured ladder tick range.
+ */
+PriceTick OrderBook::tick_range() const noexcept {
+    // Tree-backed books keep this at zero because no ladder window was configured.
+    return tick_range_;
+}
+
+/**
+ * @brief Returns the internally computed minimum ladder tick.
+ */
+PriceTick OrderBook::min_tick() const noexcept {
+    // The value is derived from base_tick_ and tick_range_ at construction time.
+    return min_tick_;
+}
+
+/**
+ * @brief Returns the internally computed maximum ladder tick.
+ */
+PriceTick OrderBook::max_tick() const noexcept {
+    // The value is derived from base_tick_ and tick_range_ at construction time.
+    return max_tick_;
+}
+
+/**
  * @brief Produces a compact representation of resting orders.
  */
 std::string OrderBook::snapshot() const {
@@ -295,10 +364,23 @@ void OrderBook::reserve_order_capacity(std::size_t reserve_order_capacity) {
 }
 
 /**
- * @brief Updates the max load factor used by the order-id map.
+ * @brief Applies the fixed max load factor used by the order-id map.
  */
-void OrderBook::set_order_id_max_load_factor(float order_id_max_load_factor) {
-    orders_by_id_.max_load_factor(order_id_max_load_factor);
+void OrderBook::configure_order_id_lookup() noexcept {
+    // Keep the former benchmark winner as a code default instead of a public tuning knob.
+    orders_by_id_.max_load_factor(kOrderIdMaxLoadFactor);
+}
+
+/**
+ * @brief Stores ladder metadata without changing the active price-level containers.
+ */
+void OrderBook::configure_ladder_metadata(PriceTick base_tick, PriceTick tick_range) noexcept {
+    // Ladder mode is only a configuration marker until vector-backed levels are implemented.
+    price_level_mode_ = PriceLevelMode::Ladder;
+    base_tick_ = base_tick;
+    tick_range_ = tick_range;
+    min_tick_ = base_tick_ - tick_range_;
+    max_tick_ = base_tick_ + tick_range_;
 }
 
 /**
@@ -440,8 +522,14 @@ void OrderBook::clear() noexcept {
  * @brief Copies live resting orders from another book.
  */
 void OrderBook::copy_from(const OrderBook& other) {
-    set_order_id_max_load_factor(other.orders_by_id_.max_load_factor());
+    // Preserve storage-mode metadata so copied books behave as the same configured symbol.
+    price_level_mode_ = other.price_level_mode_;
+    base_tick_ = other.base_tick_;
+    tick_range_ = other.tick_range_;
+    min_tick_ = other.min_tick_;
+    max_tick_ = other.max_tick_;
 
+    configure_order_id_lookup();
     reserve_order_capacity(other.orders_by_id_.size());
 
     for (const auto& [price, source_level] : other.bids_) {

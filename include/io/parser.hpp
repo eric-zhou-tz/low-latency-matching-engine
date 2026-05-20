@@ -19,6 +19,8 @@ public:
      * @brief Parses a single input line.
      *
      * Supported commands:
+     * - ADD_SYMBOL <symbol> TREE
+     * - ADD_SYMBOL <symbol> LADDER BASE <tick> RANGE <ticks>
      * - SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity>
      * - MARKET <id> <symbol> <BUY|SELL> <quantity>
      * - CANCEL <id>

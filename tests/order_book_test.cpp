@@ -15,6 +15,8 @@ using matching_engine::Event;
 using matching_engine::ModifiedEvent;
 using matching_engine::Order;
 using matching_engine::OrderBook;
+using matching_engine::PriceLevelMode;
+using matching_engine::PriceTick;
 using matching_engine::RejectedEvent;
 using matching_engine::RejectReason;
 using matching_engine::ReplacedEvent;
@@ -122,6 +124,36 @@ void submit_accepted(OrderBook& book, Order order) {
 }
 
 } // namespace
+
+TEST(OrderBookTest, DefaultConstructorUsesTreePriceLevelMode) {
+    OrderBook book;
+
+    EXPECT_EQ(book.price_level_mode(), PriceLevelMode::Tree);
+    EXPECT_EQ(book.base_tick(), 0);
+    EXPECT_EQ(book.tick_range(), 0);
+    EXPECT_EQ(book.min_tick(), 0);
+    EXPECT_EQ(book.max_tick(), 0);
+}
+
+TEST(OrderBookTest, ReserveConstructorUsesTreePriceLevelMode) {
+    OrderBook book{1024};
+
+    EXPECT_EQ(book.price_level_mode(), PriceLevelMode::Tree);
+    EXPECT_EQ(book.base_tick(), 0);
+    EXPECT_EQ(book.tick_range(), 0);
+    EXPECT_EQ(book.min_tick(), 0);
+    EXPECT_EQ(book.max_tick(), 0);
+}
+
+TEST(OrderBookTest, ReservedLadderConstructorStoresMetadataAndComputesBounds) {
+    OrderBook book{1024, PriceTick{18500}, PriceTick{5000}};
+
+    EXPECT_EQ(book.price_level_mode(), PriceLevelMode::Ladder);
+    EXPECT_EQ(book.base_tick(), 18500);
+    EXPECT_EQ(book.tick_range(), 5000);
+    EXPECT_EQ(book.min_tick(), 13500);
+    EXPECT_EQ(book.max_tick(), 23500);
+}
 
 TEST(OrderBookTest, AcceptedOrderRestsOnBookWhenNotCrossing) {
     OrderBook book;

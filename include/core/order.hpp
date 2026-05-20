@@ -5,7 +5,16 @@ namespace matching_engine {
 
 using OrderId = std::uint64_t;
 using Price = std::int64_t;
+using PriceTick = std::int64_t;
 using Quantity = std::uint64_t;
+
+/**
+ * @brief Storage strategy selected for a symbol's price levels.
+ */
+enum class PriceLevelMode {
+    Tree,
+    Ladder
+};
 
 /**
  * @brief Side of an order.

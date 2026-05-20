@@ -53,15 +53,63 @@ void Exchange::process(const Action& action, std::vector<Event>& out) {
 }
 
 /**
+ * @brief Registers a symbol with tree mode metadata.
+ */
+bool Exchange::add_symbol(const std::string& symbol, PriceLevelMode price_level_mode) {
+    if (symbol.empty() || books_by_symbol_.contains(symbol) ||
+        price_level_mode != PriceLevelMode::Tree) {
+        return false;
+    }
+
+    // Tree mode is the active implementation and keeps the existing map-backed book.
+    auto book = reserve_order_capacity_ > 0 ? std::make_unique<OrderBook>(reserve_order_capacity_)
+                                            : std::make_unique<OrderBook>();
+    books_by_symbol_.emplace(symbol, std::move(book));
+    return true;
+}
+
+/**
+ * @brief Registers a symbol with ladder metadata while keeping map-backed matching.
+ */
+bool Exchange::add_symbol(const std::string& symbol, PriceTick base_tick, PriceTick tick_range) {
+    if (symbol.empty() || tick_range < 0 || books_by_symbol_.contains(symbol)) {
+        return false;
+    }
+
+    // Ladder construction records metadata only; matching still runs through std::map levels.
+    auto book = std::make_unique<OrderBook>(reserve_order_capacity_, base_tick, tick_range);
+    books_by_symbol_.emplace(symbol, std::move(book));
+    return true;
+}
+
+/**
+ * @brief Creates a book from an explicit symbol action.
+ */
+void Exchange::process_action(const AddSymbolAction& action, std::vector<Event>& out) {
+    const bool added = action.price_level_mode == PriceLevelMode::Ladder
+                           ? add_symbol(action.symbol, action.base_tick, action.tick_range)
+                           : add_symbol(action.symbol, action.price_level_mode);
+    if (!added) {
+        // ADD_SYMBOL has no order id, so zero is a stable placeholder in the rejection payload.
+        out.push_back(RejectedEvent{.reason = RejectReason::DuplicateSymbol, .order_id = 0});
+    }
+}
+
+/**
  * @brief Routes a submit action to the book for its symbol.
  */
 void Exchange::process_action(const SubmitOrderAction& action, std::vector<Event>& out) {
+    OrderBook* book = find_book(action.symbol);
+    if (book == nullptr) {
+        out.push_back(RejectedEvent{.reason = RejectReason::UnknownSymbol, .order_id = action.id});
+        return;
+    }
+
     if (order_to_book_.contains(action.id)) {
         out.push_back(RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = action.id});
         return;
     }
 
-    OrderBook* book = get_or_create_book(action.symbol);
     book->submit(make_book_order(action), out);
 
     remove_filled_resting_orders_from_index(out);
@@ -87,12 +135,17 @@ void Exchange::process_action(const SubmitOrderAction& action, std::vector<Event
  * @brief Routes a market action to the book for its symbol.
  */
 void Exchange::process_action(const MarketOrderAction& action, std::vector<Event>& out) {
+    OrderBook* book = find_book(action.symbol);
+    if (book == nullptr) {
+        out.push_back(RejectedEvent{.reason = RejectReason::UnknownSymbol, .order_id = action.id});
+        return;
+    }
+
     if (order_to_book_.contains(action.id)) {
         out.push_back(RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = action.id});
         return;
     }
 
-    OrderBook* book = get_or_create_book(action.symbol);
     book->submit_market(make_book_order(action), out);
 
     remove_filled_resting_orders_from_index(out);
@@ -170,17 +223,13 @@ void Exchange::process_action(const PrintBookAction&, std::vector<Event>& out) c
 /**
  * @brief Returns the stable book pointer for a symbol.
  */
-OrderBook* Exchange::get_or_create_book(const std::string& symbol) {
+OrderBook* Exchange::find_book(const std::string& symbol) const {
     const auto found = books_by_symbol_.find(symbol);
     if (found != books_by_symbol_.end()) {
         return found->second.get();
     }
 
-    auto book = reserve_order_capacity_ > 0 ? std::make_unique<OrderBook>(reserve_order_capacity_)
-                                            : std::make_unique<OrderBook>();
-    OrderBook* raw_book = book.get();
-    books_by_symbol_.emplace(symbol, std::move(book));
-    return raw_book;
+    return nullptr;
 }
 
 /**

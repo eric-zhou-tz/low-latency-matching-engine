@@ -44,6 +44,14 @@ void add_command(std::vector<std::string>& commands, std::string command) {
 }
 
 /**
+ * @brief Builds a deterministic explicit-symbol command line.
+ */
+[[nodiscard]] std::string add_symbol_line(const std::string& symbol) {
+    // Public end-to-end workloads must create books before routing order flow.
+    return "ADD_SYMBOL " + symbol + " TREE";
+}
+
+/**
  * @brief Builds a deterministic submit command line.
  */
 [[nodiscard]] std::string submit_line(std::uint64_t id,
@@ -142,7 +150,10 @@ void add_command(std::vector<std::string>& commands, std::string command) {
 [[nodiscard]] std::vector<std::string> make_end_to_end_mixed_preload_script(
     const std::vector<matching_engine::Order>& preload_orders) {
     std::vector<std::string> commands;
-    commands.reserve(preload_orders.size());
+    commands.reserve(preload_orders.size() + 1);
+
+    // Mixed workloads operate on one symbol, so register it once before preload orders.
+    add_command(commands, add_symbol_line(kEndToEndMixedSymbol));
 
     for (const auto& order : preload_orders) {
         // Preload orders establish the same active book state as the hot-path benchmark.
@@ -189,7 +200,11 @@ void add_command(std::vector<std::string>& commands, std::string command) {
  */
 [[nodiscard]] std::vector<std::string> make_parse_process_format_script(std::int64_t count) {
     std::vector<std::string> commands;
-    commands.reserve(static_cast<std::size_t>(count));
+    commands.reserve(static_cast<std::size_t>(count) + 2);
+
+    // Register both symbols up front because submit commands no longer create books implicitly.
+    add_command(commands, add_symbol_line("AAPL"));
+    add_command(commands, add_symbol_line("MSFT"));
 
     for (std::int64_t index = 0; index < count; ++index) {
         const auto id = static_cast<std::uint64_t>(index + 1);

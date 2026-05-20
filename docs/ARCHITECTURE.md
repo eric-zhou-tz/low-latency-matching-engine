@@ -38,7 +38,10 @@ exactly one `CancelResult`.
 Supported commands currently include:
 
 ```text
-SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity>
+ADD_SYMBOL <symbol> TREE
+ADD_SYMBOL <symbol> LADDER BASE <tick> RANGE <ticks>
+SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity> [GTC|IOC|FOK]
+MARKET <id> <symbol> <BUY|SELL> <quantity>
 CANCEL <id>
 PRINT
 ```
@@ -48,7 +51,12 @@ PRINT
 Actions represent validated command intent before it mutates exchange state. The current action set is implemented as a `std::variant`:
 
 ```cpp
-using Action = std::variant<SubmitOrderAction, CancelOrderAction, PrintBookAction>;
+using Action = std::variant<SubmitOrderAction,
+                            MarketOrderAction,
+                            AddSymbolAction,
+                            CancelOrderAction,
+                            ModifyOrderAction,
+                            PrintBookAction>;
 ```
 
 This keeps command dispatch explicit and makes replay-style processing straightforward.

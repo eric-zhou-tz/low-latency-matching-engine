@@ -29,7 +29,7 @@ public:
     /**
      * @brief Creates an empty order book.
      */
-    OrderBook() = default;
+    OrderBook();
 
     /**
      * @brief Creates an empty order book with reserved order capacity.
@@ -39,12 +39,13 @@ public:
     explicit OrderBook(std::size_t reserve_order_capacity);
 
     /**
-     * @brief Creates an empty order book with tuned order-id lookup density.
+     * @brief Creates a reserved book prepared for future ladder-backed price storage.
      *
      * @param reserve_order_capacity Caller-selected preallocation hint.
-     * @param order_id_max_load_factor Maximum load factor for the order-id map.
+     * @param base_tick Center tick used to derive the ladder window.
+     * @param tick_range Distance from the base tick to each side of the window.
      */
-    OrderBook(std::size_t reserve_order_capacity, float order_id_max_load_factor);
+    OrderBook(std::size_t reserve_order_capacity, PriceTick base_tick, PriceTick tick_range);
 
     /**
      * @brief Copies a book and rebuilds intrusive order links.
@@ -124,6 +125,41 @@ public:
     [[nodiscard]] bool contains_order(std::uint64_t order_id) const;
 
     /**
+     * @brief Returns the configured price-level storage mode.
+     *
+     * @return Tree for current map-backed books or Ladder for ladder-prepared books.
+     */
+    [[nodiscard]] PriceLevelMode price_level_mode() const noexcept;
+
+    /**
+     * @brief Returns the ladder base tick metadata.
+     *
+     * @return Center tick configured when ladder mode was selected.
+     */
+    [[nodiscard]] PriceTick base_tick() const noexcept;
+
+    /**
+     * @brief Returns the ladder range metadata.
+     *
+     * @return Tick distance from the base to each side of the ladder window.
+     */
+    [[nodiscard]] PriceTick tick_range() const noexcept;
+
+    /**
+     * @brief Returns the internally derived minimum ladder tick.
+     *
+     * @return base_tick - tick_range for ladder-prepared books.
+     */
+    [[nodiscard]] PriceTick min_tick() const noexcept;
+
+    /**
+     * @brief Returns the internally derived maximum ladder tick.
+     *
+     * @return base_tick + tick_range for ladder-prepared books.
+     */
+    [[nodiscard]] PriceTick max_tick() const noexcept;
+
+    /**
      * @brief Builds a compact textual snapshot of the current book.
      *
      * @return Human-readable book summary.
@@ -172,14 +208,20 @@ public:
      */
     void reserve_order_capacity(std::size_t reserve_order_capacity);
 
-    /**
-     * @brief Sets the order-id lookup load factor for future reservations.
-     *
-     * @param order_id_max_load_factor Maximum load factor for the order-id map.
-     */
-    void set_order_id_max_load_factor(float order_id_max_load_factor);
-
 private:
+    /**
+     * @brief Applies fixed hash-table tuning chosen by benchmark validation.
+     */
+    void configure_order_id_lookup() noexcept;
+
+    /**
+     * @brief Stores ladder metadata while preserving the current tree containers.
+     *
+     * @param base_tick Center tick for the future ladder window.
+     * @param tick_range Tick distance to each side of the window.
+     */
+    void configure_ladder_metadata(PriceTick base_tick, PriceTick tick_range) noexcept;
+
     /**
      * @brief Clears all book state and owned order storage.
      */
@@ -254,6 +296,13 @@ private:
      * @param out Output event collection for generated trades.
      */
     void match_sell_order(Order& incoming, std::vector<Event>& out);
+
+    // price-level mode metadata is staged ahead of the actual ladder container implementation.
+    PriceLevelMode price_level_mode_ = PriceLevelMode::Tree;
+    PriceTick base_tick_ = 0;
+    PriceTick tick_range_ = 0;
+    PriceTick min_tick_ = 0;
+    PriceTick max_tick_ = 0;
 
     // keep bids and asks in separate maps because each side has the opposite best-price rule.
     std::map<Price, OrderQueue, std::greater<Price>> bids_;
