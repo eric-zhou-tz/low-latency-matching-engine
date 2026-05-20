@@ -2,16 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## v0.6.5 - Deep Sparse GTC Mixed Benchmark
+## v0.6.5 - Shallow Dense + Deep Sparse GTC Mixed Benchmark
 
-- Added `deep_sparse_gtc_mixed_benchmark` with `BM_DeepSparseGtcMixed`, an OrderBook-only Google Benchmark for deep sparse liquidity: 50,000 occupied price levels with only one to two resting GTC orders per level.
-- Built a deterministic fixed-seed workload that interleaves 45% sparse GTC submits, 30% live cancels, 15% modifies to different sparse price levels, and 10% crossing GTC submits that walk several sparse levels.
-- Kept parser, exchange routing, filesystem I/O, and string/event formatting out of the timed loop while reusing caller-owned `std::vector<Event>` buffers.
-- Used `reserve_order_capacity` sized from the modeled peak live order count instead of operation count.
-- Wired the new benchmark into CMake and the EC2 benchmark runner, producing `benchmarks/deep_sparse_gtc_mixed_results.txt`, `benchmarks/deep_sparse_gtc_mixed_results.json`, and `benchmarks/deep_sparse_gtc_mixed_environment.txt`.
-- Ran only the new benchmark on the Ubuntu EC2 host in Release mode with `-O3 -DNDEBUG`, CPU-pinned with five repetitions; the 100,000-operation median measured 1.850M items/s.
-- Synced the EC2 source tree with `.git`, build directories, `.DS_Store`, and macOS `._*` sidecar files excluded to avoid bogus replay fixtures during benchmarking.
-- Documented the benchmark methodology and EC2 medians in `BENCHMARKS.md` and `docs/benchmark_history.md`.
+- Added `shallow_gtc_mixed_benchmark` for shallow dense GTC churn: tight prices, low live depth, random cancels/modifies, and crossing GTC submits.
+- Added `deep_sparse_gtc_mixed_benchmark` for 50,000 occupied price levels with only one to two resting GTC orders per level, stressing `std::map` price-level behavior.
+- Kept both benchmarks OrderBook-only with fixed seeds, reusable `std::vector<Event>` buffers, no parser/exchange/filesystem/string formatting in the timed loop, and `reserve_order_capacity` based on modeled live depth.
+- Wired the benchmark targets into CMake and the EC2 runner, with result artifacts under `benchmarks/*gtc_mixed_results.*`.
+- Refreshed EC2 Release medians: shallow dense measured 18.800M items/s at 100,000 operations; deep sparse measured 1.850M items/s at 100,000 operations.
+- Synced EC2 source with `.git`, build directories, `.DS_Store`, and macOS `._*` sidecar files excluded to avoid bogus replay fixtures.
+- Documented methodology and EC2 medians in `BENCHMARKS.md` and `docs/benchmark_history.md`.
 
 ## v0.6.4 - Stress/Soak Correctness Tests
 
