@@ -1,5 +1,7 @@
 #include "exchange.hpp"
 #include "io/script_runner.hpp"
+#include "io/parser.hpp"
+#include "toy/exchange.hpp"
 
 #include <gtest/gtest.h>
 
@@ -28,6 +30,20 @@ using matching_engine::Side;
 using matching_engine::SubmitOrderAction;
 using matching_engine::TimeInForce;
 using matching_engine::TradeEvent;
+
+/**
+ * @brief Formats events emitted by an exchange into CLI output lines.
+ */
+[[nodiscard]] std::string format_events(const std::vector<Event>& events) {
+    std::ostringstream output;
+
+    for (const Event& event : events) {
+        // Use the public formatter so parity checks compare observable output.
+        output << matching_engine::format_event(event) << '\n';
+    }
+
+    return output.str();
+}
 
 /**
  * @brief Builds a test submit action with explicit symbol and side.
@@ -182,6 +198,67 @@ void expect_replaced(const std::vector<Event>& events, std::uint64_t order_id) {
     matching_engine::run_script(input, output);
 
     return output.str();
+}
+
+/**
+ * @brief Parses command text once and runs the same actions through fast mode.
+ */
+[[nodiscard]] std::string run_parsed_fast(const std::string& script) {
+    matching_engine::Parser parser;
+    Exchange exchange;
+    std::vector<Event> events;
+    std::istringstream input{script};
+    std::ostringstream output;
+    std::string line;
+
+    while (std::getline(input, line)) {
+        // Parity fixtures are valid by construction, so a parse failure should fail loudly.
+        const auto action = parser.parse_line(line);
+        EXPECT_TRUE(action.has_value()) << line;
+        if (!action) {
+            output << "REJECTED invalid command\n";
+            continue;
+        }
+
+        exchange.process(*action, events);
+        output << format_events(events);
+    }
+
+    return output.str();
+}
+
+/**
+ * @brief Parses command text once and runs the same actions through toy-std mode.
+ */
+[[nodiscard]] std::string run_parsed_toy(const std::string& script) {
+    matching_engine::Parser parser;
+    matching_engine::toy::Exchange exchange;
+    std::vector<Event> events;
+    std::istringstream input{script};
+    std::ostringstream output;
+    std::string line;
+
+    while (std::getline(input, line)) {
+        // The toy path receives the same parser output, never toy-specific command text.
+        const auto action = parser.parse_line(line);
+        EXPECT_TRUE(action.has_value()) << line;
+        if (!action) {
+            output << "REJECTED invalid command\n";
+            continue;
+        }
+
+        exchange.process(*action, events);
+        output << format_events(events);
+    }
+
+    return output.str();
+}
+
+/**
+ * @brief Asserts fast and toy models produce the same observable output.
+ */
+void expect_fast_toy_parity(const std::string& script) {
+    EXPECT_EQ(run_parsed_toy(script), run_parsed_fast(script));
 }
 
 /**
@@ -731,5 +808,35 @@ PRINT
 REJECTED invalid command
 REJECTED invalid command
 book: empty
+)");
+}
+
+TEST(ModelParityTest, ToyStdMatchesFastForBasicSubmitCancelModifyAndMatchFlow) {
+    expect_fast_toy_parity(R"(SUBMIT 1 AAPL BUY 100 10
+SUBMIT 2 AAPL SELL 101 5
+MODIFY 1 100 6
+CANCEL 2
+SUBMIT 3 AAPL SELL 99 4
+PRINT
+)");
+}
+
+TEST(ModelParityTest, ToyStdMatchesFastForMarketIocFokAndPartialFills) {
+    expect_fast_toy_parity(R"(SUBMIT 10 AAPL SELL 100 2
+SUBMIT 11 AAPL SELL 101 3
+SUBMIT 12 AAPL BUY 101 4 IOC
+SUBMIT 13 AAPL SELL 102 5
+MARKET 14 AAPL BUY 2
+SUBMIT 15 AAPL BUY 103 6 FOK
+PRINT
+)");
+}
+
+TEST(ModelParityTest, ToyStdMatchesFastForReplacementModifyThatTrades) {
+    expect_fast_toy_parity(R"(SUBMIT 20 AAPL SELL 99 2
+SUBMIT 21 AAPL SELL 100 3
+SUBMIT 22 AAPL BUY 98 6
+MODIFY 22 100 6
+PRINT
 )");
 }

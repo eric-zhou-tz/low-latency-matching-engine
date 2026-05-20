@@ -53,6 +53,19 @@ from the matching core. Most hot-path benchmarks measure the typed matching core
 directly; the dedicated end-to-end benchmarks intentionally include parser,
 exchange, order-book, and event-formatting overhead.
 
+The CLI defaults to the optimized engine. For comparison and regression checks,
+it can also route the same parsed commands through a deliberately simple STL
+baseline:
+
+```bash
+./build/matching_engine --model=fast < examples/demo.orders
+./build/matching_engine --model=toy-std < examples/demo.orders
+```
+
+`toy-std` lives under `toy/` and exists only as a reference baseline. It uses
+plain `std::map`, `std::deque`, and `std::unordered_map` internals and should
+not be treated as a performance implementation.
+
 `Exchange` handles multi-symbol simulation and routing, while `OrderBook` is the
 latency-sensitive matching core. Production systems often route using integer
 symbol IDs, symbol partitioning, or both.
@@ -81,6 +94,7 @@ src/       Engine implementation
   book/    Order book matching and cancel logic
   io/      Parser implementation
 tests/     GoogleTest unit tests
+toy/       Simple std-container baseline engine for comparison/regression
 benchmark/ Google Benchmark microbenchmarks and end-to-end benchmarks
 examples/  Example order streams
 docs/      Architecture, changelog, benchmark history, and hot-path notes
@@ -106,6 +120,16 @@ Run the demo order stream:
 
 ```bash
 ./build/matching_engine < examples/demo.orders
+```
+
+Run the demo through each engine model:
+
+```bash
+# Fast optimized engine; this is also the default when --model is omitted.
+./build/matching_engine --model=fast < examples/demo.orders
+
+# Toy std baseline for comparison/regression/reference only.
+./build/matching_engine --model=toy-std < examples/demo.orders
 ```
 
 ## Supported Commands

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
     matching_engine
-    VERSION 0.2.3
+    VERSION 0.7.2
     DESCRIPTION "Modern C++20 matching engine scaffold"
     LANGUAGES CXX
 )
@@ -22,6 +22,8 @@ add_library(engine
     src/io/script_runner.cpp
     src/book/order_book.cpp
     src/exchange.cpp
+    toy/order_book.cpp
+    toy/exchange.cpp
 )
 
 target_compile_features(engine PUBLIC cxx_std_20)
@@ -29,6 +31,7 @@ target_compile_features(engine PUBLIC cxx_std_20)
 target_include_directories(engine
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}
 )
 
 target_link_libraries(engine

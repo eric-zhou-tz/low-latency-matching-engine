@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.7.1 -> Added Path for Toy std Baselin
+
 ## v0.7.1 -> Reversion to Stable Patch
 
 - Reverted the working tree to stable commit `e6a5f77357e083a0449f829c73a99cbbc6fa5318` after the comparative price-level storage experiment showed direct hot-path regressions.
