@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.7.1 -> Reversion to Stable Patch
+
+- Reverted the working tree to stable commit `e6a5f77357e083a0449f829c73a99cbbc6fa5318` after the comparative price-level storage experiment showed direct hot-path regressions.
+- Removed the experimental RB tree/B-tree/price-ladder comparison state from the active code path by returning to the pre-experiment stable matching implementation.
+- Revalidated the reverted tree on the Ubuntu EC2 `t3.small` benchmark host with a clean Release build using `-O3 -DNDEBUG`.
+- Synced sources to EC2 without `.git`, local build directories, `.DS_Store`, or macOS `._*` sidecar files; the remote run confirmed `0` sidecar files before benchmarking.
+- Verified correctness with the full EC2 CTest suite: 124/124 tests passed.
+- Ran the full scripted EC2 benchmark pass, including throughput and standalone latency validation.
+- Confirmed benchmark medians returned close to the prior direct-hot-path baseline: True Mixed measured 15.71M items/s at 100,000 operations, Best-Level Churn measured 15.93M items/s at 1,000,000 operations, and Level Create/Delete Churn measured 23.55M items/s at 1,000,000 operations.
+- Noted some EC2 run-to-run noise in large mixed/deep workloads, so medians should be compared rather than individual repetitions.
+- Remote validation run: `/home/ubuntu/matching-engine-runs/revert-e6a5f77-20260520-081602`.
+
+## v0.7.0 -> Comparative Benchmark suite (RB Tree vs B Tree vs Price Ladder)
+- Comparative benchmark suite for RB Tree, B+ Tree, and Price Ladder matching engine architectures.
+- Added throughput and latency benchmarking across shallow/deep book workloads
+- Initial results inconclusive and under further investigation.
+
 ## v0.6.6 - Best Level Churn + Level create/delete churn
 
 - Added `best_level_churn_benchmark` for direct `OrderBook` top-of-book churn: best-level cancels, one-tick inside-improving submits, marketable taker flow, and occasional modifies.
