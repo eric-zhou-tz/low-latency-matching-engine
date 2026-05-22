@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.8.2 -> v1 Hot and Critical Path Analysis + Graphs
+
+- Reran the hot/critical path benchmark workflow on the Ubuntu EC2 `t3.small`
+  host with a pinned Release build using `-O3 -DNDEBUG -march=native`.
+- Verified correctness before benchmarking with the full CTest suite: 127/127
+  tests passed.
+- Added `docs/HOTPATH.md` as the recruiter-facing and reviewer-facing summary
+  for the latest hot-path pass, including environment, artifact links,
+  throughput snapshots, latency snapshots, perf findings, caveats, and current
+  hot/warm/cold path classification.
+- Added SVG chart artifacts for throughput, amortized batch latency, and the
+  measured submit/match and cancel critical paths:
+  `docs/hotpath-throughput.svg`, `docs/hotpath-latency.svg`, and
+  `docs/hotpath-critical-path.svg`.
+- Added Linux `cpu-clock` flamegraph SVGs for random cancel, direct true mixed,
+  end-to-end true mixed, and deep sparse stress profiles:
+  `docs/perf-random-cancel.svg`, `docs/perf-true-mixed.svg`,
+  `docs/perf-end-to-end-true-mixed.svg`, and `docs/perf-deep-sparse.svg`.
+- Refreshed checked-in benchmark summaries and perf reports under
+  `benchmarks/results/`, while leaving raw perf transfer artifacts such as
+  `*.data`, `*.folded`, and `*.script` ignored by `.gitignore`.
+- Recorded the EC2 source-transfer hygiene explicitly: sources were synced
+  without `.git`, build directories, `.DS_Store`, or macOS `._*` AppleDouble
+  sidecar files.
+- Captured the main performance read: direct `OrderBook` true mixed remains far
+  faster than the public parser/exchange/formatter path, random successful
+  cancel is the hottest core latency path, deep sparse price-level access is an
+  adversarial tree-lookup stress case, and unknown cancel remains a cold fast
+  rejection path.
+- Documented the profiling limitation that this EC2/KVM host exposed software
+  `cpu-clock` sampling but not hardware PMU counters, so the flamegraphs show
+  sampled time distribution rather than cache-miss or branch-miss causality.
+
 ## v0.8.1 -> Queryable Benchmark History
 
 - Added a recruiter-friendly SQLite benchmark history database at `benchmarks/benchmark_history.db` while keeping `BENCHMARKS.md` and `docs/benchmark_history.md` as the primary Markdown views.
