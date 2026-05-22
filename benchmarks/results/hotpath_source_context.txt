@@ -1,0 +1,2 @@
+source_context=local rsync excluding .git, build dirs, .DS_Store, and macOS ._* sidecar files
+local_commit=714906f

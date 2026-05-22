@@ -1,0 +1,3 @@
+perf_event_paranoid=1
+hardware_counters=unsupported on this host for cycles/instructions/cache-misses probe
+software_event=cpu-clock

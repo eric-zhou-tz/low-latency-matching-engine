@@ -1,5 +1,112 @@
 # Hot Path Analysis
 
+## 2026-05-21 EC2 Rerun
+
+This pass reran the hot/critical path workflow on EC2 and generated chart and
+flamegraph artifacts from the Linux run.
+
+### Environment
+
+- Host: AWS EC2 `t3.small`
+- OS/kernel: Ubuntu 26.04 LTS, Linux `7.0.0-1004-aws`
+- CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
+- Compiler: GCC/G++ 15.2.0
+- Build: Release, `-O3 -DNDEBUG -march=native`
+- Source: local rsync of commit `714906f`, excluding `.git`, build
+  directories, `.DS_Store`, and macOS `._*` sidecar files
+- Validation: `127/127` CTest cases passed before benchmark execution
+
+### Artifacts
+
+| Artifact | Purpose |
+| --- | --- |
+| [`hotpath-throughput.svg`](hotpath-throughput.svg) | Throughput comparison across core, realistic, boundary, and stress paths |
+| [`hotpath-latency.svg`](hotpath-latency.svg) | Core hot-path p50/p99/max batch latency at 256-op batches |
+| [`hotpath-critical-path.svg`](hotpath-critical-path.svg) | Source-level submit/match and cancel path diagram |
+| [`perf-random-cancel.svg`](perf-random-cancel.svg) | `cpu-clock` flamegraph for random cancel |
+| [`perf-true-mixed.svg`](perf-true-mixed.svg) | `cpu-clock` flamegraph for direct true mixed flow |
+| [`perf-end-to-end-true-mixed.svg`](perf-end-to-end-true-mixed.svg) | `cpu-clock` flamegraph for parser/exchange/formatter flow |
+| [`perf-deep-sparse.svg`](perf-deep-sparse.svg) | `cpu-clock` flamegraph for deep sparse GTC stress |
+
+Raw reports and perf data live under `benchmarks/results/`:
+
+- `core_hot_path_results.{txt,json}`
+- `realistic_flow_results.{txt,json}`
+- `stress_benchmark_results.{txt,json}`
+- `batch_latency_results.{txt,json}`
+- `perf-*-report.txt`
+- `perf-*.data`
+- `perf-*.folded`
+
+### Throughput Snapshot
+
+All rows are Google Benchmark median rows from the EC2 run.
+
+| Workload | CPU Time | Throughput |
+| --- | ---: | ---: |
+| Passive insert, 100k ops | `8.24 ms` | `12.13M ops/sec` |
+| One-level crossing match, 100k ops | `6.25 ms` | `15.99M ops/sec` |
+| Random cancel, 100k ops | `12.21 ms` | `8.19M ops/sec` |
+| Unknown cancel, 100k ops | `0.89 ms` | `112.98M ops/sec` |
+| Modify if present, 100k ops | `3.30 ms` | `30.30M ops/sec` |
+| OrderBook true mixed, 100k ops | `6.37 ms` | `15.69M ops/sec` |
+| End-to-end true mixed, 100k commands | `78.90 ms` | `1.27M commands/sec` |
+| Best-level churn, 1M ops | `65.41 ms` | `15.29M ops/sec` |
+| Level create/delete churn, 1M ops | `44.09 ms` | `22.68M ops/sec` |
+| Shallow GTC mixed, 100k primary ops | `9.90 ms` | `18.68M ops/sec` |
+| Deep sparse GTC mixed, 100k primary ops | `57.44 ms` | `1.74M ops/sec` |
+
+### Latency Snapshot
+
+Core latency rows are median values across five trials at a 256-operation batch
+size. These are amortized batch latencies, not true single-order tail latency.
+
+| Workload | p50 | p99 | Max |
+| --- | ---: | ---: | ---: |
+| Passive insert | `119.30 ns/op` | `168.36 ns/op` | `233.36 ns/op` |
+| One-level crossing match | `106.91 ns/op` | `178.66 ns/op` | `221.12 ns/op` |
+| Random cancel | `325.44 ns/op` | `388.73 ns/op` | `479.28 ns/op` |
+| Unknown cancel | `11.18 ns/op` | `27.35 ns/op` | `72.65 ns/op` |
+| Modify if present | `62.09 ns/op` | `98.12 ns/op` | `131.94 ns/op` |
+| OrderBook true mixed | `80.97 ns/op` | `121.77 ns/op` | `295.15 ns/op` |
+
+### Perf Findings
+
+Hardware PMU counters were unavailable on this EC2/kernel combination. The run
+therefore used software `cpu-clock` sampling with frame pointers. Kernel symbols
+were restricted, but user-space matching-engine symbols resolved correctly.
+
+| Profile | Main signal |
+| --- | --- |
+| Random cancel | `remove_resting_order` and `cancel` dominate the measured path; preload still appears because `perf` samples setup excluded by Google Benchmark timing. |
+| Direct true mixed | Engine symbols are led by `remove_resting_order`, `modify`, `add_resting_order`, `prepare_incoming_order`, `submit`, and `cancel`; workload generation also appears and should not be read as matching-core cost. |
+| End-to-end true mixed | Parser and formatting costs dominate: stream extraction, `Parser::parse_line`, string output, and locale/iostream setup are wider than `OrderBook` symbols. |
+| Deep sparse GTC mixed | `remove_resting_order` is the widest engine symbol, with `std::map` lower-bound/find work visible under deep sparse price-level lookups. |
+
+### Current Classification
+
+| Path | Classification | Reason |
+| --- | --- | --- |
+| End-to-end parser/format boundary | Hot | End-to-end true mixed is roughly 12x slower than direct `OrderBook` true mixed in throughput. |
+| Random cancel | Hot | Random cancel has the highest p50/p99 among core batch-latency rows and remains much slower than hash-miss cancel. |
+| Deep sparse price-level access | Hot under adversarial books | Sparse 50k-level workload falls to ~1.74M ops/sec and shows tree lookup work in perf. |
+| Intrusive queue unlink itself | Warm | It is part of hot cancel/remove frames, but the queue operation is no longer isolated as the dominant cost. |
+| Unknown cancel | Cold | The rejection path is extremely fast at ~113M ops/sec and ~27 ns p99 batch latency. |
+
+### Caveats
+
+- `perf record` samples benchmark setup and workload generation, even when
+  Google Benchmark excludes that work from timing with `PauseTiming()`.
+- Direct true-mixed and end-to-end true-mixed flamegraphs therefore include
+  workload-construction frames; use the throughput and latency artifacts for the
+  measured benchmark numbers.
+- Hardware counters such as cycles, instructions, cache misses, and LLC misses
+  were unsupported on this host. See `benchmarks/results/perf_results.csv`.
+- The deep sparse 100k row had a noisy repetition; the median is the better
+  summary for this pass.
+
+## Earlier Cancel-Only Pass
+
 This note records the first perf-based hot path pass for the intrusive
 `OrderQueue` / `OrderPool` cancel implementation.
 
