@@ -1,16 +1,16 @@
 Hardware performance counter results
-date=2026-05-21T00:34:54Z
-git_commit=
-git_status=clean
+date=2026-05-18T17:32:14Z
+git_commit=dca7f50 + local perf-counter instrumentation changes
+git_status=dirty (local workspace copied to EC2 tarball)
 pin_cpu=0
 latency_samples=1024
 latency_warmup_batches=128
 latency_trials=5
-benchmark_binary=/home/ubuntu/MatchingEngine-hotpath/build-release/core_hot_path_latency_benchmark
+benchmark_binary=/home/ubuntu/matching-engine-runs/codex-perf-20260518-171842/build-release/latency_benchmark
 perf_events=none
 
 command:
-perf stat -x, -o /home/ubuntu/MatchingEngine-hotpath/benchmarks/results/perf_results.csv -e none -- taskset -c 0 /home/ubuntu/MatchingEngine-hotpath/build-release/core_hot_path_latency_benchmark --output-dir=/home/ubuntu/MatchingEngine-hotpath/benchmarks/results --samples=1024 --warmup=128 --trials=5
+perf stat -x, -o /home/ubuntu/matching-engine-runs/codex-perf-20260518-171842/benchmarks/perf_results.csv -e none -- taskset -c 0 /home/ubuntu/matching-engine-runs/codex-perf-20260518-171842/build-release/latency_benchmark --output-dir=/home/ubuntu/matching-engine-runs/codex-perf-20260518-171842/benchmarks --samples=1024 --warmup=128 --trials=5
 
 unsupported_counters:
 - cycles
@@ -30,7 +30,7 @@ notes:
 - Branch counters expose unpredictable random lookup behavior.
 - Cycles and instructions help separate memory-bound work from compute-bound work.
 
-batch_latency_benchmark_stdout:
+latency_benchmark_stdout:
 
 perf_counter_summary:
 event                                       count         unit metric
