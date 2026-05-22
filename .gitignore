@@ -12,6 +12,9 @@ compile_commands.json
 *.dylib
 *.dll
 *.exe
+*.script
+*.folded
+*.data
 
 .DS_Store
 .idea/
