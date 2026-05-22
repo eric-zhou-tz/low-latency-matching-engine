@@ -1,0 +1,107 @@
+ Percent |	Source code & Disassembly of core_hot_path_benchmark for cpu-clock (5089 samples, percent: local period)
+------------------------------------------------------------------------------------------------------------------------
+         : 0     0x14270 <matching_engine::OrderBook::cancel(unsigned long)>:
+    0.35 :   14270:        endbr64
+    0.00 :   14274:        pushq   %rbp
+    0.79 :   14275:        movq    %rdi, %r9
+    0.37 :   14278:        movq    %rsi, %rdi
+    0.00 :   1427b:        movq    %rdx, %r8
+    0.00 :   1427e:        movq    %rsp, %rbp
+    1.00 :   14281:        pushq   %r12
+    0.00 :   14283:        pushq   %rbx
+    0.00 :   14284:        subq    $0x10, %rsp
+    1.16 :   14288:        movq    0x68(%rsi), %r10
+    0.00 :   1428c:        movq    0x60(%rsi), %rsi
+    0.08 :   14290:        cmpq    %rsi, %r10
+    0.00 :   14293:        je      0x14380 <matching_engine::OrderBook::cancel(unsigned long)+0x110>
+    0.59 :   14299:        movabsq $-0x61c8864680b583eb, %rdx
+    0.39 :   142a3:        mulxq   %r8, %rcx, %rax
+    0.00 :   142a8:        movzbl  0x9e(%rdi), %edx
+    1.02 :   142af:        xorq    %rcx, %rax
+    0.18 :   142b2:        movq    0x78(%rdi), %rcx
+    0.02 :   142b6:        movzbl  %al, %ebx
+    0.00 :   142b9:        shrxq   %rdx, %rax, %rax
+    0.84 :   142be:        movl    %eax, %edx
+    0.59 :   142c0:        orb     $0x1, %bh
+    0.00 :   142c3:        cmpl    (%rcx,%rdx,8), %ebx
+    0.00 :   142c6:        je      0x143a0 <matching_engine::OrderBook::cancel(unsigned long)+0x130>
+    0.51 :   142cc:        movq    0x80(%rdi), %r11
+    0.14 :   142d3:        leal    0x1(%rax), %edx
+    0.00 :   142d6:        leal    0x100(%rbx), %r12d
+    0.08 :   142dd:        movq    %rdx, %rax
+    0.00 :   142e0:        subq    %rcx, %r11
+    0.02 :   142e3:        sarq    $0x3, %r11
+    0.04 :   142e7:        cmpq    %r11, %rdx
+    0.00 :   142ea:        je      0x143d8 <matching_engine::OrderBook::cancel(unsigned long)+0x168>
+    0.02 :   142f0:        leaq    (%rcx,%rdx,8), %rdx
+    0.04 :   142f4:        cmpl    (%rdx), %r12d
+    0.00 :   142f7:        je      0x143c0 <matching_engine::OrderBook::cancel(unsigned long)+0x150>
+    0.00 :   142fd:        leal    0x1(%rax), %edx
+    0.00 :   14300:        addl    $0x200, %ebx
+    0.00 :   14306:        movq    %rdx, %rax
+    0.00 :   14309:        cmpq    %rdx, %r11
+    0.00 :   1430c:        jne     0x14323 <matching_engine::OrderBook::cancel(unsigned long)+0xb3>
+    0.00 :   1430e:        jmp     0x14378 <matching_engine::OrderBook::cancel(unsigned long)+0x108>
+    0.00 :   14310:        jb      0x14380 <matching_engine::OrderBook::cancel(unsigned long)+0x110>
+    0.00 :   14312:        leal    0x1(%rax), %edx
+    0.00 :   14315:        addl    $0x100, %ebx
+    0.00 :   1431b:        movq    %rdx, %rax
+    0.00 :   1431e:        cmpq    %rdx, %r11
+    0.00 :   14321:        je      0x14378 <matching_engine::OrderBook::cancel(unsigned long)+0x108>
+    0.00 :   14323:        leaq    (%rcx,%rdx,8), %rdx
+    0.00 :   14327:        cmpl    %ebx, (%rdx)
+    0.00 :   14329:        jne     0x14310 <matching_engine::OrderBook::cancel(unsigned long)+0xa0>
+    0.00 :   1432b:        movl    0x4(%rdx), %edx
+    0.00 :   1432e:        shlq    $0x4, %rdx
+    0.00 :   14332:        addq    %rsi, %rdx
+    0.00 :   14335:        cmpq    (%rdx), %r8
+    0.00 :   14338:        jne     0x14312 <matching_engine::OrderBook::cancel(unsigned long)+0xa2>
+    0.02 :   1433a:        cmpq    %r10, %rdx
+    0.00 :   1433d:        je      0x14380 <matching_engine::OrderBook::cancel(unsigned long)+0x110>
+    0.00 :   1433f:        movq    0x8(%rdx), %rsi
+    2.24 :   14343:        testq   %rsi, %rsi
+    0.00 :   14346:        je      0x14380 <matching_engine::OrderBook::cancel(unsigned long)+0x110>
+    0.81 :   14348:        movq    %r8, -0x20(%rbp)
+    0.00 :   1434c:        movq    %r9, -0x18(%rbp)
+    0.04 :   14350:        callq   0x13e50 <matching_engine::OrderBook::remove_resting_order(matching_engine::Order*)>
+    0.73 :   14355:        movq    -0x18(%rbp), %r9
+    0.28 :   14359:        movq    -0x20(%rbp), %r8
+    0.20 :   1435d:        movb    $0x0, 0x10(%r9)
+    0.24 :   14362:        movq    %r9, %rax
+    1.00 :   14365:        movq    %r8, (%r9)
+    0.33 :   14368:        addq    $0x10, %rsp
+    0.06 :   1436c:        popq    %rbx
+    0.71 :   1436d:        popq    %r12
+    0.43 :   1436f:        popq    %rbp
+    0.02 :   14370:        retq
+    0.00 :   14371:        nopl    (%rax)
+    0.00 :   14378:        movq    %rcx, %rdx
+    0.00 :   1437b:        xorl    %eax, %eax
+    0.00 :   1437d:        jmp     0x14327 <matching_engine::OrderBook::cancel(unsigned long)+0xb7>
+    0.00 :   1437f:        nop
+    0.00 :   14380:        movl    $0x1, (%r9)
+    0.00 :   14387:        movq    %r9, %rax
+    0.00 :   1438a:        movq    %r8, 0x8(%r9)
+    0.00 :   1438e:        movb    $0x1, 0x10(%r9)
+    0.00 :   14393:        addq    $0x10, %rsp
+    0.00 :   14397:        popq    %rbx
+    0.00 :   14398:        popq    %r12
+    0.00 :   1439a:        popq    %rbp
+    0.00 :   1439b:        retq
+    0.00 :   1439c:        nopl    (%rax)
+   10.12 :   143a0:        movl    0x4(%rcx,%rdx,8), %edx
+    0.37 :   143a4:        shlq    $0x4, %rdx
+    0.35 :   143a8:        addq    %rsi, %rdx
+    0.90 :   143ab:        cmpq    (%rdx), %r8
+    0.04 :   143ae:        jne     0x142cc <matching_engine::OrderBook::cancel(unsigned long)+0x5c>
+   69.92 :   143b4:        jmp     0x1433a <matching_engine::OrderBook::cancel(unsigned long)+0xca>
+    0.00 :   143b6:        nopw    %cs:(%rax,%rax)
+    0.02 :   143c0:        movl    0x4(%rdx), %edx
+    0.02 :   143c3:        shlq    $0x4, %rdx
+    0.02 :   143c7:        addq    %rsi, %rdx
+    0.02 :   143ca:        cmpq    (%rdx), %r8
+    0.00 :   143cd:        jne     0x142fd <matching_engine::OrderBook::cancel(unsigned long)+0x8d>
+    2.89 :   143d3:        jmp     0x1433a <matching_engine::OrderBook::cancel(unsigned long)+0xca>
+    0.00 :   143d8:        movq    %rcx, %rdx
+    0.00 :   143db:        xorl    %eax, %eax
+    0.00 :   143dd:        jmp     0x142f4 <matching_engine::OrderBook::cancel(unsigned long)+0x84>

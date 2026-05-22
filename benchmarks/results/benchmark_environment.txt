@@ -1,11 +1,11 @@
-date=2026-05-20T22:43:35Z
+date=2026-05-21T00:09:09Z
 git_commit=N/A
 git_status=unavailable; source transferred without .git metadata
 ec2_instance_type=t3.small
 uname=Linux ip-172-31-44-213 7.0.0-1004-aws #4-Ubuntu SMP PREEMPT Mon Apr 13 13:14:24 UTC 2026 x86_64 GNU/Linux
 build_type=Release
 release_flags=-O3 -DNDEBUG -march=native
-benchmark_targets=all
+benchmark_targets=core_hot_path,realistic_flow,stress,batch_latency
 cmake_version=cmake version 4.2.3
 compiler_version=c++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0
 
