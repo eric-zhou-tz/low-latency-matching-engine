@@ -175,6 +175,35 @@ For the full containerized smoke suite:
 ./scripts/docker_validate.sh
 ```
 
+### Linux Release Binary
+
+Download the Linux x86_64 tarball and checksum from the GitHub release assets.
+Do not commit these generated archives to the repository.
+
+```bash
+VERSION=v0.9.4
+ASSET=matching-engine-v0.9.4-linux-x86_64-20260523T112032Z.tar.gz
+
+curl -LO "https://github.com/eric-zhou-tz/low-latency-matching-engine/releases/download/$VERSION/$ASSET"
+curl -LO "https://github.com/eric-zhou-tz/low-latency-matching-engine/releases/download/$VERSION/$ASSET.sha256"
+
+sha256sum -c "$ASSET.sha256"
+tar -xzf "$ASSET"
+cd "${ASSET%.tar.gz}"
+```
+
+Run the packaged replay demo:
+
+```bash
+./matching_engine --model=fast < tests/replay_cli.txt
+```
+
+Run the interactive CLI:
+
+```bash
+./matching_engine
+```
+
 ### Native CMake Build
 
 ```bash
