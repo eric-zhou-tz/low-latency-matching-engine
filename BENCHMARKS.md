@@ -240,4 +240,4 @@ EC2 transfer hygiene:
 | --- | --- |
 | Exclude `.git`, local build directories, `.DS_Store`, and macOS `._*` AppleDouble files from remote source transfers. | Sidecar files can be discovered as bogus replay fixtures and invalidate CTest setup. |
 | Run benchmarks only on native Linux/EC2 for final numbers. | Local macOS and Docker checks are useful for development, but release benchmark claims should come from the Linux host. |
-| Keep raw Google Benchmark output out of this document. | Recruiter-facing reporting should show curated comparable metrics, with raw artifacts retained under `benchmarks/results/`. |
+| Keep raw Google Benchmark output out of this document. | Curated reporting should show comparable metrics, with raw artifacts retained under `benchmarks/results/`. |

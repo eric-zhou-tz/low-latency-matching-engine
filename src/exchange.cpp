@@ -1,5 +1,6 @@
 #include "exchange.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <string>
@@ -50,6 +51,25 @@ void Exchange::process(const Action& action, std::vector<Event>& out) {
             process_action(concrete_action, out);
         },
         action);
+}
+
+/**
+ * @brief Copies current book state into symbol-sorted snapshots.
+ */
+std::vector<Exchange::DebugBookSnapshot> Exchange::debug_snapshots() const {
+    std::vector<DebugBookSnapshot> snapshots;
+    snapshots.reserve(books_by_symbol_.size());
+
+    for (const auto& [symbol, book] : books_by_symbol_) {
+        // Copy book internals through the existing validation surface for presentation rendering.
+        snapshots.push_back(DebugBookSnapshot{.symbol = symbol, .book = book->debug_snapshot()});
+    }
+
+    std::sort(snapshots.begin(), snapshots.end(), [](const auto& left, const auto& right) {
+        return left.symbol < right.symbol;
+    });
+
+    return snapshots;
 }
 
 /**

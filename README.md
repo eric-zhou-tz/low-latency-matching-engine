@@ -134,12 +134,36 @@ Run the demo through each engine model:
 
 ## Supported Commands
 
+The public CLI/replay protocol accepts one command per line. Commands and enum
+tokens are uppercase, numeric fields are integer values, and malformed lines are
+reported as `REJECTED invalid command`.
+
 ```text
 SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity> [GTC|IOC|FOK]
 MARKET <id> <symbol> <BUY|SELL> <quantity>
 CANCEL <id>
+MODIFY <id> <new_price> <new_quantity>
 PRINT
 ```
+
+Canonical command behavior:
+
+- `SUBMIT` adds a limit order for `symbol`. `GTC` is the default time-in-force
+  when omitted; resting remainders stay on the book only for GTC orders.
+- `SUBMIT ... IOC` executes immediately against crossing liquidity and cancels
+  any unfilled remainder.
+- `SUBMIT ... FOK` executes only if the full quantity is available immediately;
+  otherwise it rejects without mutating the book.
+- `MARKET` consumes opposite-side liquidity immediately without a limit price
+  and never rests on the book.
+- `CANCEL` removes an existing resting order by order id.
+- `MODIFY` changes the price and quantity of an existing resting order by order
+  id. Unknown order ids are rejected.
+- `PRINT` emits a human-readable snapshot for every known symbol book, or
+  `book: empty` before any symbol book exists.
+
+Symbols must be non-empty, quantities must be greater than zero, and commands do
+not accept trailing extra tokens.
 
 ## Testing
 

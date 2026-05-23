@@ -2,13 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.9.0 -> CLI Presentation Mode
+
+- Added a polished interactive CLI shell that opens with a product-style main menu instead of dropping directly into raw stdin parsing.
+- Added a guided 15-step interactive demo that runs scripted commands through the real parser, exchange, matching engine, and live book snapshots.
+- Added manual command mode so the previous command workflow remains available from the menu, with `HELP`, `PRINT`, invalid-command handling, and `EXIT` returning to the main menu.
+- Added readable presentation formatting for executions, rejections, IOC/market expirations, modifies, cancels, and aligned multi-symbol order-book views.
+- Added placeholder menu entries for benchmark comparison, advanced benchmarks, and replay-from-file mode without wiring those workflows yet.
+- Added deterministic exchange debug snapshots for presentation rendering while preserving the existing matching logic and script-runner behavior.
+- Verified the local build and full CTest suite after the CLI changes: 127/127 tests passed.
+
 ## v0.8.2 -> v1 Hot and Critical Path Analysis + Graphs
 
 - Reran the hot/critical path benchmark workflow on the Ubuntu EC2 `t3.small`
   host with a pinned Release build using `-O3 -DNDEBUG -march=native`.
 - Verified correctness before benchmarking with the full CTest suite: 127/127
   tests passed.
-- Added `docs/HOTPATH.md` as the recruiter-facing and reviewer-facing summary
+- Added `docs/HOTPATH.md` as the public-facing and reviewer-facing summary
   for the latest hot-path pass, including environment, artifact links,
   throughput snapshots, latency snapshots, perf findings, caveats, and current
   hot/warm/cold path classification.
@@ -37,7 +47,7 @@ All notable changes to this project will be documented in this file.
 
 ## v0.8.1 -> Queryable Benchmark History
 
-- Added a recruiter-friendly SQLite benchmark history database at `benchmarks/benchmark_history.db` while keeping `BENCHMARKS.md` and `docs/benchmark_history.md` as the primary Markdown views.
+- Added a reviewer-friendly SQLite benchmark history database at `benchmarks/benchmark_history.db` while keeping `BENCHMARKS.md` and `docs/benchmark_history.md` as the primary Markdown views.
 - Added `benchmarks/schema.sql` and `benchmarks/benchmark_history.sql` so technical reviewers can inspect or recreate the benchmark database without relying on the binary artifact.
 - Added `benchmarks/README.md` with simple `sqlite3` usage instructions and example queries for latest runs, throughput leaders, and latency rows.
 - Populated the database from the existing benchmark history, current benchmark summary, changelog context, and checked-in benchmark result artifacts, preserving missing values as `NULL` instead of inventing precision.
@@ -46,7 +56,7 @@ All notable changes to this project will be documented in this file.
 ## v0.8.0 -> Refreshed Full Benchmark Suite
 
 - Refreshed the full EC2/Linux benchmark suite on the pinned `t3.small` host with a Release `-O3 -DNDEBUG -march=native` build and 127/127 CTest cases passing before benchmark execution.
-- Reworked `BENCHMARKS.md` into a recruiter-facing current-results report covering core hot path, realistic flow, stress, and determinism/replay workloads.
+- Reworked `BENCHMARKS.md` into a reviewer-facing current-results report covering core hot path, realistic flow, stress, and determinism/replay workloads.
 - Added latest benchmark artifacts for core hot path, realistic flow, stress, replay, and batch latency runs under `benchmarks/results/`.
 - Moved benchmark output defaults from `benchmarks/` to `benchmarks/results/` in the EC2 benchmark runner, perf-counter runner, and standalone batch-latency runner.
 - Documented transfer hygiene for EC2 runs so `.git`, local build directories, `.DS_Store`, and macOS `._*` sidecar files stay out of remote benchmark source trees.

@@ -22,6 +22,14 @@ namespace matching_engine {
 class Exchange {
 public:
     /**
+     * @brief Read-only snapshot for one routed symbol book.
+     */
+    struct DebugBookSnapshot {
+        std::string symbol;
+        OrderBook::DebugSnapshot book;
+    };
+
+    /**
      * @brief Creates an exchange with default book allocation behavior.
      */
     Exchange() = default;
@@ -40,6 +48,13 @@ public:
      * @param out Caller-owned event buffer filled with emitted events.
      */
     void process(const Action& action, std::vector<Event>& out);
+
+    /**
+     * @brief Copies all visible books into deterministic debug snapshots.
+     *
+     * @return Symbol snapshots sorted by symbol name.
+     */
+    [[nodiscard]] std::vector<DebugBookSnapshot> debug_snapshots() const;
 
 private:
     /**

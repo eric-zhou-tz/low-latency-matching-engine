@@ -1,6 +1,6 @@
 # Benchmark History Database
 
-The Markdown benchmark reports remain the primary recruiter-facing view:
+The Markdown benchmark reports remain the primary reviewer-facing view:
 
 - `../BENCHMARKS.md` summarizes the latest polished results.
 - `../docs/benchmark_history.md` keeps the web-readable historical log.
