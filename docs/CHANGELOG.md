@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## v1.0.0 -> Version 1 Recap
+
+- Stabilized the matching engine around deterministic price-time priority, integer price/quantity types, FIFO price levels, and clear exchange/order-book/parser boundaries.
+- Completed the core order flow: submit, cancel, modify/cancel-replace, IOC, FOK, market orders, multi-symbol routing, and exact replay fixtures.
+- Built a practical interactive CLI with guided demo, manual command mode, replay-from-file mode, aligned book snapshots, and local benchmark comparison tooling.
+- Expanded validation to unit, regression, invariant, replay, stress, and Linux/EC2 release test coverage, with 130/130 CTest cases passing in the latest official run.
+- Established reproducible benchmark reporting with native EC2 release runs, checked-in result artifacts, SQLite history, regenerated SQL snapshots, and current-result Markdown summaries.
+- Documented the hot path, critical paths, profiling caveats, and source-transfer hygiene so benchmark runs exclude local build outputs and macOS sidecar files.
+
 ## v0.9.4 -> Benchmark Refresh: EC2 c7i-flex.large
 
 - Refreshed the official native EC2/Linux benchmark suite on `c7i-flex.large` at commit `53240e0` with a Release `-O3 -DNDEBUG -march=native` build.
