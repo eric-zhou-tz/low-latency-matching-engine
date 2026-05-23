@@ -190,6 +190,11 @@ ctest --test-dir build --output-on-failure
 Benchmarks are implemented using Google Benchmark and executed on a dedicated
 Ubuntu EC2 benchmark host using Release-mode builds.
 
+Current official benchmark results are from EC2 `c7i-flex.large` on commit
+`53240e0`. Historical benchmark development through earlier v0.x releases was
+performed on EC2 `t3.small`, and those historical rows remain labeled with their
+original hardware.
+
 Current benchmark coverage includes:
 
 - Resting limit-order insertion
@@ -201,16 +206,16 @@ Current benchmark coverage includes:
 
 Latest EC2 Release hot-path highlights:
 
-- 100,000-order insert: `11.49M items/s`
-- 100,000-order crossing match: `17.14M items/s`
-- 100,000 random cancel: `8.483M items/s`
-- 100,000 unknown cancel: `115.7M items/s`
-- 100,000 mixed submit/cancel/match: `18.24M items/s`
+- 100,000-order insert: `34.22M items/s`
+- 100,000-order crossing match: `32.37M items/s`
+- 100,000 random cancel: `26.14M items/s`
+- 100,000 unknown cancel: `318.31M items/s`
+- 100,000 true mixed OrderBook flow: `23.52M items/s`
 
 Latest EC2 Release end-to-end CLI-style highlights:
 
-- 100,000 command parse/process/format: `1.047M commands/s`
-- 100,000 command mixed order flow: `1.343M commands/s`
+- 100,000 command passive insert flow: `1.97M commands/s`
+- 100,000 command true mixed flow: `2.17M commands/s`
 
 End-to-end results include parser, exchange, OrderBook, and event-formatting
 overhead. They should not be compared directly to OrderBook hot-path

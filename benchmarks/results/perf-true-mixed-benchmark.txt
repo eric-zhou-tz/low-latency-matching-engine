@@ -1,29 +1,17 @@
-WARNING: Kernel address maps (/proc/{kallsyms,modules}) are restricted,
-check /proc/sys/kernel/kptr_restrict and /proc/sys/kernel/perf_event_paranoid.
-
-Samples in kernel functions may not be resolved if a suitable vmlinux
-file is not found in the buildid cache or in the vmlinux path.
-
-Samples in kernel modules won't be resolved at all.
-
-If some relocation was applied (e.g. kexec) symbols may be misresolved
-even with a suitable vmlinux or kallsyms file.
-
-Couldn't record kernel reference relocation symbol
-Symbol resolution may be skewed if relocation was used (e.g. kexec).
-Check /proc/kallsyms permission or run as root.
-2026-05-21T00:33:28+00:00
+=== profiling true-mixed ===
+command: sudo perf record -e cpu-clock -g -F 999 -o benchmarks/results/perf-true-mixed.data -- taskset -c 0 ./build-perf-debug/realistic_flow_benchmark --benchmark_filter=^BM_OrderBook_TrueMixed_Throughput/100000$
+2026-05-23T08:24:19+00:00
 Running ./build-perf-debug/realistic_flow_benchmark
-Run on (2 X 2500 MHz CPU s)
+Run on (2 X 2400 MHz CPU s)
 CPU Caches:
-  L1 Data 32 KiB (x1)
+  L1 Data 48 KiB (x1)
   L1 Instruction 32 KiB (x1)
-  L2 Unified 1024 KiB (x1)
-  L3 Unified 36608 KiB (x1)
-Load Average: 1.19, 1.45, 1.08
+  L2 Unified 2048 KiB (x1)
+  L3 Unified 107520 KiB (x1)
+Load Average: 2.32, 1.48, 0.86
 ---------------------------------------------------------------------------------------------------
 Benchmark                                         Time             CPU   Iterations UserCounters...
 ---------------------------------------------------------------------------------------------------
-BM_OrderBook_TrueMixed_Throughput/100000    6462887 ns      6463599 ns          647 items_per_second=15.4713M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
-[ perf record: Woken up 17 times to write data ]
-[ perf record: Captured and wrote 4.048 MB benchmarks/results/perf-true-mixed.data (25881 samples) ]
+BM_OrderBook_TrueMixed_Throughput/100000    4241067 ns      4240919 ns          164 items_per_second=23.5798M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+[ perf record: Woken up 2 times to write data ]
+[ perf record: Captured and wrote 0.261 MB benchmarks/results/perf-true-mixed.data (1609 samples) ]

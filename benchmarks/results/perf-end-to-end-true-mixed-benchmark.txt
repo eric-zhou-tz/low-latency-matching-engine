@@ -1,29 +1,17 @@
-WARNING: Kernel address maps (/proc/{kallsyms,modules}) are restricted,
-check /proc/sys/kernel/kptr_restrict and /proc/sys/kernel/perf_event_paranoid.
-
-Samples in kernel functions may not be resolved if a suitable vmlinux
-file is not found in the buildid cache or in the vmlinux path.
-
-Samples in kernel modules won't be resolved at all.
-
-If some relocation was applied (e.g. kexec) symbols may be misresolved
-even with a suitable vmlinux or kallsyms file.
-
-Couldn't record kernel reference relocation symbol
-Symbol resolution may be skewed if relocation was used (e.g. kexec).
-Check /proc/kallsyms permission or run as root.
-2026-05-21T00:33:52+00:00
+=== profiling end-to-end-true-mixed ===
+command: sudo perf record -e cpu-clock -g -F 999 -o benchmarks/results/perf-end-to-end-true-mixed.data -- taskset -c 0 ./build-perf-debug/realistic_flow_benchmark --benchmark_filter=^BM_EndToEnd_TrueMixed_Throughput/100000$
+2026-05-23T08:24:26+00:00
 Running ./build-perf-debug/realistic_flow_benchmark
-Run on (2 X 2500 MHz CPU s)
+Run on (2 X 2400 MHz CPU s)
 CPU Caches:
-  L1 Data 32 KiB (x1)
+  L1 Data 48 KiB (x1)
   L1 Instruction 32 KiB (x1)
-  L2 Unified 1024 KiB (x1)
-  L3 Unified 36608 KiB (x1)
-Load Average: 1.12, 1.41, 1.07
+  L2 Unified 2048 KiB (x1)
+  L3 Unified 107520 KiB (x1)
+Load Average: 2.21, 1.47, 0.86
 --------------------------------------------------------------------------------------------------
 Benchmark                                        Time             CPU   Iterations UserCounters...
 --------------------------------------------------------------------------------------------------
-BM_EndToEnd_TrueMixed_Throughput/100000   77493426 ns     77486205 ns           54 items_per_second=1.29055M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
-[ perf record: Woken up 17 times to write data ]
-[ perf record: Captured and wrote 4.224 MB benchmarks/results/perf-end-to-end-true-mixed.data (25289 samples) ]
+BM_EndToEnd_TrueMixed_Throughput/100000   46199041 ns     46196405 ns           15 items_per_second=2.16467M/s max_live_orders=2.5k preload_orders=2.5k reserve_order_capacity=10k
+[ perf record: Woken up 2 times to write data ]
+[ perf record: Captured and wrote 0.273 MB benchmarks/results/perf-end-to-end-true-mixed.data (1582 samples) ]

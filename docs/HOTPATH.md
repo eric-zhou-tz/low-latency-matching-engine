@@ -1,20 +1,25 @@
 # Hot Path Analysis
 
-## 2026-05-21 EC2 Rerun
+## 2026-05-23 EC2 c7i-flex.large Rerun
 
 This pass reran the hot/critical path workflow on EC2 and generated chart and
 flamegraph artifacts from the Linux run.
 
 ### Environment
 
-- Host: AWS EC2 `t3.small`
+- Host: AWS EC2 `c7i-flex.large`
 - OS/kernel: Ubuntu 26.04 LTS, Linux `7.0.0-1004-aws`
-- CPU: Intel Xeon Platinum 8259CL @ 2.50GHz
+- CPU: Intel Xeon Platinum 8488C
 - Compiler: GCC/G++ 15.2.0
 - Build: Release, `-O3 -DNDEBUG -march=native`
-- Source: local rsync of commit `714906f`, excluding `.git`, build
-  directories, `.DS_Store`, and macOS `._*` sidecar files
-- Validation: `127/127` CTest cases passed before benchmark execution
+- Source: fresh EC2 clone of commit `53240e0`; generated benchmark artifacts
+  made the worktree dirty after the run began
+- Validation: `130/130` CTest cases passed before benchmark execution
+
+Historical benchmark development through earlier v0.x releases was performed on
+EC2 `t3.small`. This refreshed v1 benchmark and profiling pass was rerun on EC2
+`c7i-flex.large` for more stable sustained CPU performance and profiling
+consistency.
 
 ### Artifacts
 
@@ -44,17 +49,17 @@ All rows are Google Benchmark median rows from the EC2 run.
 
 | Workload | CPU Time | Throughput |
 | --- | ---: | ---: |
-| Passive insert, 100k ops | `8.24 ms` | `12.13M ops/sec` |
-| One-level crossing match, 100k ops | `6.25 ms` | `15.99M ops/sec` |
-| Random cancel, 100k ops | `12.21 ms` | `8.19M ops/sec` |
-| Unknown cancel, 100k ops | `0.89 ms` | `112.98M ops/sec` |
-| Modify if present, 100k ops | `3.30 ms` | `30.30M ops/sec` |
-| OrderBook true mixed, 100k ops | `6.37 ms` | `15.69M ops/sec` |
-| End-to-end true mixed, 100k commands | `78.90 ms` | `1.27M commands/sec` |
-| Best-level churn, 1M ops | `65.41 ms` | `15.29M ops/sec` |
-| Level create/delete churn, 1M ops | `44.09 ms` | `22.68M ops/sec` |
-| Shallow GTC mixed, 100k primary ops | `9.90 ms` | `18.68M ops/sec` |
-| Deep sparse GTC mixed, 100k primary ops | `57.44 ms` | `1.74M ops/sec` |
+| Passive insert, 100k ops | `2.92 ms` | `34.22M ops/sec` |
+| One-level crossing match, 100k ops | `3.09 ms` | `32.37M ops/sec` |
+| Random cancel, 100k ops | `3.83 ms` | `26.14M ops/sec` |
+| Unknown cancel, 100k ops | `0.31 ms` | `318.31M ops/sec` |
+| Modify if present, 100k ops | `1.65 ms` | `60.51M ops/sec` |
+| OrderBook true mixed, 100k ops | `4.25 ms` | `23.52M ops/sec` |
+| End-to-end true mixed, 100k commands | `46.04 ms` | `2.17M commands/sec` |
+| Best-level churn, 1M ops | `35.75 ms` | `27.97M ops/sec` |
+| Level create/delete churn, 1M ops | `22.53 ms` | `44.39M ops/sec` |
+| Shallow GTC mixed, 100k primary ops | `6.65 ms` | `27.82M ops/sec` |
+| Deep sparse GTC mixed, 100k primary ops | `28.36 ms` | `3.53M ops/sec` |
 
 ### Latency Snapshot
 
@@ -63,18 +68,20 @@ size. These are amortized batch latencies, not true single-order tail latency.
 
 | Workload | p50 | p99 | Max |
 | --- | ---: | ---: | ---: |
-| Passive insert | `119.30 ns/op` | `168.36 ns/op` | `233.36 ns/op` |
-| One-level crossing match | `106.91 ns/op` | `178.66 ns/op` | `221.12 ns/op` |
-| Random cancel | `325.44 ns/op` | `388.73 ns/op` | `479.28 ns/op` |
-| Unknown cancel | `11.18 ns/op` | `27.35 ns/op` | `72.65 ns/op` |
-| Modify if present | `62.09 ns/op` | `98.12 ns/op` | `131.94 ns/op` |
-| OrderBook true mixed | `80.97 ns/op` | `121.77 ns/op` | `295.15 ns/op` |
+| Passive insert | `33.59 ns/op` | `60.27 ns/op` | `87.57 ns/op` |
+| One-level crossing match | `36.33 ns/op` | `69.36 ns/op` | `89.77 ns/op` |
+| Random cancel | `68.47 ns/op` | `113.79 ns/op` | `153.16 ns/op` |
+| Unknown cancel | `7.51 ns/op` | `11.88 ns/op` | `50.67 ns/op` |
+| Modify if present | `20.72 ns/op` | `30.39 ns/op` | `68.33 ns/op` |
+| OrderBook true mixed | `52.38 ns/op` | `91.77 ns/op` | `112.37 ns/op` |
 
 ### Perf Findings
 
 Hardware PMU counters were unavailable on this EC2/kernel combination. The run
 therefore used software `cpu-clock` sampling with frame pointers. Kernel symbols
 were restricted, but user-space matching-engine symbols resolved correctly.
+Separate `perf stat` attempts for core hot path, realistic flow, and stress
+failed with `No supported events found. The cycles event is not supported.`
 
 | Profile | Main signal |
 | --- | --- |
@@ -87,11 +94,11 @@ were restricted, but user-space matching-engine symbols resolved correctly.
 
 | Path | Classification | Reason |
 | --- | --- | --- |
-| End-to-end parser/format boundary | Hot | End-to-end true mixed is roughly 12x slower than direct `OrderBook` true mixed in throughput. |
+| End-to-end parser/format boundary | Hot | End-to-end true mixed is roughly 11x slower than direct `OrderBook` true mixed in throughput. |
 | Random cancel | Hot | Random cancel has the highest p50/p99 among core batch-latency rows and remains much slower than hash-miss cancel. |
-| Deep sparse price-level access | Hot under adversarial books | Sparse 50k-level workload falls to ~1.74M ops/sec and shows tree lookup work in perf. |
+| Deep sparse price-level access | Hot under adversarial books | Sparse 50k-level workload falls to ~3.53M ops/sec and shows tree lookup work in perf. |
 | Intrusive queue unlink itself | Warm | It is part of hot cancel/remove frames, but the queue operation is no longer isolated as the dominant cost. |
-| Unknown cancel | Cold | The rejection path is extremely fast at ~113M ops/sec and ~27 ns p99 batch latency. |
+| Unknown cancel | Cold | The rejection path is extremely fast at ~318M ops/sec and ~12 ns p99 batch latency. |
 
 ### Caveats
 
@@ -101,9 +108,11 @@ were restricted, but user-space matching-engine symbols resolved correctly.
   workload-construction frames; use the throughput and latency artifacts for the
   measured benchmark numbers.
 - Hardware counters such as cycles, instructions, cache misses, and LLC misses
-  were unsupported on this host. See `benchmarks/results/perf_results.csv`.
-- The deep sparse 100k row had a noisy repetition; the median is the better
-  summary for this pass.
+  were unsupported on this host. See `benchmarks/results/perf_results.csv` and
+  `benchmarks/results/*_perf_stat*.txt`.
+- `perf stat` runs are diagnostic only and introduce measurement overhead; the
+  official throughput and latency numbers above come from normal native
+  benchmark execution.
 
 ## Earlier Cancel-Only Pass
 

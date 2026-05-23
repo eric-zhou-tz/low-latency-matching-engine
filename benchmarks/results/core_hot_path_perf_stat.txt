@@ -1,0 +1,16 @@
+Supplemental perf stat diagnostic analysis
+date=2026-05-23T08:24:58Z
+git_commit=53240e025442843c6a67450505499a8495ba1f56
+instance_type=c7i-flex.large
+perf_event_paranoid=1
+counters=cycles,instructions,cache-references,cache-misses,branches,branch-misses
+command=sudo perf stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses -- taskset -c 0 ./build-release/core_hot_path_benchmark --benchmark_filter=^BM_OrderBook_.*_Throughput/100000$
+
+exit_status=1
+
+perf_stat_output:
+  Error:
+  No supported events found.
+  The cycles event is not supported.
+
+benchmark_stdout:

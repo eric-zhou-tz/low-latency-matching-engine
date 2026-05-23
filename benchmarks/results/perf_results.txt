@@ -1,16 +1,52 @@
 Hardware performance counter results
-date=2026-05-21T00:34:54Z
-git_commit=
-git_status=clean
+date=2026-05-23T08:25:10Z
+git_commit=53240e025442843c6a67450505499a8495ba1f56
+git_status=dirty
+ M benchmarks/results/batch_latency_results.json
+ M benchmarks/results/batch_latency_results.txt
+ M benchmarks/results/benchmark_environment.txt
+ M benchmarks/results/core_hot_path_results.json
+ M benchmarks/results/core_hot_path_results.txt
+ M benchmarks/results/determinism_replay_results.json
+ M benchmarks/results/determinism_replay_results.txt
+ M benchmarks/results/perf-deep-sparse-benchmark.txt
+ M benchmarks/results/perf-deep-sparse-report.txt
+ M benchmarks/results/perf-end-to-end-true-mixed-benchmark.txt
+ M benchmarks/results/perf-end-to-end-true-mixed-report.txt
+ M benchmarks/results/perf-random-cancel-annotate-cancel.txt
+ M benchmarks/results/perf-random-cancel-benchmark.txt
+ M benchmarks/results/perf-random-cancel-report.txt
+ M benchmarks/results/perf-true-mixed-benchmark.txt
+ M benchmarks/results/perf-true-mixed-report.txt
+ M benchmarks/results/perf_hotpath_notes.txt
+ M benchmarks/results/perf_results.txt
+ M benchmarks/results/realistic_flow_results.json
+ M benchmarks/results/realistic_flow_results.txt
+ M benchmarks/results/stress_benchmark_results.json
+ M benchmarks/results/stress_benchmark_results.txt
+ M docs/perf-deep-sparse.svg
+ M docs/perf-end-to-end-true-mixed.svg
+ M docs/perf-random-cancel.svg
+ M docs/perf-true-mixed.svg
+?? benchmarks/results/core_hot_path_perf_stat.txt
+?? benchmarks/results/core_hot_path_perf_stat_benchmark_stdout.txt
+?? benchmarks/results/core_hot_path_perf_stat_raw.txt
+?? benchmarks/results/realistic_flow_perf_stat.txt
+?? benchmarks/results/realistic_flow_perf_stat_benchmark_stdout.txt
+?? benchmarks/results/realistic_flow_perf_stat_raw.txt
+?? benchmarks/results/stress_perf_stat.txt
+?? benchmarks/results/stress_perf_stat_benchmark_stdout.txt
+?? benchmarks/results/stress_perf_stat_raw.txt
+?? build-perf-debug/
 pin_cpu=0
 latency_samples=1024
 latency_warmup_batches=128
 latency_trials=5
-benchmark_binary=/home/ubuntu/MatchingEngine-hotpath/build-release/core_hot_path_latency_benchmark
+benchmark_binary=/home/ubuntu/matching-engine-c7i-refresh-20260523/build-release/core_hot_path_latency_benchmark
 perf_events=none
 
 command:
-perf stat -x, -o /home/ubuntu/MatchingEngine-hotpath/benchmarks/results/perf_results.csv -e none -- taskset -c 0 /home/ubuntu/MatchingEngine-hotpath/build-release/core_hot_path_latency_benchmark --output-dir=/home/ubuntu/MatchingEngine-hotpath/benchmarks/results --samples=1024 --warmup=128 --trials=5
+perf stat -x, -o /home/ubuntu/matching-engine-c7i-refresh-20260523/benchmarks/results/perf_results.csv -e none -- taskset -c 0 /home/ubuntu/matching-engine-c7i-refresh-20260523/build-release/core_hot_path_latency_benchmark --output-dir=/home/ubuntu/matching-engine-c7i-refresh-20260523/benchmarks/results --samples=1024 --warmup=128 --trials=5
 
 unsupported_counters:
 - cycles

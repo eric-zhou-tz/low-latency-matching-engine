@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" width="1200" height="934" onload="init(evt)" viewBox="0 0 1200 934" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg version="1.1" width="1200" height="870" onload="init(evt)" viewBox="0 0 1200 870" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <!-- Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples. -->
 <!-- NOTES:  -->
 <defs>
@@ -422,1569 +422,1449 @@
 	}
 ]]>
 </script>
-<rect x="0.0" y="0" width="1200.0" height="934.0" fill="url(#background)"  />
-<text id="title" x="600.00" y="24" >random-cancel cpu-clock</text>
-<text id="details" x="10.00" y="917" > </text>
+<rect x="0.0" y="0" width="1200.0" height="870.0" fill="url(#background)"  />
+<text id="title" x="600.00" y="24" >random-cancel c7i-flex.large cpu-clock</text>
+<text id="details" x="10.00" y="853" > </text>
 <text id="unzoom" x="10.00" y="24" class="hide">Reset Zoom</text>
 <text id="search" x="1090.00" y="24" >Search</text>
 <text id="ignorecase" x="1174.00" y="24" >ic</text>
-<text id="matched" x="1090.00" y="917" > </text>
+<text id="matched" x="1090.00" y="853" > </text>
 <g id="frames">
 <g >
-<title>_M_default_append (25,250,000 samples, 0.29%)</title><rect x="63.3" y="357" width="3.4" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
-<text  x="66.29" y="367.5" ></text>
+<title>prepare_incoming_order (19,019,019 samples, 0.93%)</title><rect x="712.2" y="389" width="11.0" height="15.0" fill="rgb(242,173,41)" rx="2" ry="2" />
+<text  x="715.22" y="399.5" ></text>
 </g>
 <g >
-<title>operator (750,000 samples, 0.01%)</title><rect x="10.5" y="469" width="0.1" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
-<text  x="13.47" y="479.5" ></text>
+<title>ResumeTiming (1,001,001 samples, 0.05%)</title><rect x="708.2" y="357" width="0.5" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
+<text  x="711.17" y="367.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="66.5" y="213" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.49" y="223.5" ></text>
+<title>_Move_ctor_base (13,013,013 samples, 0.64%)</title><rect x="1180.7" y="245" width="7.6" height="15.0" fill="rgb(245,188,45)" rx="2" ry="2" />
+<text  x="1183.75" y="255.5" ></text>
 </g>
 <g >
-<title>StartTimer (2,250,000 samples, 0.03%)</title><rect x="803.6" y="405" width="0.3" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
-<text  x="806.58" y="415.5" ></text>
+<title>vma_alloc_folio_noprof (3,003,003 samples, 0.15%)</title><rect x="888.1" y="165" width="1.7" height="15.0" fill="rgb(218,61,14)" rx="2" ry="2" />
+<text  x="891.06" y="175.5" ></text>
 </g>
 <g >
-<title>operator[] (750,000 samples, 0.01%)</title><rect x="1001.9" y="373" width="0.1" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
-<text  x="1004.94" y="383.5" ></text>
+<title>_Variant_base&lt;0, matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="341" width="494.0" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="217.19" y="351.5" >_Variant_base&lt;0, matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>clear (36,500,000 samples, 0.41%)</title><rect x="1061.2" y="421" width="4.8" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
-<text  x="1064.17" y="431.5" ></text>
+<title>folios_put_refs (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="245" width="0.6" height="15.0" fill="rgb(254,229,54)" rx="2" ry="2" />
+<text  x="1192.42" y="255.5" ></text>
 </g>
 <g >
-<title>[unknown] (6,250,000 samples, 0.07%)</title><rect x="15.0" y="293" width="0.8" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="17.97" y="303.5" ></text>
+<title>[libc.so.6] (1,001,001 samples, 0.05%)</title><rect x="730.1" y="213" width="0.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="733.15" y="223.5" ></text>
 </g>
 <g >
-<title>_M_reset (10,500,000 samples, 0.12%)</title><rect x="1188.4" y="325" width="1.4" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
-<text  x="1191.37" y="335.5" ></text>
+<title>unmap_region (3,003,003 samples, 0.15%)</title><rect x="11.2" y="229" width="1.7" height="15.0" fill="rgb(219,64,15)" rx="2" ry="2" />
+<text  x="14.16" y="239.5" ></text>
 </g>
 <g >
-<title>mum (20,750,000 samples, 0.23%)</title><rect x="1012.0" y="325" width="2.8" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
-<text  x="1015.01" y="335.5" ></text>
+<title>[libc.so.6] (1,001,001 samples, 0.05%)</title><rect x="49.3" y="293" width="0.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="52.33" y="303.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,500,000 samples, 0.02%)</title><rect x="10.8" y="197" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.80" y="207.5" ></text>
+<title>_raw_spin_unlock (1,001,001 samples, 0.05%)</title><rect x="889.2" y="69" width="0.6" height="15.0" fill="rgb(223,85,20)" rx="2" ry="2" />
+<text  x="892.22" y="79.5" ></text>
 </g>
 <g >
-<title>variant&lt;matching_engine::CanceledEvent&gt; (4,272,250,000 samples, 48.30%)</title><rect x="233.6" y="437" width="569.9" height="15.0" fill="rgb(228,107,25)" rx="2" ry="2" />
-<text  x="236.64" y="447.5" >variant&lt;matching_engine::CanceledEvent&gt;</text>
+<title>__raw_callee_save___pv_queued_spin_unlock (1,001,001 samples, 0.05%)</title><rect x="889.2" y="53" width="0.6" height="15.0" fill="rgb(248,202,48)" rx="2" ry="2" />
+<text  x="892.22" y="63.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="1011.7" y="261" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="1014.68" y="271.5" ></text>
+<title>rcu_core (1,001,001 samples, 0.05%)</title><rect x="11.2" y="37" width="0.5" height="15.0" fill="rgb(222,81,19)" rx="2" ry="2" />
+<text  x="14.16" y="47.5" ></text>
 </g>
 <g >
-<title>resize (25,250,000 samples, 0.29%)</title><rect x="63.3" y="373" width="3.4" height="15.0" fill="rgb(212,36,8)" rx="2" ry="2" />
-<text  x="66.29" y="383.5" ></text>
+<title>bucket_count (3,003,003 samples, 0.15%)</title><rect x="208.4" y="293" width="1.7" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="211.40" y="303.5" ></text>
 </g>
 <g >
-<title>[ld-linux-x86-64.so.2] (1,000,000 samples, 0.01%)</title><rect x="10.0" y="853" width="0.1" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
-<text  x="13.00" y="863.5" ></text>
+<title>bucket_count (2,002,002 samples, 0.10%)</title><rect x="984.7" y="293" width="1.1" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="987.66" y="303.5" ></text>
 </g>
 <g >
-<title>clock_gettime (1,750,000 samples, 0.02%)</title><rect x="803.6" y="357" width="0.3" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
-<text  x="806.65" y="367.5" ></text>
+<title>_raw_spin_unlock (1,001,001 samples, 0.05%)</title><rect x="24.5" y="101" width="0.5" height="15.0" fill="rgb(223,85,20)" rx="2" ry="2" />
+<text  x="27.46" y="111.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="357" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="367.5" ></text>
+<title>next (1,001,001 samples, 0.05%)</title><rect x="628.9" y="149" width="0.6" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
+<text  x="631.92" y="159.5" ></text>
 </g>
 <g >
-<title>_S_right (1,250,000 samples, 0.01%)</title><rect x="744.3" y="213" width="0.2" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
-<text  x="747.32" y="223.5" ></text>
+<title>bucket_count (28,028,028 samples, 1.37%)</title><rect x="591.9" y="117" width="16.2" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="594.90" y="127.5" ></text>
 </g>
 <g >
-<title>emplace_back&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (78,750,000 samples, 0.89%)</title><rect x="1177.8" y="421" width="10.5" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
-<text  x="1180.83" y="431.5" ></text>
+<title>irq_exit_rcu (1,001,001 samples, 0.05%)</title><rect x="524.8" y="165" width="0.6" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+<text  x="527.80" y="175.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="341" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="351.5" ></text>
+<title>get_page_from_freelist (1,001,001 samples, 0.05%)</title><rect x="24.5" y="149" width="0.5" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="27.46" y="159.5" ></text>
 </g>
 <g >
-<title>shuffle&lt;__gnu_cxx::__normal_iterator&lt;long unsigned int*, std::vector&lt;long unsigned int&gt; &gt;, std::mersenne_twister_engine&lt;long unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253&gt;&amp;&gt; (1,750,000 samples, 0.02%)</title><rect x="10.3" y="485" width="0.3" height="15.0" fill="rgb(240,165,39)" rx="2" ry="2" />
-<text  x="13.33" y="495.5" ></text>
+<title>do_erase_key&lt;long unsigned int const&amp;, ankerl::unordered_dense::v4_8_1::detail::table&lt;long unsigned int, matching_engine::Order*, ankerl::unordered_dense::v4_8_1::hash&lt;long unsigned int&gt;, std::equal_to&lt;long unsigned int&gt;, std::allocator&lt;std::pair&lt;long unsigned int, matching_engine::Order*&gt; &gt;, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false&gt;::erase (213,213,213 samples, 10.44%)</title><rect x="534.6" y="181" width="123.2" height="15.0" fill="rgb(237,147,35)" rx="2" ry="2" />
+<text  x="537.64" y="191.5" >do_erase_key&lt;lo..</text>
 </g>
 <g >
-<title>remove_resting_order (26,500,000 samples, 0.30%)</title><rect x="809.6" y="453" width="3.6" height="15.0" fill="rgb(237,150,35)" rx="2" ry="2" />
-<text  x="812.62" y="463.5" ></text>
+<title>_Uninitialized&lt;matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="229" width="494.0" height="15.0" fill="rgb(211,28,6)" rx="2" ry="2" />
+<text  x="217.19" y="239.5" >_Uninitialized&lt;matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>push_back (78,750,000 samples, 0.89%)</title><rect x="1177.8" y="437" width="10.5" height="15.0" fill="rgb(215,47,11)" rx="2" ry="2" />
-<text  x="1180.83" y="447.5" ></text>
+<title>__default_morecore (3,003,003 samples, 0.15%)</title><rect x="11.2" y="373" width="1.7" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
+<text  x="14.16" y="383.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="66.6" y="53" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.56" y="63.5" ></text>
+<title>alloc_pages_mpol (3,003,003 samples, 0.15%)</title><rect x="888.1" y="149" width="1.7" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+<text  x="891.06" y="159.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="222.7" y="373" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.70" y="383.5" ></text>
+<title>_M_create_node&lt;const std::piecewise_construct_t&amp;, std::tuple&lt;long int const&amp;&gt;, std::tuple&lt;&gt; &gt; (1,001,001 samples, 0.05%)</title><rect x="986.4" y="293" width="0.6" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+<text  x="989.39" y="303.5" ></text>
 </g>
 <g >
-<title>prepare_incoming_order (970,250,000 samples, 10.97%)</title><rect x="1048.4" y="437" width="129.4" height="15.0" fill="rgb(242,173,41)" rx="2" ry="2" />
-<text  x="1051.40" y="447.5" >prepare_incoming..</text>
+<title>__visit_invoke (5,005,005 samples, 0.25%)</title><rect x="1183.6" y="197" width="2.9" height="15.0" fill="rgb(249,204,49)" rx="2" ry="2" />
+<text  x="1186.64" y="207.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="635.5" y="197" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="638.53" y="207.5" ></text>
+<title>std::vector&lt;matching_engine::Order, std::allocator&lt;matching_engine::Order&gt; &gt;::push_back (9,009,009 samples, 0.44%)</title><rect x="19.8" y="389" width="5.2" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
+<text  x="22.83" y="399.5" ></text>
 </g>
 <g >
-<title>at (750,000 samples, 0.01%)</title><rect x="1001.9" y="389" width="0.1" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
-<text  x="1004.94" y="399.5" ></text>
+<title>native_handle (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="517" width="1179.4" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="13.58" y="527.5" >native_handle</text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="261" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="271.5" ></text>
+<title>free_frozen_page_commit.isra.0 (1,001,001 samples, 0.05%)</title><rect x="11.7" y="133" width="0.6" height="15.0" fill="rgb(209,21,5)" rx="2" ry="2" />
+<text  x="14.74" y="143.5" ></text>
 </g>
 <g >
-<title>~_Variant_base (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="309" width="2.6" height="15.0" fill="rgb(233,132,31)" rx="2" ry="2" />
-<text  x="1066.41" y="319.5" ></text>
+<title>size (28,028,028 samples, 1.37%)</title><rect x="591.9" y="101" width="16.2" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="594.90" y="111.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,500,000 samples, 0.02%)</title><rect x="991.8" y="149" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.80" y="159.5" ></text>
+<title>asm_exc_page_fault (7,007,007 samples, 0.34%)</title><rect x="21.0" y="325" width="4.0" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="23.99" y="335.5" ></text>
 </g>
 <g >
-<title>_M_begin (5,000,000 samples, 0.06%)</title><rect x="739.3" y="229" width="0.7" height="15.0" fill="rgb(248,202,48)" rx="2" ry="2" />
-<text  x="742.28" y="239.5" ></text>
+<title>[libc.so.6] (1,001,001 samples, 0.05%)</title><rect x="730.1" y="197" width="0.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="733.15" y="207.5" ></text>
 </g>
 <g >
-<title>__libc_start_main (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="837" width="1179.8" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
-<text  x="13.13" y="847.5" >__libc_start_main</text>
+<title>DoOneRepetition (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="613" width="1179.4" height="15.0" fill="rgb(242,174,41)" rx="2" ry="2" />
+<text  x="13.58" y="623.5" >DoOneRepetition</text>
 </g>
 <g >
-<title>operator[] (9,750,000 samples, 0.11%)</title><rect x="232.3" y="373" width="1.3" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
-<text  x="235.34" y="383.5" ></text>
+<title>_Destroy&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;*&gt; (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="309" width="1.2" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="1055.91" y="319.5" ></text>
 </g>
 <g >
-<title>operator[] (5,250,000 samples, 0.06%)</title><rect x="704.0" y="213" width="0.7" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
-<text  x="706.97" y="223.5" ></text>
+<title>~vector (2,039,039,037 samples, 99.85%)</title><rect x="11.2" y="437" width="1178.2" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="14.16" y="447.5" >~vector</text>
 </g>
 <g >
-<title>std::vector&lt;matching_engine::Order, std::allocator&lt;matching_engine::Order&gt; &gt;::push_back (16,000,000 samples, 0.18%)</title><rect x="13.7" y="453" width="2.1" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
-<text  x="16.67" y="463.5" ></text>
+<title>asm_sysvec_apic_timer_interrupt (1,001,001 samples, 0.05%)</title><rect x="524.8" y="197" width="0.6" height="15.0" fill="rgb(232,127,30)" rx="2" ry="2" />
+<text  x="527.80" y="207.5" ></text>
 </g>
 <g >
-<title>mix (147,750,000 samples, 1.67%)</title><rect x="717.3" y="165" width="19.7" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
-<text  x="720.27" y="175.5" ></text>
+<title>allocate_buckets_from_shift (10,010,010 samples, 0.49%)</title><rect x="49.9" y="325" width="5.8" height="15.0" fill="rgb(233,131,31)" rx="2" ry="2" />
+<text  x="52.91" y="335.5" ></text>
 </g>
 <g >
-<title>[unknown] (6,000,000 samples, 0.07%)</title><rect x="991.2" y="277" width="0.8" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.20" y="287.5" ></text>
+<title>x64_sys_call (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="405" width="0.6" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="1192.42" y="415.5" ></text>
 </g>
 <g >
-<title>operator= (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="661" width="1179.7" height="15.0" fill="rgb(210,25,6)" rx="2" ry="2" />
-<text  x="13.13" y="671.5" >operator=</text>
+<title>end (1,001,001 samples, 0.05%)</title><rect x="708.2" y="389" width="0.5" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+<text  x="711.17" y="399.5" ></text>
 </g>
 <g >
-<title>[unknown] (5,000,000 samples, 0.06%)</title><rect x="991.3" y="245" width="0.7" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.34" y="255.5" ></text>
+<title>get_page_from_freelist (3,003,003 samples, 0.15%)</title><rect x="888.1" y="117" width="1.7" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="891.06" y="127.5" ></text>
 </g>
 <g >
-<title>[unknown] (6,500,000 samples, 0.07%)</title><rect x="991.1" y="309" width="0.9" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.14" y="319.5" ></text>
+<title>dist_and_fingerprint_from_hash (4,004,004 samples, 0.20%)</title><rect x="648.6" y="149" width="2.3" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="651.59" y="159.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="101" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="111.5" ></text>
+<title>erase (213,213,213 samples, 10.44%)</title><rect x="534.6" y="197" width="123.2" height="15.0" fill="rgb(252,219,52)" rx="2" ry="2" />
+<text  x="537.64" y="207.5" >erase</text>
 </g>
 <g >
-<title>_Variadic_union&lt;matching_engine::CanceledEvent&gt; (18,000,000 samples, 0.20%)</title><rect x="1185.9" y="149" width="2.4" height="15.0" fill="rgb(231,122,29)" rx="2" ry="2" />
-<text  x="1188.93" y="159.5" ></text>
+<title>begin (3,003,003 samples, 0.15%)</title><rect x="634.7" y="133" width="1.7" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="637.71" y="143.5" ></text>
 </g>
 <g >
-<title>[libc.so.6] (750,000 samples, 0.01%)</title><rect x="63.2" y="341" width="0.1" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="66.19" y="351.5" ></text>
+<title>mixed_hash&lt;long unsigned int&gt; (12,012,012 samples, 0.59%)</title><rect x="650.9" y="149" width="6.9" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="653.90" y="159.5" ></text>
 </g>
 <g >
-<title>_S_right (750,000 samples, 0.01%)</title><rect x="1026.4" y="341" width="0.1" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
-<text  x="1029.39" y="351.5" ></text>
+<title>asm_sysvec_apic_timer_interrupt (1,001,001 samples, 0.05%)</title><rect x="11.2" y="133" width="0.5" height="15.0" fill="rgb(232,127,30)" rx="2" ry="2" />
+<text  x="14.16" y="143.5" ></text>
 </g>
 <g >
-<title>_Move_assign_base&lt;0, matching_engine::CanceledEvent&gt; (4,272,250,000 samples, 48.30%)</title><rect x="233.6" y="389" width="569.9" height="15.0" fill="rgb(225,94,22)" rx="2" ry="2" />
-<text  x="236.64" y="399.5" >_Move_assign_base&lt;0, matching_engine::CanceledEvent&gt;</text>
+<title>make_random_cancel_ids (1,001,001 samples, 0.05%)</title><rect x="10.6" y="437" width="0.6" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="13.58" y="447.5" ></text>
 </g>
 <g >
-<title>execute_incoming_order (1,568,000,000 samples, 17.73%)</title><rect x="839.2" y="437" width="209.2" height="15.0" fill="rgb(216,54,12)" rx="2" ry="2" />
-<text  x="842.23" y="447.5" >execute_incoming_order</text>
+<title>RunBenchmarks (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="629" width="1179.4" height="15.0" fill="rgb(215,48,11)" rx="2" ry="2" />
+<text  x="13.58" y="639.5" >RunBenchmarks</text>
 </g>
 <g >
-<title>__uninit_default_n&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int&gt; (25,250,000 samples, 0.29%)</title><rect x="63.3" y="293" width="3.4" height="15.0" fill="rgb(209,22,5)" rx="2" ry="2" />
-<text  x="66.29" y="303.5" ></text>
+<title>mixed_hash&lt;long unsigned int&gt; (13,013,013 samples, 0.64%)</title><rect x="200.9" y="309" width="7.5" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="203.88" y="319.5" ></text>
 </g>
 <g >
-<title>operator (2,000,000 samples, 0.02%)</title><rect x="1083.1" y="341" width="0.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
-<text  x="1086.15" y="351.5" ></text>
+<title>reserve (10,010,010 samples, 0.49%)</title><rect x="49.9" y="341" width="5.8" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
+<text  x="52.91" y="351.5" ></text>
 </g>
 <g >
-<title>create (158,750,000 samples, 1.79%)</title><rect x="975.4" y="405" width="21.2" height="15.0" fill="rgb(206,7,1)" rx="2" ry="2" />
-<text  x="978.43" y="415.5" ></text>
+<title>__normal_iterator (9,009,009 samples, 0.44%)</title><rect x="725.5" y="261" width="5.2" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+<text  x="728.52" y="271.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="85" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="95.5" ></text>
+<title>rmqueue_pcplist (1,001,001 samples, 0.05%)</title><rect x="24.5" y="117" width="0.5" height="15.0" fill="rgb(208,14,3)" rx="2" ry="2" />
+<text  x="27.46" y="127.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="149" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="159.5" ></text>
+<title>create (87,087,087 samples, 4.26%)</title><rect x="839.5" y="325" width="50.3" height="15.0" fill="rgb(206,7,1)" rx="2" ry="2" />
+<text  x="842.47" y="335.5" >create</text>
 </g>
 <g >
-<title>~vector (8,839,750,000 samples, 99.93%)</title><rect x="10.6" y="501" width="1179.2" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
-<text  x="13.57" y="511.5" >~vector</text>
+<title>next (29,029,029 samples, 1.42%)</title><rect x="591.3" y="133" width="16.8" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
+<text  x="594.32" y="143.5" ></text>
 </g>
 <g >
-<title>size (34,500,000 samples, 0.39%)</title><rect x="992.0" y="389" width="4.6" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
-<text  x="995.00" y="399.5" ></text>
+<title>_M_erase_at_end (10,010,010 samples, 0.49%)</title><rect x="1048.3" y="341" width="5.8" height="15.0" fill="rgb(215,48,11)" rx="2" ry="2" />
+<text  x="1051.28" y="351.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="117" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="127.5" ></text>
+<title>variant (13,013,013 samples, 0.64%)</title><rect x="1180.7" y="309" width="7.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="1183.75" y="319.5" ></text>
 </g>
 <g >
-<title>add_resting_order (26,000,000 samples, 0.29%)</title><rect x="66.7" y="453" width="3.4" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
-<text  x="69.66" y="463.5" ></text>
+<title>resize (10,010,010 samples, 0.49%)</title><rect x="49.9" y="309" width="5.8" height="15.0" fill="rgb(212,36,8)" rx="2" ry="2" />
+<text  x="52.91" y="319.5" ></text>
 </g>
 <g >
-<title>__uninitialized_default_n&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int&gt; (25,250,000 samples, 0.29%)</title><rect x="63.3" y="325" width="3.4" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
-<text  x="66.29" y="335.5" ></text>
+<title>create (105,105,105 samples, 5.15%)</title><rect x="833.1" y="341" width="60.7" height="15.0" fill="rgb(206,7,1)" rx="2" ry="2" />
+<text  x="836.11" y="351.5" >create</text>
 </g>
 <g >
-<title>[ld-linux-x86-64.so.2] (1,000,000 samples, 0.01%)</title><rect x="10.0" y="837" width="0.1" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
-<text  x="13.00" y="847.5" ></text>
+<title>exc_page_fault (1,001,001 samples, 0.05%)</title><rect x="10.0" y="677" width="0.6" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+<text  x="13.00" y="687.5" ></text>
 </g>
 <g >
-<title>size (750,000 samples, 0.01%)</title><rect x="1020.4" y="389" width="0.1" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
-<text  x="1023.35" y="399.5" ></text>
+<title>mum (5,005,005 samples, 0.25%)</title><rect x="952.8" y="261" width="2.9" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
+<text  x="955.84" y="271.5" ></text>
 </g>
 <g >
-<title>[unknown] (6,000,000 samples, 0.07%)</title><rect x="991.2" y="261" width="0.8" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.20" y="271.5" ></text>
+<title>do_find&lt;long unsigned int&gt; (214,214,214 samples, 10.49%)</title><rect x="1054.1" y="325" width="123.8" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
+<text  x="1057.07" y="335.5" >do_find&lt;long un..</text>
 </g>
 <g >
-<title>ThreadCPUUsage (1,750,000 samples, 0.02%)</title><rect x="803.6" y="373" width="0.3" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
-<text  x="806.65" y="383.5" ></text>
+<title>do_vmi_align_munmap (3,003,003 samples, 0.15%)</title><rect x="11.2" y="261" width="1.7" height="15.0" fill="rgb(211,29,7)" rx="2" ry="2" />
+<text  x="14.16" y="271.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="222.7" y="341" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.70" y="351.5" ></text>
+<title>mix (36,036,036 samples, 1.76%)</title><rect x="608.1" y="101" width="20.8" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
+<text  x="611.10" y="111.5" ></text>
 </g>
 <g >
-<title>~_Move_ctor_base (10,500,000 samples, 0.12%)</title><rect x="1188.4" y="373" width="1.4" height="15.0" fill="rgb(231,124,29)" rx="2" ry="2" />
-<text  x="1191.37" y="383.5" ></text>
+<title>zap_present_ptes.constprop.0 (1,001,001 samples, 0.05%)</title><rect x="12.3" y="133" width="0.6" height="15.0" fill="rgb(247,197,47)" rx="2" ry="2" />
+<text  x="15.31" y="143.5" ></text>
 </g>
 <g >
-<title>__uninit_default_n&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int&gt; (25,250,000 samples, 0.29%)</title><rect x="63.3" y="309" width="3.4" height="15.0" fill="rgb(209,22,5)" rx="2" ry="2" />
-<text  x="66.29" y="319.5" ></text>
+<title>[libc.so.6] (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="757" width="1179.4" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="13.58" y="767.5" >[libc.so.6]</text>
 </g>
 <g >
-<title>construct_at&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;, std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (45,250,000 samples, 0.51%)</title><rect x="1182.3" y="389" width="6.0" height="15.0" fill="rgb(214,41,10)" rx="2" ry="2" />
-<text  x="1185.30" y="399.5" ></text>
+<title>malloc (1,001,001 samples, 0.05%)</title><rect x="986.4" y="197" width="0.6" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+<text  x="989.39" y="207.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="813.3" y="309" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="816.29" y="319.5" ></text>
+<title>lower_bound (11,011,011 samples, 0.54%)</title><rect x="987.0" y="309" width="6.3" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="989.97" y="319.5" ></text>
 </g>
 <g >
-<title>~_Variant_storage (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="229" width="2.6" height="15.0" fill="rgb(248,200,48)" rx="2" ry="2" />
-<text  x="1066.41" y="239.5" ></text>
+<title>_raw_spin_lock (3,003,003 samples, 0.15%)</title><rect x="22.7" y="213" width="1.8" height="15.0" fill="rgb(239,160,38)" rx="2" ry="2" />
+<text  x="25.73" y="223.5" ></text>
 </g>
 <g >
-<title>~_Vector_base (8,839,750,000 samples, 99.93%)</title><rect x="10.6" y="485" width="1179.2" height="15.0" fill="rgb(216,54,13)" rx="2" ry="2" />
-<text  x="13.57" y="495.5" >~_Vector_base</text>
+<title>remove_resting_order (845,845,845 samples, 41.42%)</title><rect x="219.4" y="213" width="488.8" height="15.0" fill="rgb(237,150,35)" rx="2" ry="2" />
+<text  x="222.39" y="223.5" >remove_resting_order</text>
 </g>
 <g >
-<title>__normal_iterator (19,250,000 samples, 0.22%)</title><rect x="813.5" y="325" width="2.5" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
-<text  x="816.45" y="335.5" ></text>
+<title>__invoke_impl&lt;void, std::__detail::__variant::_Move_ctor_base&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;::_Move_ctor_base (5,005,005 samples, 0.25%)</title><rect x="1183.6" y="165" width="2.9" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="1186.64" y="175.5" ></text>
 </g>
 <g >
-<title>void std::allocator_traits&lt;std::allocator&lt;matching_engine::Order&gt; &gt;::construct&lt;matching_engine::Order, matching_engine::Order&gt; (16,000,000 samples, 0.18%)</title><rect x="13.7" y="421" width="2.1" height="15.0" fill="rgb(233,131,31)" rx="2" ry="2" />
-<text  x="16.67" y="431.5" ></text>
+<title>~_Variant_storage (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="165" width="1.2" height="15.0" fill="rgb(248,200,48)" rx="2" ry="2" />
+<text  x="1055.91" y="175.5" ></text>
 </g>
 <g >
-<title>reserve (35,500,000 samples, 0.40%)</title><rect x="61.9" y="421" width="4.8" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
-<text  x="64.92" y="431.5" ></text>
+<title>~OrderBook (9,009,009 samples, 0.44%)</title><rect x="725.5" y="325" width="5.2" height="15.0" fill="rgb(216,52,12)" rx="2" ry="2" />
+<text  x="728.52" y="335.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="635.5" y="213" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="638.53" y="223.5" ></text>
+<title>filemap_map_pages (1,001,001 samples, 0.05%)</title><rect x="10.0" y="565" width="0.6" height="15.0" fill="rgb(229,112,27)" rx="2" ry="2" />
+<text  x="13.00" y="575.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="222.7" y="357" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.70" y="367.5" ></text>
+<title>RunInThread (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="501" width="1179.4" height="15.0" fill="rgb(209,19,4)" rx="2" ry="2" />
+<text  x="13.58" y="511.5" >RunInThread</text>
 </g>
 <g >
-<title>match_buy_order (14,250,000 samples, 0.16%)</title><rect x="803.9" y="453" width="1.9" height="15.0" fill="rgb(235,141,33)" rx="2" ry="2" />
-<text  x="806.88" y="463.5" ></text>
+<title>[ld-linux-x86-64.so.2] (1,001,001 samples, 0.05%)</title><rect x="10.0" y="741" width="0.6" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="13.00" y="751.5" ></text>
 </g>
 <g >
-<title>DoNIterations (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="629" width="1179.7" height="15.0" fill="rgb(218,63,15)" rx="2" ry="2" />
-<text  x="13.13" y="639.5" >DoNIterations</text>
+<title>_Variadic_union&lt;1, matching_engine::CanceledEvent&gt; (5,005,005 samples, 0.25%)</title><rect x="1183.6" y="101" width="2.9" height="15.0" fill="rgb(224,87,20)" rx="2" ry="2" />
+<text  x="1186.64" y="111.5" ></text>
 </g>
 <g >
-<title>match_buy_order (130,250,000 samples, 1.47%)</title><rect x="1031.0" y="421" width="17.4" height="15.0" fill="rgb(235,141,33)" rx="2" ry="2" />
-<text  x="1034.02" y="431.5" ></text>
+<title>sysvec_apic_timer_interrupt (1,001,001 samples, 0.05%)</title><rect x="11.2" y="117" width="0.5" height="15.0" fill="rgb(220,69,16)" rx="2" ry="2" />
+<text  x="14.16" y="127.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="245" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="255.5" ></text>
+<title>_Destroy&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="293" width="1.2" height="15.0" fill="rgb(219,65,15)" rx="2" ry="2" />
+<text  x="1055.91" y="303.5" ></text>
 </g>
 <g >
-<title>do_find&lt;long unsigned int&gt; (1,151,000,000 samples, 13.01%)</title><rect x="80.1" y="405" width="153.5" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
-<text  x="83.10" y="415.5" >do_find&lt;long unsign..</text>
+<title>pair&lt;long int const&amp;&gt; (1,001,001 samples, 0.05%)</title><rect x="986.4" y="229" width="0.6" height="15.0" fill="rgb(213,38,9)" rx="2" ry="2" />
+<text  x="989.39" y="239.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="66.6" y="37" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.56" y="47.5" ></text>
+<title>emplace_back&lt;long unsigned int&amp;, matching_engine::Order*&amp;&gt; (18,018,018 samples, 0.88%)</title><rect x="940.1" y="325" width="10.4" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
+<text  x="943.12" y="335.5" ></text>
 </g>
 <g >
-<title>push_back (750,000 samples, 0.01%)</title><rect x="63.2" y="405" width="0.1" height="15.0" fill="rgb(215,47,11)" rx="2" ry="2" />
-<text  x="66.19" y="415.5" ></text>
+<title>rmqueue.isra.0 (3,003,003 samples, 0.15%)</title><rect x="888.1" y="101" width="1.7" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="891.06" y="111.5" ></text>
 </g>
 <g >
-<title>RunInThread (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="565" width="1179.7" height="15.0" fill="rgb(209,19,4)" rx="2" ry="2" />
-<text  x="13.13" y="575.5" >RunInThread</text>
+<title>_Move_assign_base (13,013,013 samples, 0.64%)</title><rect x="1180.7" y="277" width="7.6" height="15.0" fill="rgb(221,76,18)" rx="2" ry="2" />
+<text  x="1183.75" y="287.5" ></text>
 </g>
 <g >
-<title>RunSpecifiedBenchmarks (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="789" width="1179.8" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
-<text  x="13.13" y="799.5" >RunSpecifiedBenchmarks</text>
+<title>remove (63,063,063 samples, 3.09%)</title><rect x="671.7" y="197" width="36.5" height="15.0" fill="rgb(238,155,37)" rx="2" ry="2" />
+<text  x="674.73" y="207.5" >rem..</text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="373" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="383.5" ></text>
+<title>__fill_n_a&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (10,010,010 samples, 0.49%)</title><rect x="49.9" y="197" width="5.8" height="15.0" fill="rgb(215,49,11)" rx="2" ry="2" />
+<text  x="52.91" y="207.5" ></text>
 </g>
 <g >
-<title>[unknown] (6,750,000 samples, 0.08%)</title><rect x="14.9" y="325" width="0.9" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="17.90" y="335.5" ></text>
+<title>_Variant_base (13,013,013 samples, 0.64%)</title><rect x="1180.7" y="293" width="7.6" height="15.0" fill="rgb(247,196,47)" rx="2" ry="2" />
+<text  x="1183.75" y="303.5" ></text>
 </g>
 <g >
-<title>std::vector&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;, std::allocator&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; &gt;::size (14,500,000 samples, 0.16%)</title><rect x="816.0" y="453" width="2.0" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
-<text  x="819.02" y="463.5" ></text>
+<title>irq_exit_rcu (1,001,001 samples, 0.05%)</title><rect x="11.2" y="101" width="0.5" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+<text  x="14.16" y="111.5" ></text>
 </g>
 <g >
-<title>clear (2,500,000 samples, 0.03%)</title><rect x="815.7" y="309" width="0.3" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
-<text  x="818.69" y="319.5" ></text>
+<title>clear (1,001,001 samples, 0.05%)</title><rect x="730.1" y="229" width="0.6" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="733.15" y="239.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,750,000 samples, 0.02%)</title><rect x="1011.6" y="309" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="1014.61" y="319.5" ></text>
+<title>_M_is_local (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="677" width="1179.4" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="13.58" y="687.5" >_M_is_local</text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="1011.7" y="245" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="1014.75" y="255.5" ></text>
+<title>do_user_addr_fault (1,001,001 samples, 0.05%)</title><rect x="950.0" y="229" width="0.5" height="15.0" fill="rgb(228,108,25)" rx="2" ry="2" />
+<text  x="952.95" y="239.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="66.5" y="181" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.49" y="191.5" ></text>
+<title>dist_and_fingerprint_from_hash (4,004,004 samples, 0.20%)</title><rect x="1063.9" y="293" width="2.3" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="1066.90" y="303.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="213" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="223.5" ></text>
+<title>__x64_sys_brk (3,003,003 samples, 0.15%)</title><rect x="11.2" y="293" width="1.7" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="14.16" y="303.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="1011.7" y="277" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="1014.68" y="287.5" ></text>
+<title>execute_incoming_order (491,491,491 samples, 24.07%)</title><rect x="752.7" y="373" width="284.0" height="15.0" fill="rgb(216,54,12)" rx="2" ry="2" />
+<text  x="755.71" y="383.5" >execute_incoming_order</text>
 </g>
 <g >
-<title>size (6,750,000 samples, 0.08%)</title><rect x="231.4" y="341" width="0.9" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
-<text  x="234.44" y="351.5" ></text>
+<title>_M_reset (2,002,002 samples, 0.10%)</title><rect x="1188.3" y="261" width="1.1" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
+<text  x="1191.26" y="271.5" ></text>
 </g>
 <g >
-<title>operator (17,250,000 samples, 0.20%)</title><rect x="697.2" y="197" width="2.3" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
-<text  x="700.16" y="207.5" ></text>
+<title>[libc.so.6] (3,003,003 samples, 0.15%)</title><rect x="11.2" y="405" width="1.7" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="14.16" y="415.5" ></text>
 </g>
 <g >
-<title>~_Move_assign_base (10,500,000 samples, 0.12%)</title><rect x="1188.4" y="405" width="1.4" height="15.0" fill="rgb(207,12,2)" rx="2" ry="2" />
-<text  x="1191.37" y="415.5" ></text>
+<title>__do_sys_brk (3,003,003 samples, 0.15%)</title><rect x="11.2" y="277" width="1.7" height="15.0" fill="rgb(217,58,13)" rx="2" ry="2" />
+<text  x="14.16" y="287.5" ></text>
 </g>
 <g >
-<title>do_erase_key&lt;long unsigned int const&amp;, ankerl::unordered_dense::v4_8_1::detail::table&lt;long unsigned int, matching_engine::Order*, ankerl::unordered_dense::v4_8_1::hash&lt;long unsigned int&gt;, std::equal_to&lt;long unsigned int&gt;, std::allocator&lt;std::pair&lt;long unsigned int, matching_engine::Order*&gt; &gt;, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false&gt;::erase (725,250,000 samples, 8.20%)</title><rect x="640.5" y="245" width="96.7" height="15.0" fill="rgb(237,147,35)" rx="2" ry="2" />
-<text  x="643.47" y="255.5" >do_erase_ke..</text>
+<title>__x64_sys_munmap (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="389" width="0.6" height="15.0" fill="rgb(206,7,1)" rx="2" ry="2" />
+<text  x="1192.42" y="399.5" ></text>
 </g>
 <g >
-<title>release (86,250,000 samples, 0.98%)</title><rect x="744.5" y="261" width="11.5" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
-<text  x="747.49" y="271.5" ></text>
+<title>handle_pte_fault (4,004,004 samples, 0.20%)</title><rect x="22.7" y="245" width="2.3" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="25.73" y="255.5" ></text>
 </g>
 <g >
-<title>hash (2,000,000 samples, 0.02%)</title><rect x="1083.1" y="325" width="0.3" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
-<text  x="1086.15" y="335.5" ></text>
+<title>size (2,002,002 samples, 0.10%)</title><rect x="984.7" y="277" width="1.1" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="987.66" y="287.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="66.5" y="197" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.49" y="207.5" ></text>
+<title>alloc_anon_folio (1,001,001 samples, 0.05%)</title><rect x="24.5" y="213" width="0.5" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="27.46" y="223.5" ></text>
 </g>
 <g >
-<title>hash (147,750,000 samples, 1.67%)</title><rect x="717.3" y="181" width="19.7" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
-<text  x="720.27" y="191.5" ></text>
+<title>mix (13,013,013 samples, 0.64%)</title><rect x="200.9" y="261" width="7.5" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
+<text  x="203.88" y="271.5" ></text>
 </g>
 <g >
-<title>find (827,250,000 samples, 9.35%)</title><rect x="1067.5" y="405" width="110.3" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
-<text  x="1070.47" y="415.5" >find</text>
+<title>next (3,003,003 samples, 0.15%)</title><rect x="208.4" y="309" width="1.7" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
+<text  x="211.40" y="319.5" ></text>
 </g>
 <g >
-<title>operator[] (13,250,000 samples, 0.15%)</title><rect x="222.8" y="357" width="1.8" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
-<text  x="225.84" y="367.5" ></text>
+<title>alloc_anon_folio (3,003,003 samples, 0.15%)</title><rect x="888.1" y="181" width="1.7" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="891.06" y="191.5" ></text>
 </g>
 <g >
-<title>[unknown] (4,500,000 samples, 0.05%)</title><rect x="15.2" y="261" width="0.6" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="18.20" y="271.5" ></text>
+<title>operator (12,012,012 samples, 0.59%)</title><rect x="650.9" y="133" width="6.9" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="653.90" y="143.5" ></text>
 </g>
 <g >
-<title>exchange&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::bucket_type::standard&amp;&gt; (1,250,000 samples, 0.01%)</title><rect x="1019.6" y="373" width="0.2" height="15.0" fill="rgb(217,56,13)" rx="2" ry="2" />
-<text  x="1022.62" y="383.5" ></text>
+<title>bucket_idx_from_hash (2,002,002 samples, 0.10%)</title><rect x="1062.7" y="293" width="1.2" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
+<text  x="1065.75" y="303.5" ></text>
 </g>
 <g >
-<title>size (15,750,000 samples, 0.18%)</title><rect x="705.0" y="213" width="2.1" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
-<text  x="707.97" y="223.5" ></text>
+<title>operator= (5,005,005 samples, 0.25%)</title><rect x="629.5" y="149" width="2.9" height="15.0" fill="rgb(210,25,6)" rx="2" ry="2" />
+<text  x="632.50" y="159.5" ></text>
 </g>
 <g >
-<title>lower_bound (45,750,000 samples, 0.52%)</title><rect x="1020.5" y="373" width="6.1" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
-<text  x="1023.45" y="383.5" ></text>
+<title>variant&lt;matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="373" width="494.0" height="15.0" fill="rgb(228,107,25)" rx="2" ry="2" />
+<text  x="217.19" y="383.5" >variant&lt;matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>duration&lt;long int, std::ratio&lt;1, 1000000000&gt; &gt; (750,000 samples, 0.01%)</title><rect x="813.2" y="357" width="0.1" height="15.0" fill="rgb(223,87,20)" rx="2" ry="2" />
-<text  x="816.15" y="367.5" ></text>
+<title>main (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="741" width="1179.4" height="15.0" fill="rgb(243,179,42)" rx="2" ry="2" />
+<text  x="13.58" y="751.5" >main</text>
 </g>
 <g >
-<title>_Destroy&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;*&gt; (20,250,000 samples, 0.23%)</title><rect x="1063.3" y="373" width="2.7" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
-<text  x="1066.34" y="383.5" ></text>
+<title>pair&lt;long unsigned int&amp;, matching_engine::Order*&amp;&gt; (6,006,006 samples, 0.29%)</title><rect x="947.1" y="277" width="3.4" height="15.0" fill="rgb(243,174,41)" rx="2" ry="2" />
+<text  x="950.06" y="287.5" ></text>
 </g>
 <g >
-<title>make_random_cancel_ids (3,250,000 samples, 0.04%)</title><rect x="10.1" y="501" width="0.5" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
-<text  x="13.13" y="511.5" ></text>
+<title>do_syscall_64 (3,003,003 samples, 0.15%)</title><rect x="11.2" y="325" width="1.7" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
+<text  x="14.16" y="335.5" ></text>
 </g>
 <g >
-<title>MutexLock (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="597" width="1179.7" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
-<text  x="13.13" y="607.5" >MutexLock</text>
+<title>unmap_vmas (1,001,001 samples, 0.05%)</title><rect x="12.3" y="213" width="0.6" height="15.0" fill="rgb(243,176,42)" rx="2" ry="2" />
+<text  x="15.31" y="223.5" ></text>
 </g>
 <g >
-<title>_M_reset (21,500,000 samples, 0.24%)</title><rect x="813.2" y="437" width="2.8" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
-<text  x="816.15" y="447.5" ></text>
+<title>asm_exc_page_fault (1,001,001 samples, 0.05%)</title><rect x="10.0" y="693" width="0.6" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="13.00" y="703.5" ></text>
 </g>
 <g >
-<title>do_find&lt;long unsigned int&gt; (827,250,000 samples, 9.35%)</title><rect x="1067.5" y="389" width="110.3" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
-<text  x="1070.47" y="399.5" >do_find&lt;long ..</text>
+<title>handle_mm_fault (4,004,004 samples, 0.20%)</title><rect x="22.7" y="277" width="2.3" height="15.0" fill="rgb(234,135,32)" rx="2" ry="2" />
+<text  x="25.73" y="287.5" ></text>
 </g>
 <g >
-<title>end (10,750,000 samples, 0.12%)</title><rect x="1066.0" y="389" width="1.5" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
-<text  x="1069.04" y="399.5" ></text>
+<title>operator (36,036,036 samples, 1.76%)</title><rect x="608.1" y="133" width="20.8" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="611.10" y="143.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,750,000 samples, 0.02%)</title><rect x="1011.6" y="293" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="1014.61" y="303.5" ></text>
+<title>_M_data (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="661" width="1179.4" height="15.0" fill="rgb(240,161,38)" rx="2" ry="2" />
+<text  x="13.58" y="671.5" >_M_data</text>
 </g>
 <g >
-<title>_M_dispose (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="757" width="1179.8" height="15.0" fill="rgb(235,141,33)" rx="2" ry="2" />
-<text  x="13.13" y="767.5" >_M_dispose</text>
+<title>run_cancel_workload (2,015,015,013 samples, 98.68%)</title><rect x="25.0" y="405" width="1164.4" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="28.04" y="415.5" >run_cancel_workload</text>
 </g>
 <g >
-<title>allocate_buckets_from_shift (25,250,000 samples, 0.29%)</title><rect x="63.3" y="389" width="3.4" height="15.0" fill="rgb(233,131,31)" rx="2" ry="2" />
-<text  x="66.29" y="399.5" ></text>
+<title>ThreadCPUUsage (1,001,001 samples, 0.05%)</title><rect x="708.2" y="309" width="0.5" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="711.17" y="319.5" ></text>
 </g>
 <g >
-<title>_ZSt12construct_atIN15matching_engine5OrderEJS1_EQaant20is_unbounded_array_vIT_ErqXgsnwcvPvLi0E_S2_pispcl7declvalIT0_EEEEEPS2_S5_DpOS4_ (16,000,000 samples, 0.18%)</title><rect x="13.7" y="405" width="2.1" height="15.0" fill="rgb(232,124,29)" rx="2" ry="2" />
-<text  x="16.67" y="415.5" ></text>
+<title>do_find&lt;long unsigned int&gt; (242,242,242 samples, 11.86%)</title><rect x="74.2" y="341" width="140.0" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
+<text  x="77.21" y="351.5" >do_find&lt;long unsi..</text>
 </g>
 <g >
-<title>emplace_back&lt;long unsigned int&amp;, matching_engine::Order*&amp;&gt; (50,250,000 samples, 0.57%)</title><rect x="1005.1" y="389" width="6.7" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
-<text  x="1008.14" y="399.5" ></text>
+<title>mix (12,012,012 samples, 0.59%)</title><rect x="650.9" y="101" width="6.9" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
+<text  x="653.90" y="111.5" ></text>
 </g>
 <g >
-<title>mixed_hash&lt;long unsigned int&gt; (21,000,000 samples, 0.24%)</title><rect x="1012.0" y="389" width="2.8" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
-<text  x="1014.98" y="399.5" ></text>
+<title>__tlb_batch_free_encoded_pages (2,002,002 samples, 0.10%)</title><rect x="11.2" y="197" width="1.1" height="15.0" fill="rgb(205,3,0)" rx="2" ry="2" />
+<text  x="14.16" y="207.5" ></text>
 </g>
 <g >
-<title>_Destroy&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;*, std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (20,250,000 samples, 0.23%)</title><rect x="1063.3" y="389" width="2.7" height="15.0" fill="rgb(240,161,38)" rx="2" ry="2" />
-<text  x="1066.34" y="399.5" ></text>
+<title>destroy_at&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="277" width="1.2" height="15.0" fill="rgb(236,145,34)" rx="2" ry="2" />
+<text  x="1055.91" y="287.5" ></text>
 </g>
 <g >
-<title>[libc.so.6] (1,250,000 samples, 0.01%)</title><rect x="815.7" y="261" width="0.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="818.69" y="271.5" ></text>
+<title>[[vdso]] (1,001,001 samples, 0.05%)</title><rect x="708.2" y="277" width="0.5" height="15.0" fill="rgb(218,60,14)" rx="2" ry="2" />
+<text  x="711.17" y="287.5" ></text>
 </g>
 <g >
-<title>iter_swap&lt;__gnu_cxx::__normal_iterator&lt;long unsigned int*, std::vector&lt;long unsigned int&gt; &gt;, __gnu_cxx::__normal_iterator&lt;long unsigned int*, std::vector&lt;long unsigned int&gt; &gt; &gt; (1,000,000 samples, 0.01%)</title><rect x="10.3" y="469" width="0.2" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
-<text  x="13.33" y="479.5" ></text>
+<title>folios_put_refs (2,002,002 samples, 0.10%)</title><rect x="11.2" y="165" width="1.1" height="15.0" fill="rgb(254,229,54)" rx="2" ry="2" />
+<text  x="14.16" y="175.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="222.7" y="229" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.74" y="239.5" ></text>
+<title>_start (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="789" width="1179.4" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
+<text  x="13.58" y="799.5" >_start</text>
 </g>
 <g >
-<title>unsigned long&amp; std::vector&lt;unsigned long, std::allocator&lt;unsigned long&gt; &gt;::emplace_back&lt;unsigned long&gt; (1,250,000 samples, 0.01%)</title><rect x="10.2" y="437" width="0.1" height="15.0" fill="rgb(222,78,18)" rx="2" ry="2" />
-<text  x="13.17" y="447.5" ></text>
+<title>empty (3,003,003 samples, 0.15%)</title><rect x="634.7" y="165" width="1.7" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="637.71" y="175.5" ></text>
 </g>
 <g >
-<title>[unknown] (9,500,000 samples, 0.11%)</title><rect x="990.7" y="325" width="1.3" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="993.74" y="335.5" ></text>
+<title>_Move_assign_base&lt;0, matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="325" width="494.0" height="15.0" fill="rgb(225,94,22)" rx="2" ry="2" />
+<text  x="217.19" y="335.5" >_Move_assign_base&lt;0, matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>mum (12,500,000 samples, 0.14%)</title><rect x="229.3" y="309" width="1.7" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
-<text  x="232.34" y="319.5" ></text>
+<title>_Copy_assign_base&lt;0, matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="309" width="494.0" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
+<text  x="217.19" y="319.5" >_Copy_assign_base&lt;0, matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>size (750,000 samples, 0.01%)</title><rect x="737.0" y="181" width="0.1" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
-<text  x="740.05" y="191.5" ></text>
+<title>[libc.so.6] (8,008,008 samples, 0.39%)</title><rect x="725.5" y="245" width="4.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="728.52" y="255.5" ></text>
 </g>
 <g >
-<title>erase_and_shift_down (223,000,000 samples, 2.52%)</title><rect x="667.4" y="213" width="29.8" height="15.0" fill="rgb(234,137,32)" rx="2" ry="2" />
-<text  x="670.42" y="223.5" >er..</text>
+<title>push_back (7,007,007 samples, 0.34%)</title><rect x="993.3" y="341" width="4.1" height="15.0" fill="rgb(215,47,11)" rx="2" ry="2" />
+<text  x="996.33" y="351.5" ></text>
 </g>
 <g >
-<title>[ld-linux-x86-64.so.2] (750,000 samples, 0.01%)</title><rect x="10.0" y="805" width="0.1" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
-<text  x="13.00" y="815.5" ></text>
+<title>_Destroy&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;*, std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="325" width="1.2" height="15.0" fill="rgb(240,161,38)" rx="2" ry="2" />
+<text  x="1055.91" y="335.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="813.3" y="293" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="816.29" y="303.5" ></text>
+<title>GetNullLogInstance (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="485" width="1179.4" height="15.0" fill="rgb(221,74,17)" rx="2" ry="2" />
+<text  x="13.58" y="495.5" >GetNullLogInstance</text>
 </g>
 <g >
-<title>__normal_iterator (14,750,000 samples, 0.17%)</title><rect x="225.6" y="325" width="2.0" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
-<text  x="228.64" y="335.5" ></text>
+<title>entry_SYSCALL_64_after_hwframe (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="437" width="0.6" height="15.0" fill="rgb(218,63,15)" rx="2" ry="2" />
+<text  x="1192.42" y="447.5" ></text>
 </g>
 <g >
-<title>next (5,500,000 samples, 0.06%)</title><rect x="699.5" y="213" width="0.7" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
-<text  x="702.46" y="223.5" ></text>
+<title>prepare_incoming_order (244,244,244 samples, 11.96%)</title><rect x="1036.7" y="373" width="141.2" height="15.0" fill="rgb(242,173,41)" rx="2" ry="2" />
+<text  x="1039.72" y="383.5" >prepare_incoming_..</text>
 </g>
 <g >
-<title>at (13,250,000 samples, 0.15%)</title><rect x="222.8" y="373" width="1.8" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
-<text  x="225.84" y="383.5" ></text>
+<title>RunSpecifiedBenchmarks (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="725" width="1179.4" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
+<text  x="13.58" y="735.5" >RunSpecifiedBenchmarks</text>
 </g>
 <g >
-<title>__visit_invoke (18,000,000 samples, 0.20%)</title><rect x="1185.9" y="261" width="2.4" height="15.0" fill="rgb(249,204,49)" rx="2" ry="2" />
-<text  x="1188.93" y="271.5" ></text>
+<title>zap_pte_range (1,001,001 samples, 0.05%)</title><rect x="12.3" y="149" width="0.6" height="15.0" fill="rgb(231,120,28)" rx="2" ry="2" />
+<text  x="15.31" y="159.5" ></text>
 </g>
 <g >
-<title>bucket_count (667,750,000 samples, 7.55%)</title><rect x="1088.8" y="341" width="89.0" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
-<text  x="1091.75" y="351.5" >bucket_count</text>
+<title>at (4,004,004 samples, 0.20%)</title><rect x="645.1" y="149" width="2.3" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="648.12" y="159.5" ></text>
 </g>
 <g >
-<title>size (61,250,000 samples, 0.69%)</title><rect x="689.0" y="165" width="8.2" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
-<text  x="691.99" y="175.5" ></text>
+<title>find_resting_order (242,242,242 samples, 11.86%)</title><rect x="74.2" y="373" width="140.0" height="15.0" fill="rgb(218,63,15)" rx="2" ry="2" />
+<text  x="77.21" y="383.5" >find_resting_order</text>
 </g>
 <g >
-<title>_M_data (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="725" width="1179.8" height="15.0" fill="rgb(240,161,38)" rx="2" ry="2" />
-<text  x="13.13" y="735.5" >_M_data</text>
+<title>free_unref_folios (1,001,001 samples, 0.05%)</title><rect x="11.7" y="149" width="0.6" height="15.0" fill="rgb(209,22,5)" rx="2" ry="2" />
+<text  x="14.74" y="159.5" ></text>
 </g>
 <g >
-<title>bucket_count (6,750,000 samples, 0.08%)</title><rect x="231.4" y="357" width="0.9" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
-<text  x="234.44" y="367.5" ></text>
+<title>construct_at&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;, std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (13,013,013 samples, 0.64%)</title><rect x="1180.7" y="325" width="7.6" height="15.0" fill="rgb(214,41,10)" rx="2" ry="2" />
+<text  x="1183.75" y="335.5" ></text>
 </g>
 <g >
-<title>dist_and_fingerprint_from_hash (10,750,000 samples, 0.12%)</title><rect x="715.8" y="213" width="1.5" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
-<text  x="718.84" y="223.5" ></text>
+<title>_raw_spin_unlock_irqrestore (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="181" width="0.6" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
+<text  x="1192.42" y="191.5" ></text>
 </g>
 <g >
-<title>~variant (10,500,000 samples, 0.12%)</title><rect x="1188.4" y="437" width="1.4" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
-<text  x="1191.37" y="447.5" ></text>
+<title>at (11,011,011 samples, 0.54%)</title><rect x="921.0" y="325" width="6.4" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
+<text  x="924.03" y="335.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,500,000 samples, 0.02%)</title><rect x="991.8" y="165" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.80" y="175.5" ></text>
+<title>clock_gettime (1,001,001 samples, 0.05%)</title><rect x="708.2" y="293" width="0.5" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="711.17" y="303.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="133" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="143.5" ></text>
+<title>_M_dispose (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="693" width="1179.4" height="15.0" fill="rgb(235,141,33)" rx="2" ry="2" />
+<text  x="13.58" y="703.5" >_M_dispose</text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="66.6" y="69" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.56" y="79.5" ></text>
+<title>construct_at&lt;std::pair&lt;long int const, matching_engine::OrderQueue&gt;, const std::piecewise_construct_t&amp;, std::tuple&lt;long int const&amp;&gt;, std::tuple&lt;&gt; &gt; (1,001,001 samples, 0.05%)</title><rect x="986.4" y="245" width="0.6" height="15.0" fill="rgb(221,76,18)" rx="2" ry="2" />
+<text  x="989.39" y="255.5" ></text>
 </g>
 <g >
-<title>mixed_hash&lt;long unsigned int&gt; (17,250,000 samples, 0.20%)</title><rect x="697.2" y="213" width="2.3" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
-<text  x="700.16" y="223.5" ></text>
+<title>free_pages_and_swap_cache (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="261" width="0.6" height="15.0" fill="rgb(222,82,19)" rx="2" ry="2" />
+<text  x="1192.42" y="271.5" ></text>
 </g>
 <g >
-<title>mix (17,250,000 samples, 0.20%)</title><rect x="697.2" y="165" width="2.3" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
-<text  x="700.16" y="175.5" ></text>
+<title>bucket_count (1,001,001 samples, 0.05%)</title><rect x="956.9" y="309" width="0.6" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="959.89" y="319.5" ></text>
 </g>
 <g >
-<title>construct_at&lt;matching_engine::Order, const matching_engine::Order&amp;&gt; (32,250,000 samples, 0.36%)</title><rect x="987.7" y="373" width="4.3" height="15.0" fill="rgb(222,81,19)" rx="2" ry="2" />
-<text  x="990.70" y="383.5" ></text>
+<title>bucket_idx_from_hash (5,005,005 samples, 0.25%)</title><rect x="927.4" y="325" width="2.9" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
+<text  x="930.39" y="335.5" ></text>
 </g>
 <g >
-<title>[ld-linux-x86-64.so.2] (1,000,000 samples, 0.01%)</title><rect x="10.0" y="821" width="0.1" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
-<text  x="13.00" y="831.5" ></text>
+<title>rmqueue_pcplist (2,002,002 samples, 0.10%)</title><rect x="888.6" y="85" width="1.2" height="15.0" fill="rgb(208,14,3)" rx="2" ry="2" />
+<text  x="891.64" y="95.5" ></text>
 </g>
 <g >
-<title>begin (6,750,000 samples, 0.08%)</title><rect x="707.1" y="197" width="0.9" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
-<text  x="710.07" y="207.5" ></text>
+<title>_Uninitialized&lt;matching_engine::CanceledEvent&gt; (5,005,005 samples, 0.25%)</title><rect x="1183.6" y="69" width="2.9" height="15.0" fill="rgb(211,28,6)" rx="2" ry="2" />
+<text  x="1186.64" y="79.5" ></text>
 </g>
 <g >
-<title>PauseTiming (1,750,000 samples, 0.02%)</title><rect x="813.2" y="405" width="0.2" height="15.0" fill="rgb(239,159,38)" rx="2" ry="2" />
-<text  x="816.15" y="415.5" ></text>
+<title>hash (36,036,036 samples, 1.76%)</title><rect x="608.1" y="117" width="20.8" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="611.10" y="127.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="389" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="399.5" ></text>
+<title>OrderBook (16,016,016 samples, 0.78%)</title><rect x="46.4" y="389" width="9.3" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="49.44" y="399.5" ></text>
 </g>
 <g >
-<title>do_erase&lt;ankerl::unordered_dense::v4_8_1::detail::table&lt;long unsigned int, matching_engine::Order*, ankerl::unordered_dense::v4_8_1::hash&lt;long unsigned int&gt;, std::equal_to&lt;long unsigned int&gt;, std::allocator&lt;std::pair&lt;long unsigned int, matching_engine::Order*&gt; &gt;, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false&gt;::erase (464,750,000 samples, 5.25%)</title><rect x="645.1" y="229" width="62.0" height="15.0" fill="rgb(232,127,30)" rx="2" ry="2" />
-<text  x="648.07" y="239.5" >do_era..</text>
+<title>hash (12,012,012 samples, 0.59%)</title><rect x="650.9" y="117" width="6.9" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="653.90" y="127.5" ></text>
 </g>
 <g >
-<title>[unknown] (6,500,000 samples, 0.07%)</title><rect x="991.1" y="293" width="0.9" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.14" y="303.5" ></text>
+<title>_M_reset (9,009,009 samples, 0.44%)</title><rect x="725.5" y="373" width="5.2" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
+<text  x="728.52" y="383.5" ></text>
 </g>
 <g >
-<title>taskset (750,000 samples, 0.01%)</title><rect x="1189.9" y="869" width="0.1" height="15.0" fill="rgb(208,17,4)" rx="2" ry="2" />
-<text  x="1192.90" y="879.5" ></text>
+<title>next (2,002,002 samples, 0.10%)</title><rect x="984.7" y="309" width="1.1" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
+<text  x="987.66" y="319.5" ></text>
 </g>
 <g >
-<title>size (667,750,000 samples, 7.55%)</title><rect x="1088.8" y="325" width="89.0" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
-<text  x="1091.75" y="335.5" >size</text>
+<title>std::vector&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;, std::allocator&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; &gt;::size (4,004,004 samples, 0.20%)</title><rect x="730.7" y="389" width="2.3" height="15.0" fill="rgb(248,198,47)" rx="2" ry="2" />
+<text  x="733.73" y="399.5" ></text>
 </g>
 <g >
-<title>run_cancel_workload (8,800,500,000 samples, 99.49%)</title><rect x="15.8" y="469" width="1174.0" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
-<text  x="18.80" y="479.5" >run_cancel_workload</text>
+<title>unmap_region (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="309" width="0.6" height="15.0" fill="rgb(219,64,15)" rx="2" ry="2" />
+<text  x="1192.42" y="319.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="229" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="239.5" ></text>
+<title>[ld-linux-x86-64.so.2] (1,001,001 samples, 0.05%)</title><rect x="10.0" y="757" width="0.6" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="13.00" y="767.5" ></text>
 </g>
 <g >
-<title>_M_reset (21,500,000 samples, 0.24%)</title><rect x="813.2" y="421" width="2.8" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
-<text  x="816.15" y="431.5" ></text>
+<title>find (18,018,018 samples, 0.88%)</title><rect x="657.8" y="181" width="10.5" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
+<text  x="660.84" y="191.5" ></text>
 </g>
 <g >
-<title>DoOneRepetition (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="677" width="1179.7" height="15.0" fill="rgb(242,174,41)" rx="2" ry="2" />
-<text  x="13.13" y="687.5" >DoOneRepetition</text>
+<title>construct&lt;std::pair&lt;long int const, matching_engine::OrderQueue&gt;, const std::piecewise_construct_t&amp;, std::tuple&lt;long int const&amp;&gt;, std::tuple&lt;&gt; &gt; (1,001,001 samples, 0.05%)</title><rect x="986.4" y="261" width="0.6" height="15.0" fill="rgb(211,28,6)" rx="2" ry="2" />
+<text  x="989.39" y="271.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="165" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="175.5" ></text>
+<title>__alloc_frozen_pages_noprof (1,001,001 samples, 0.05%)</title><rect x="24.5" y="165" width="0.5" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="27.46" y="175.5" ></text>
 </g>
 <g >
-<title>operator (25,500,000 samples, 0.29%)</title><rect x="227.6" y="357" width="3.4" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
-<text  x="230.60" y="367.5" ></text>
+<title>variant&lt;0, matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="357" width="494.0" height="15.0" fill="rgb(227,102,24)" rx="2" ry="2" />
+<text  x="217.19" y="367.5" >variant&lt;0, matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>ChronoClockNow (750,000 samples, 0.01%)</title><rect x="813.2" y="373" width="0.1" height="15.0" fill="rgb(209,22,5)" rx="2" ry="2" />
-<text  x="816.15" y="383.5" ></text>
+<title>size (3,003,003 samples, 0.15%)</title><rect x="208.4" y="277" width="1.7" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="211.40" y="287.5" ></text>
 </g>
 <g >
-<title>pair&lt;long unsigned int&amp;, matching_engine::Order*&amp;&gt; (23,000,000 samples, 0.26%)</title><rect x="1008.8" y="341" width="3.0" height="15.0" fill="rgb(243,174,41)" rx="2" ry="2" />
-<text  x="1011.78" y="351.5" ></text>
+<title>~_Copy_ctor_base (2,002,002 samples, 0.10%)</title><rect x="1188.3" y="293" width="1.1" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="1191.26" y="303.5" ></text>
 </g>
 <g >
-<title>_M_destroy (19,750,000 samples, 0.22%)</title><rect x="813.4" y="405" width="2.6" height="15.0" fill="rgb(212,36,8)" rx="2" ry="2" />
-<text  x="816.39" y="415.5" ></text>
+<title>do_vmi_munmap (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="357" width="0.6" height="15.0" fill="rgb(253,223,53)" rx="2" ry="2" />
+<text  x="1192.42" y="367.5" ></text>
 </g>
 <g >
-<title>_Variant_base (45,250,000 samples, 0.51%)</title><rect x="1182.3" y="357" width="6.0" height="15.0" fill="rgb(247,196,47)" rx="2" ry="2" />
-<text  x="1185.30" y="367.5" ></text>
-</g>
-<g >
-<title>__cast&lt;long int, std::ratio&lt;1, 1000000000&gt; &gt; (750,000 samples, 0.01%)</title><rect x="813.2" y="325" width="0.1" height="15.0" fill="rgb(208,15,3)" rx="2" ry="2" />
-<text  x="816.15" y="335.5" ></text>
-</g>
-<g >
-<title>operator= (28,250,000 samples, 0.32%)</title><rect x="700.2" y="213" width="3.8" height="15.0" fill="rgb(210,25,6)" rx="2" ry="2" />
-<text  x="703.20" y="223.5" ></text>
-</g>
-<g >
-<title>[unknown] (1,750,000 samples, 0.02%)</title><rect x="1011.6" y="325" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="1014.61" y="335.5" ></text>
-</g>
-<g >
-<title>std::_Rb_tree_rebalance_for_erase (1,000,000 samples, 0.01%)</title><rect x="803.4" y="277" width="0.1" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
-<text  x="806.41" y="287.5" ></text>
-</g>
-<g >
-<title>_M_erase_at_end (36,500,000 samples, 0.41%)</title><rect x="1061.2" y="405" width="4.8" height="15.0" fill="rgb(215,48,11)" rx="2" ry="2" />
-<text  x="1064.17" y="415.5" ></text>
-</g>
-<g >
-<title>hash (25,500,000 samples, 0.29%)</title><rect x="227.6" y="341" width="3.4" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
-<text  x="230.60" y="351.5" ></text>
-</g>
-<g >
-<title>lower_bound (45,750,000 samples, 0.52%)</title><rect x="1020.5" y="389" width="6.1" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
-<text  x="1023.45" y="399.5" ></text>
-</g>
-<g >
-<title>operator (18,000,000 samples, 0.20%)</title><rect x="1185.9" y="213" width="2.4" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
-<text  x="1188.93" y="223.5" ></text>
-</g>
-<g >
-<title>void std::allocator_traits&lt;std::allocator&lt;unsigned long&gt; &gt;::construct&lt;unsigned long, unsigned long&gt; (750,000 samples, 0.01%)</title><rect x="10.2" y="421" width="0.1" height="15.0" fill="rgb(235,141,33)" rx="2" ry="2" />
-<text  x="13.23" y="431.5" ></text>
-</g>
-<g >
-<title>empty (14,750,000 samples, 0.17%)</title><rect x="225.6" y="357" width="2.0" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
-<text  x="228.64" y="367.5" ></text>
-</g>
-<g >
-<title>[libc.so.6] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="469" width="0.4" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="13.63" y="479.5" ></text>
-</g>
-<g >
-<title>native_handle (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="581" width="1179.7" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
-<text  x="13.13" y="591.5" >native_handle</text>
-</g>
-<g >
-<title>core_hot_path_b (8,845,000,000 samples, 99.99%)</title><rect x="10.0" y="869" width="1179.9" height="15.0" fill="rgb(234,135,32)" rx="2" ry="2" />
-<text  x="13.00" y="879.5" >core_hot_path_b</text>
-</g>
-<g >
-<title>next (3,750,000 samples, 0.04%)</title><rect x="1014.8" y="389" width="0.5" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
-<text  x="1017.78" y="399.5" ></text>
-</g>
-<g >
-<title>add_resting_order (518,250,000 samples, 5.86%)</title><rect x="961.9" y="421" width="69.1" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
-<text  x="964.89" y="431.5" >add_res..</text>
-</g>
-<g >
-<title>main (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="805" width="1179.8" height="15.0" fill="rgb(243,179,42)" rx="2" ry="2" />
-<text  x="13.13" y="815.5" >main</text>
-</g>
-<g >
-<title>[unknown] (4,000,000 samples, 0.05%)</title><rect x="15.3" y="245" width="0.5" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="18.27" y="255.5" ></text>
-</g>
-<g >
-<title>[[vdso]] (1,000,000 samples, 0.01%)</title><rect x="813.3" y="325" width="0.1" height="15.0" fill="rgb(218,60,14)" rx="2" ry="2" />
-<text  x="816.25" y="335.5" ></text>
-</g>
-<g >
-<title>_Destroy&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="357" width="2.6" height="15.0" fill="rgb(219,65,15)" rx="2" ry="2" />
-<text  x="1066.41" y="367.5" ></text>
-</g>
-<g >
-<title>[unknown] (6,750,000 samples, 0.08%)</title><rect x="14.9" y="309" width="0.9" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="17.90" y="319.5" ></text>
-</g>
-<g >
-<title>_Variadic_union&lt;matching_engine::CanceledEvent&gt; (4,269,750,000 samples, 48.27%)</title><rect x="234.0" y="309" width="569.5" height="15.0" fill="rgb(231,122,29)" rx="2" ry="2" />
-<text  x="236.97" y="319.5" >_Variadic_union&lt;matching_engine::CanceledEvent&gt;</text>
-</g>
-<g >
-<title>size (3,500,000 samples, 0.04%)</title><rect x="1019.9" y="341" width="0.5" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
-<text  x="1022.88" y="351.5" ></text>
-</g>
-<g >
-<title>cancel (19,500,000 samples, 0.22%)</title><rect x="11.1" y="469" width="2.6" height="15.0" fill="rgb(247,193,46)" rx="2" ry="2" />
-<text  x="14.07" y="479.5" ></text>
-</g>
-<g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="635.5" y="229" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="638.53" y="239.5" ></text>
-</g>
-<g >
-<title>[libc.so.6] (16,750,000 samples, 0.19%)</title><rect x="813.5" y="309" width="2.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="816.45" y="319.5" ></text>
-</g>
-<g >
-<title>[unknown] (5,000,000 samples, 0.06%)</title><rect x="15.1" y="277" width="0.7" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="18.14" y="287.5" ></text>
-</g>
-<g >
-<title>_Uninitialized&lt;matching_engine::CanceledEvent&gt; (18,000,000 samples, 0.20%)</title><rect x="1185.9" y="133" width="2.4" height="15.0" fill="rgb(211,28,6)" rx="2" ry="2" />
-<text  x="1188.93" y="143.5" ></text>
-</g>
-<g >
-<title>~_Move_assign_base (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="293" width="2.6" height="15.0" fill="rgb(207,12,2)" rx="2" ry="2" />
-<text  x="1066.41" y="303.5" ></text>
-</g>
-<g >
-<title>_S_left (16,750,000 samples, 0.19%)</title><rect x="1024.2" y="341" width="2.2" height="15.0" fill="rgb(241,168,40)" rx="2" ry="2" />
-<text  x="1027.15" y="351.5" ></text>
-</g>
-<g >
-<title>_M_lower_bound (45,000,000 samples, 0.51%)</title><rect x="1020.6" y="357" width="6.0" height="15.0" fill="rgb(240,162,38)" rx="2" ry="2" />
-<text  x="1023.55" y="367.5" ></text>
-</g>
-<g >
-<title>size (3,000,000 samples, 0.03%)</title><rect x="1014.9" y="357" width="0.4" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
-<text  x="1017.88" y="367.5" ></text>
-</g>
-<g >
-<title>_M_lower_bound (32,000,000 samples, 0.36%)</title><rect x="740.2" y="229" width="4.3" height="15.0" fill="rgb(240,162,38)" rx="2" ry="2" />
-<text  x="743.22" y="239.5" ></text>
-</g>
-<g >
-<title>cfree (750,000 samples, 0.01%)</title><rect x="237.4" y="277" width="0.1" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
-<text  x="240.38" y="287.5" ></text>
-</g>
-<g >
-<title>WaitForAllThreads (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="613" width="1179.7" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
-<text  x="13.13" y="623.5" >WaitForAllThreads</text>
-</g>
-<g >
-<title>~_Copy_ctor_base (10,500,000 samples, 0.12%)</title><rect x="1188.4" y="357" width="1.4" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
-<text  x="1191.37" y="367.5" ></text>
-</g>
-<g >
-<title>~basic_string (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="773" width="1179.8" height="15.0" fill="rgb(232,127,30)" rx="2" ry="2" />
-<text  x="13.13" y="783.5" >~basic_string</text>
-</g>
-<g >
-<title>swap&lt;long unsigned int&gt; (1,000,000 samples, 0.01%)</title><rect x="10.3" y="453" width="0.2" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
-<text  x="13.33" y="463.5" ></text>
-</g>
-<g >
-<title>operator (21,000,000 samples, 0.24%)</title><rect x="1012.0" y="373" width="2.8" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
-<text  x="1014.98" y="383.5" ></text>
-</g>
-<g >
-<title>__fill_a1&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (25,250,000 samples, 0.29%)</title><rect x="63.3" y="229" width="3.4" height="15.0" fill="rgb(218,62,15)" rx="2" ry="2" />
-<text  x="66.29" y="239.5" ></text>
-</g>
-<g >
-<title>mum (134,750,000 samples, 1.52%)</title><rect x="719.0" y="149" width="18.0" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
-<text  x="722.01" y="159.5" ></text>
-</g>
-<g >
-<title>__normal_iterator (10,750,000 samples, 0.12%)</title><rect x="1066.0" y="373" width="1.5" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
-<text  x="1069.04" y="383.5" ></text>
-</g>
-<g >
-<title>OrderBook (35,500,000 samples, 0.40%)</title><rect x="61.9" y="453" width="4.8" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
-<text  x="64.92" y="463.5" ></text>
-</g>
-<g >
-<title>operator= (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="645" width="1179.7" height="15.0" fill="rgb(210,25,6)" rx="2" ry="2" />
-<text  x="13.13" y="655.5" >operator=</text>
-</g>
-<g >
-<title>bucket_idx_from_hash (12,750,000 samples, 0.14%)</title><rect x="714.1" y="213" width="1.7" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
-<text  x="717.14" y="223.5" ></text>
-</g>
-<g >
-<title>next (4,250,000 samples, 0.05%)</title><rect x="1019.8" y="373" width="0.6" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
-<text  x="1022.78" y="383.5" ></text>
-</g>
-<g >
-<title>~variant (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="325" width="2.6" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
-<text  x="1066.41" y="335.5" ></text>
-</g>
-<g >
-<title>_Variant_storage&lt;0, matching_engine::CanceledEvent&gt; (4,272,250,000 samples, 48.30%)</title><rect x="233.6" y="325" width="569.9" height="15.0" fill="rgb(216,53,12)" rx="2" ry="2" />
-<text  x="236.64" y="335.5" >_Variant_storage&lt;0, matching_engine::CanceledEvent&gt;</text>
-</g>
-<g >
-<title>empty (7,000,000 samples, 0.08%)</title><rect x="707.1" y="229" width="0.9" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
-<text  x="710.07" y="239.5" ></text>
-</g>
-<g >
-<title>[[vdso]] (1,750,000 samples, 0.02%)</title><rect x="803.6" y="341" width="0.3" height="15.0" fill="rgb(218,60,14)" rx="2" ry="2" />
-<text  x="806.65" y="351.5" ></text>
-</g>
-<g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="222.7" y="293" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.70" y="303.5" ></text>
-</g>
-<g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="229" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="239.5" ></text>
-</g>
-<g >
-<title>__exchange&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::bucket_type::standard&amp;&gt; (1,250,000 samples, 0.01%)</title><rect x="1019.6" y="357" width="0.2" height="15.0" fill="rgb(239,160,38)" rx="2" ry="2" />
-<text  x="1022.62" y="367.5" ></text>
-</g>
-<g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="15.4" y="213" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="18.44" y="223.5" ></text>
-</g>
-<g >
-<title>mum (750,000 samples, 0.01%)</title><rect x="1083.3" y="293" width="0.1" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
-<text  x="1086.32" y="303.5" ></text>
-</g>
-<g >
-<title>do_find&lt;long unsigned int&gt; (827,250,000 samples, 9.35%)</title><rect x="1067.5" y="373" width="110.3" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
-<text  x="1070.47" y="383.5" >do_find&lt;long ..</text>
-</g>
-<g >
-<title>__fill_a&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (25,250,000 samples, 0.29%)</title><rect x="63.3" y="245" width="3.4" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
-<text  x="66.29" y="255.5" ></text>
-</g>
-<g >
-<title>emplace_back&lt;matching_engine::OrderPool::Block&gt; (750,000 samples, 0.01%)</title><rect x="63.2" y="389" width="0.1" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
-<text  x="66.19" y="399.5" ></text>
-</g>
-<g >
-<title>next (707,750,000 samples, 8.00%)</title><rect x="1083.4" y="357" width="94.4" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
-<text  x="1086.42" y="367.5" >next</text>
-</g>
-<g >
-<title>[libc.so.6] (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="821" width="1179.8" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="13.13" y="831.5" >[libc.so.6]</text>
-</g>
-<g >
-<title>empty (7,000,000 samples, 0.08%)</title><rect x="707.1" y="213" width="0.9" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
-<text  x="710.07" y="223.5" ></text>
-</g>
-<g >
-<title>__do_visit&lt;std::__detail::__variant::__variant_idx_cookie, std::__detail::__variant::_Move_ctor_base&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;::_Move_ctor_base (45,000,000 samples, 0.51%)</title><rect x="1182.3" y="277" width="6.0" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
-<text  x="1185.33" y="287.5" ></text>
-</g>
-<g >
-<title>[ld-linux-x86-64.so.2] (750,000 samples, 0.01%)</title><rect x="10.0" y="789" width="0.1" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<title>[ld-linux-x86-64.so.2] (1,001,001 samples, 0.05%)</title><rect x="10.0" y="789" width="0.6" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
 <text  x="13.00" y="799.5" ></text>
 </g>
 <g >
-<title>[libc.so.6] (750,000 samples, 0.01%)</title><rect x="63.2" y="357" width="0.1" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="66.19" y="367.5" ></text>
+<title>do_user_addr_fault (5,005,005 samples, 0.25%)</title><rect x="886.9" y="261" width="2.9" height="15.0" fill="rgb(228,108,25)" rx="2" ry="2" />
+<text  x="889.90" y="271.5" ></text>
 </g>
 <g >
-<title>dist_and_fingerprint_from_hash (10,750,000 samples, 0.12%)</title><rect x="1003.7" y="389" width="1.4" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
-<text  x="1006.71" y="399.5" ></text>
+<title>size (1,001,001 samples, 0.05%)</title><rect x="956.9" y="293" width="0.6" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="959.89" y="303.5" ></text>
 </g>
 <g >
-<title>_Variant_base&lt;0, matching_engine::CanceledEvent&gt; (4,272,250,000 samples, 48.30%)</title><rect x="233.6" y="405" width="569.9" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
-<text  x="236.64" y="415.5" >_Variant_base&lt;0, matching_engine::CanceledEvent&gt;</text>
+<title>construct&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;, std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (13,013,013 samples, 0.64%)</title><rect x="1180.7" y="341" width="7.6" height="15.0" fill="rgb(253,224,53)" rx="2" ry="2" />
+<text  x="1183.75" y="351.5" ></text>
 </g>
 <g >
-<title>ReadCpuTimerOfChoice (1,000,000 samples, 0.01%)</title><rect x="813.3" y="373" width="0.1" height="15.0" fill="rgb(221,76,18)" rx="2" ry="2" />
-<text  x="816.25" y="383.5" ></text>
+<title>[ld-linux-x86-64.so.2] (1,001,001 samples, 0.05%)</title><rect x="10.0" y="725" width="0.6" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="13.00" y="735.5" ></text>
 </g>
 <g >
-<title>seed (1,250,000 samples, 0.01%)</title><rect x="10.2" y="469" width="0.1" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
-<text  x="13.17" y="479.5" ></text>
+<title>next_while_less&lt;long unsigned int&gt; (37,037,037 samples, 1.81%)</title><rect x="636.4" y="165" width="21.4" height="15.0" fill="rgb(251,213,50)" rx="2" ry="2" />
+<text  x="639.44" y="175.5" >n..</text>
 </g>
 <g >
-<title>[unknown] (9,000,000 samples, 0.10%)</title><rect x="14.6" y="373" width="1.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="17.60" y="383.5" ></text>
+<title>ReadCpuTimerOfChoice (1,001,001 samples, 0.05%)</title><rect x="708.2" y="325" width="0.5" height="15.0" fill="rgb(221,76,18)" rx="2" ry="2" />
+<text  x="711.17" y="335.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="325" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="335.5" ></text>
+<title>~_Variant_base (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="245" width="1.2" height="15.0" fill="rgb(233,132,31)" rx="2" ry="2" />
+<text  x="1055.91" y="255.5" ></text>
 </g>
 <g >
-<title>find_resting_order (1,151,250,000 samples, 13.01%)</title><rect x="80.1" y="437" width="153.5" height="15.0" fill="rgb(218,63,15)" rx="2" ry="2" />
-<text  x="83.07" y="447.5" >find_resting_order</text>
+<title>x64_sys_call (3,003,003 samples, 0.15%)</title><rect x="11.2" y="309" width="1.7" height="15.0" fill="rgb(247,194,46)" rx="2" ry="2" />
+<text  x="14.16" y="319.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="66.5" y="133" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.53" y="143.5" ></text>
+<title>~OrderPool (9,009,009 samples, 0.44%)</title><rect x="725.5" y="309" width="5.2" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
+<text  x="728.52" y="319.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="69" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="79.5" ></text>
+<title>__invoke&lt;std::__detail::__variant::_Move_ctor_base&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;::_Move_ctor_base (5,005,005 samples, 0.25%)</title><rect x="1183.6" y="181" width="2.9" height="15.0" fill="rgb(212,32,7)" rx="2" ry="2" />
+<text  x="1186.64" y="191.5" ></text>
 </g>
 <g >
-<title>mersenne_twister_engine (1,250,000 samples, 0.01%)</title><rect x="10.2" y="485" width="0.1" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
-<text  x="13.17" y="495.5" ></text>
+<title>_Move_ctor_base&lt;0, matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="293" width="494.0" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
+<text  x="217.19" y="303.5" >_Move_ctor_base&lt;0, matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>[unknown] (1,500,000 samples, 0.02%)</title><rect x="803.7" y="325" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="806.68" y="335.5" ></text>
+<title>__handle_mm_fault (3,003,003 samples, 0.15%)</title><rect x="888.1" y="229" width="1.7" height="15.0" fill="rgb(207,9,2)" rx="2" ry="2" />
+<text  x="891.06" y="239.5" ></text>
 </g>
 <g >
-<title>_Construct&lt;std::__detail::__variant::_Variadic_union&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;, const std::in_place_index_t&lt;2&gt;&amp;, matching_engine::CanceledEvent&gt; (18,000,000 samples, 0.20%)</title><rect x="1185.9" y="197" width="2.4" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
-<text  x="1188.93" y="207.5" ></text>
+<title>mersenne_twister_engine (1,001,001 samples, 0.05%)</title><rect x="10.6" y="421" width="0.6" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="13.58" y="431.5" ></text>
 </g>
 <g >
-<title>next (1,250,000 samples, 0.01%)</title><rect x="737.0" y="213" width="0.1" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
-<text  x="739.98" y="223.5" ></text>
+<title>core_hot_path_b (2,042,042,040 samples, 100.00%)</title><rect x="10.0" y="805" width="1180.0" height="15.0" fill="rgb(234,135,32)" rx="2" ry="2" />
+<text  x="13.00" y="815.5" >core_hot_path_b</text>
 </g>
 <g >
-<title>cancel (5,498,000,000 samples, 62.15%)</title><rect x="70.1" y="453" width="733.4" height="15.0" fill="rgb(247,193,46)" rx="2" ry="2" />
-<text  x="73.13" y="463.5" >cancel</text>
+<title>erase_and_shift_down (87,087,087 samples, 4.26%)</title><rect x="557.8" y="149" width="50.3" height="15.0" fill="rgb(234,137,32)" rx="2" ry="2" />
+<text  x="560.77" y="159.5" >erase..</text>
 </g>
 <g >
-<title>find (54,500,000 samples, 0.62%)</title><rect x="737.2" y="245" width="7.3" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
-<text  x="740.22" y="255.5" ></text>
+<title>mixed_hash&lt;long unsigned int&gt; (36,036,036 samples, 1.76%)</title><rect x="608.1" y="149" width="20.8" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="611.10" y="159.5" ></text>
 </g>
 <g >
-<title>erase (725,250,000 samples, 8.20%)</title><rect x="640.5" y="261" width="96.7" height="15.0" fill="rgb(252,219,52)" rx="2" ry="2" />
-<text  x="643.47" y="271.5" >erase</text>
+<title>MutexLock (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="533" width="1179.4" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+<text  x="13.58" y="543.5" >MutexLock</text>
 </g>
 <g >
-<title>bucket_count (3,000,000 samples, 0.03%)</title><rect x="1014.9" y="373" width="0.4" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
-<text  x="1017.88" y="383.5" ></text>
+<title>match_buy_order (68,068,068 samples, 3.33%)</title><rect x="997.4" y="357" width="39.3" height="15.0" fill="rgb(235,141,33)" rx="2" ry="2" />
+<text  x="1000.38" y="367.5" >mat..</text>
 </g>
 <g >
-<title>[unknown] (9,000,000 samples, 0.10%)</title><rect x="14.6" y="357" width="1.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="17.60" y="367.5" ></text>
+<title>operator[] (7,007,007 samples, 0.34%)</title><rect x="210.1" y="309" width="4.1" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
+<text  x="213.14" y="319.5" ></text>
 </g>
 <g >
-<title>[unknown] (4,500,000 samples, 0.05%)</title><rect x="991.4" y="229" width="0.6" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.40" y="239.5" ></text>
+<title>handle_pte_fault (1,001,001 samples, 0.05%)</title><rect x="10.0" y="613" width="0.6" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="13.00" y="623.5" ></text>
 </g>
 <g >
-<title>next (61,500,000 samples, 0.70%)</title><rect x="689.0" y="197" width="8.2" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
-<text  x="691.96" y="207.5" ></text>
+<title>pair&lt;long int const&amp;, 0&gt; (1,001,001 samples, 0.05%)</title><rect x="986.4" y="213" width="0.6" height="15.0" fill="rgb(212,33,8)" rx="2" ry="2" />
+<text  x="989.39" y="223.5" ></text>
 </g>
 <g >
-<title>_Variadic_union&lt;2, matching_engine::CanceledEvent&gt; (18,000,000 samples, 0.20%)</title><rect x="1185.9" y="181" width="2.4" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
-<text  x="1188.93" y="191.5" ></text>
+<title>exc_page_fault (5,005,005 samples, 0.25%)</title><rect x="886.9" y="277" width="2.9" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+<text  x="889.90" y="287.5" ></text>
 </g>
 <g >
-<title>[unknown] (6,750,000 samples, 0.08%)</title><rect x="14.9" y="341" width="0.9" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="17.90" y="351.5" ></text>
+<title>reserve (16,016,016 samples, 0.78%)</title><rect x="46.4" y="357" width="9.3" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
+<text  x="49.44" y="367.5" ></text>
 </g>
 <g >
-<title>submit (2,787,250,000 samples, 31.51%)</title><rect x="818.0" y="453" width="371.8" height="15.0" fill="rgb(250,207,49)" rx="2" ry="2" />
-<text  x="820.95" y="463.5" >submit</text>
+<title>rcu_core_si (1,001,001 samples, 0.05%)</title><rect x="11.2" y="53" width="0.5" height="15.0" fill="rgb(237,150,36)" rx="2" ry="2" />
+<text  x="14.16" y="63.5" ></text>
 </g>
 <g >
-<title>_Move_assign_base (45,250,000 samples, 0.51%)</title><rect x="1182.3" y="341" width="6.0" height="15.0" fill="rgb(221,76,18)" rx="2" ry="2" />
-<text  x="1185.30" y="351.5" ></text>
+<title>__irq_exit_rcu (1,001,001 samples, 0.05%)</title><rect x="11.2" y="85" width="0.5" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="14.16" y="95.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="15.7" y="181" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="18.67" y="191.5" ></text>
+<title>_Auto_node&lt;const std::piecewise_construct_t&amp;, std::tuple&lt;long int const&amp;&gt;, std::tuple&lt;&gt; &gt; (1,001,001 samples, 0.05%)</title><rect x="986.4" y="309" width="0.6" height="15.0" fill="rgb(230,116,27)" rx="2" ry="2" />
+<text  x="989.39" y="319.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="803.7" y="293" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="806.71" y="303.5" ></text>
+<title>do_syscall_64 (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="421" width="0.6" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
+<text  x="1192.42" y="431.5" ></text>
 </g>
 <g >
-<title>ResumeTiming (2,500,000 samples, 0.03%)</title><rect x="803.5" y="421" width="0.4" height="15.0" fill="rgb(246,192,46)" rx="2" ry="2" />
-<text  x="806.55" y="431.5" ></text>
+<title>exc_page_fault (1,001,001 samples, 0.05%)</title><rect x="950.0" y="245" width="0.5" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+<text  x="952.95" y="255.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="66.5" y="165" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.49" y="175.5" ></text>
+<title>_M_begin (3,003,003 samples, 0.15%)</title><rect x="660.2" y="165" width="1.7" height="15.0" fill="rgb(248,202,48)" rx="2" ry="2" />
+<text  x="663.16" y="175.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="293" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="303.5" ></text>
+<title>_M_destroy (9,009,009 samples, 0.44%)</title><rect x="725.5" y="341" width="5.2" height="15.0" fill="rgb(212,36,8)" rx="2" ry="2" />
+<text  x="728.52" y="351.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="15.7" y="197" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="18.67" y="207.5" ></text>
+<title>_Variadic_union&lt;2, matching_engine::CanceledEvent&gt; (5,005,005 samples, 0.25%)</title><rect x="1183.6" y="117" width="2.9" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="1186.64" y="127.5" ></text>
 </g>
 <g >
-<title>_Uninitialized&lt;matching_engine::CanceledEvent&gt; (4,269,750,000 samples, 48.27%)</title><rect x="234.0" y="293" width="569.5" height="15.0" fill="rgb(211,28,6)" rx="2" ry="2" />
-<text  x="236.97" y="303.5" >_Uninitialized&lt;matching_engine::CanceledEvent&gt;</text>
+<title>~_Move_assign_base (2,002,002 samples, 0.10%)</title><rect x="1188.3" y="341" width="1.1" height="15.0" fill="rgb(207,12,2)" rx="2" ry="2" />
+<text  x="1191.26" y="351.5" ></text>
 </g>
 <g >
-<title>dist_and_fingerprint_from_hash (16,000,000 samples, 0.18%)</title><rect x="1081.0" y="357" width="2.1" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
-<text  x="1084.01" y="367.5" ></text>
+<title>emplace_back&lt;matching_engine::OrderPool::Block&gt; (1,001,001 samples, 0.05%)</title><rect x="49.3" y="325" width="0.6" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
+<text  x="52.33" y="335.5" ></text>
 </g>
 <g >
-<title>bucket_count (61,250,000 samples, 0.69%)</title><rect x="689.0" y="181" width="8.2" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
-<text  x="691.99" y="191.5" ></text>
+<title>push_back (1,001,001 samples, 0.05%)</title><rect x="49.3" y="341" width="0.6" height="15.0" fill="rgb(215,47,11)" rx="2" ry="2" />
+<text  x="52.33" y="351.5" ></text>
 </g>
 <g >
-<title>operator[] (18,500,000 samples, 0.21%)</title><rect x="711.7" y="197" width="2.4" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
-<text  x="714.67" y="207.5" ></text>
+<title>~_Copy_assign_base (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="213" width="1.2" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
+<text  x="1055.91" y="223.5" ></text>
 </g>
 <g >
-<title>at (18,500,000 samples, 0.21%)</title><rect x="711.7" y="213" width="2.4" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
-<text  x="714.67" y="223.5" ></text>
+<title>emplace_back&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (18,018,018 samples, 0.88%)</title><rect x="1177.9" y="357" width="10.4" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="1180.85" y="367.5" ></text>
 </g>
 <g >
-<title>~OrderBook (19,250,000 samples, 0.22%)</title><rect x="813.5" y="389" width="2.5" height="15.0" fill="rgb(216,52,12)" rx="2" ry="2" />
-<text  x="816.45" y="399.5" ></text>
+<title>bucket_idx_from_hash (1,001,001 samples, 0.05%)</title><rect x="557.2" y="149" width="0.6" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
+<text  x="560.20" y="159.5" ></text>
 </g>
 <g >
-<title>hash (21,000,000 samples, 0.24%)</title><rect x="1012.0" y="357" width="2.8" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
-<text  x="1014.98" y="367.5" ></text>
+<title>clear (10,010,010 samples, 0.49%)</title><rect x="1048.3" y="357" width="5.8" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="1051.28" y="367.5" ></text>
 </g>
 <g >
-<title>dist_dec (2,000,000 samples, 0.02%)</title><rect x="688.7" y="197" width="0.3" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
-<text  x="691.69" y="207.5" ></text>
+<title>add_resting_order (7,007,007 samples, 0.34%)</title><rect x="55.7" y="389" width="4.0" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="58.70" y="399.5" ></text>
 </g>
 <g >
-<title>mix (21,000,000 samples, 0.24%)</title><rect x="1012.0" y="341" width="2.8" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
-<text  x="1014.98" y="351.5" ></text>
+<title>brk (3,003,003 samples, 0.15%)</title><rect x="11.2" y="357" width="1.7" height="15.0" fill="rgb(252,220,52)" rx="2" ry="2" />
+<text  x="14.16" y="367.5" ></text>
 </g>
 <g >
-<title>mix (2,000,000 samples, 0.02%)</title><rect x="1083.1" y="309" width="0.3" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
-<text  x="1086.15" y="319.5" ></text>
+<title>vms_complete_munmap_vmas (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="325" width="0.6" height="15.0" fill="rgb(216,52,12)" rx="2" ry="2" />
+<text  x="1192.42" y="335.5" ></text>
 </g>
 <g >
-<title>end (14,750,000 samples, 0.17%)</title><rect x="225.6" y="341" width="2.0" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
-<text  x="228.64" y="351.5" ></text>
+<title>push_back (18,018,018 samples, 0.88%)</title><rect x="1177.9" y="373" width="10.4" height="15.0" fill="rgb(215,47,11)" rx="2" ry="2" />
+<text  x="1180.85" y="383.5" ></text>
 </g>
 <g >
-<title>remove (355,500,000 samples, 4.02%)</title><rect x="756.0" y="261" width="47.4" height="15.0" fill="rgb(238,155,37)" rx="2" ry="2" />
-<text  x="758.99" y="271.5" >remove</text>
+<title>exc_page_fault (1,001,001 samples, 0.05%)</title><rect x="55.1" y="133" width="0.6" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+<text  x="58.12" y="143.5" ></text>
 </g>
 <g >
-<title>_Copy_assign_base (45,250,000 samples, 0.51%)</title><rect x="1182.3" y="325" width="6.0" height="15.0" fill="rgb(245,187,44)" rx="2" ry="2" />
-<text  x="1185.30" y="335.5" ></text>
+<title>submit (789,789,789 samples, 38.68%)</title><rect x="733.0" y="389" width="456.4" height="15.0" fill="rgb(250,207,49)" rx="2" ry="2" />
+<text  x="736.04" y="399.5" >submit</text>
 </g>
 <g >
-<title>is_full (1,000,000 samples, 0.01%)</title><rect x="1011.8" y="389" width="0.2" height="15.0" fill="rgb(218,62,14)" rx="2" ry="2" />
-<text  x="1014.85" y="399.5" ></text>
+<title>__fill_a&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (10,010,010 samples, 0.49%)</title><rect x="49.9" y="181" width="5.8" height="15.0" fill="rgb(235,138,33)" rx="2" ry="2" />
+<text  x="52.91" y="191.5" ></text>
 </g>
 <g >
-<title>duration_cast&lt;std::chrono::duration&lt;double, std::ratio&lt;1&gt; &gt;, long int, std::ratio&lt;1, 1000000000&gt; &gt; (750,000 samples, 0.01%)</title><rect x="813.2" y="341" width="0.1" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
-<text  x="816.15" y="351.5" ></text>
+<title>_Construct&lt;std::__detail::__variant::_Variadic_union&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;, const std::in_place_index_t&lt;2&gt;&amp;, matching_engine::CanceledEvent&gt; (5,005,005 samples, 0.25%)</title><rect x="1183.6" y="133" width="2.9" height="15.0" fill="rgb(220,70,16)" rx="2" ry="2" />
+<text  x="1186.64" y="143.5" ></text>
 </g>
 <g >
-<title>next_while_less&lt;long unsigned int&gt; (218,500,000 samples, 2.47%)</title><rect x="708.0" y="229" width="29.1" height="15.0" fill="rgb(251,213,50)" rx="2" ry="2" />
-<text  x="711.00" y="239.5" >ne..</text>
+<title>_M_lower_bound (11,011,011 samples, 0.54%)</title><rect x="661.9" y="165" width="6.4" height="15.0" fill="rgb(240,162,38)" rx="2" ry="2" />
+<text  x="664.89" y="175.5" ></text>
 </g>
 <g >
-<title>mixed_hash&lt;long unsigned int&gt; (2,000,000 samples, 0.02%)</title><rect x="1083.1" y="357" width="0.3" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
-<text  x="1086.15" y="367.5" ></text>
+<title>vms_complete_munmap_vmas (3,003,003 samples, 0.15%)</title><rect x="11.2" y="245" width="1.7" height="15.0" fill="rgb(216,52,12)" rx="2" ry="2" />
+<text  x="14.16" y="255.5" ></text>
 </g>
 <g >
-<title>__default_morecore (2,750,000 samples, 0.03%)</title><rect x="10.6" y="437" width="0.4" height="15.0" fill="rgb(230,115,27)" rx="2" ry="2" />
-<text  x="13.63" y="447.5" ></text>
+<title>__handle_mm_fault (1,001,001 samples, 0.05%)</title><rect x="10.0" y="629" width="0.6" height="15.0" fill="rgb(207,9,2)" rx="2" ry="2" />
+<text  x="13.00" y="639.5" ></text>
 </g>
 <g >
-<title>_Copy_assign_base&lt;0, matching_engine::CanceledEvent&gt; (4,272,250,000 samples, 48.30%)</title><rect x="233.6" y="373" width="569.9" height="15.0" fill="rgb(249,205,49)" rx="2" ry="2" />
-<text  x="236.64" y="383.5" >_Copy_assign_base&lt;0, matching_engine::CanceledEvent&gt;</text>
+<title>make_same_price_resting_buys (9,009,009 samples, 0.44%)</title><rect x="19.8" y="405" width="5.2" height="15.0" fill="rgb(229,112,26)" rx="2" ry="2" />
+<text  x="22.83" y="415.5" ></text>
 </g>
 <g >
-<title>dist_and_fingerprint_from_hash (7,750,000 samples, 0.09%)</title><rect x="224.6" y="373" width="1.0" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
-<text  x="227.60" y="383.5" ></text>
+<title>~_Variant_storage (2,002,002 samples, 0.10%)</title><rect x="1188.3" y="277" width="1.1" height="15.0" fill="rgb(248,200,48)" rx="2" ry="2" />
+<text  x="1191.26" y="287.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="222.7" y="325" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.70" y="335.5" ></text>
+<title>handle_pte_fault (3,003,003 samples, 0.15%)</title><rect x="888.1" y="213" width="1.7" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="891.06" y="223.5" ></text>
 </g>
 <g >
-<title>GetNullLogInstance (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="549" width="1179.7" height="15.0" fill="rgb(221,74,17)" rx="2" ry="2" />
-<text  x="13.13" y="559.5" >GetNullLogInstance</text>
+<title>__rmqueue_pcplist (1,001,001 samples, 0.05%)</title><rect x="888.6" y="69" width="0.6" height="15.0" fill="rgb(230,118,28)" rx="2" ry="2" />
+<text  x="891.64" y="79.5" ></text>
 </g>
 <g >
-<title>ThreadCPUUsage (1,000,000 samples, 0.01%)</title><rect x="813.3" y="357" width="0.1" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
-<text  x="816.25" y="367.5" ></text>
+<title>do_vmi_align_munmap (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="341" width="0.6" height="15.0" fill="rgb(211,29,7)" rx="2" ry="2" />
+<text  x="1192.42" y="351.5" ></text>
 </g>
 <g >
-<title>_M_is_local (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="741" width="1179.8" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
-<text  x="13.13" y="751.5" >_M_is_local</text>
+<title>~_Move_assign_base (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="229" width="1.2" height="15.0" fill="rgb(207,12,2)" rx="2" ry="2" />
+<text  x="1055.91" y="239.5" ></text>
 </g>
 <g >
-<title>operator (147,750,000 samples, 1.67%)</title><rect x="717.3" y="197" width="19.7" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
-<text  x="720.27" y="207.5" ></text>
+<title>__uninit_default_n&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int&gt; (10,010,010 samples, 0.49%)</title><rect x="49.9" y="245" width="5.8" height="15.0" fill="rgb(209,22,5)" rx="2" ry="2" />
+<text  x="52.91" y="255.5" ></text>
 </g>
 <g >
-<title>remove_resting_order (4,242,250,000 samples, 47.96%)</title><rect x="237.5" y="277" width="565.9" height="15.0" fill="rgb(237,150,35)" rx="2" ry="2" />
-<text  x="240.51" y="287.5" >remove_resting_order</text>
+<title>~_Copy_assign_base (2,002,002 samples, 0.10%)</title><rect x="1188.3" y="325" width="1.1" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
+<text  x="1191.26" y="335.5" ></text>
 </g>
 <g >
-<title>StopTimer (1,750,000 samples, 0.02%)</title><rect x="813.2" y="389" width="0.2" height="15.0" fill="rgb(223,85,20)" rx="2" ry="2" />
-<text  x="816.15" y="399.5" ></text>
+<title>_M_reset (9,009,009 samples, 0.44%)</title><rect x="725.5" y="357" width="5.2" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
+<text  x="728.52" y="367.5" ></text>
 </g>
 <g >
-<title>hash (17,250,000 samples, 0.20%)</title><rect x="697.2" y="181" width="2.3" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
-<text  x="700.16" y="191.5" ></text>
+<title>__handle_mm_fault (4,004,004 samples, 0.20%)</title><rect x="22.7" y="261" width="2.3" height="15.0" fill="rgb(207,9,2)" rx="2" ry="2" />
+<text  x="25.73" y="271.5" ></text>
 </g>
 <g >
-<title>~_Variant_storage (10,500,000 samples, 0.12%)</title><rect x="1188.4" y="341" width="1.4" height="15.0" fill="rgb(248,200,48)" rx="2" ry="2" />
-<text  x="1191.37" y="351.5" ></text>
+<title>mum (11,011,011 samples, 0.54%)</title><rect x="651.5" y="85" width="6.3" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
+<text  x="654.48" y="95.5" ></text>
 </g>
 <g >
-<title>construct&lt;std::pair&lt;long unsigned int, matching_engine::Order*&gt;, long unsigned int&amp;, matching_engine::Order*&amp;&gt; (23,000,000 samples, 0.26%)</title><rect x="1008.8" y="373" width="3.0" height="15.0" fill="rgb(209,19,4)" rx="2" ry="2" />
-<text  x="1011.78" y="383.5" ></text>
+<title>BM_OrderBook_CancelRandom_Throughput (2,040,040,038 samples, 99.90%)</title><rect x="10.6" y="453" width="1178.8" height="15.0" fill="rgb(232,124,29)" rx="2" ry="2" />
+<text  x="13.58" y="463.5" >BM_OrderBook_CancelRandom_Throughput</text>
 </g>
 <g >
-<title>emplace&lt;long unsigned int&amp;, matching_engine::Order*&amp;&gt; (178,750,000 samples, 2.02%)</title><rect x="996.6" y="405" width="23.9" height="15.0" fill="rgb(211,30,7)" rx="2" ry="2" />
-<text  x="999.61" y="415.5" >e..</text>
+<title>add_resting_order (301,301,301 samples, 14.75%)</title><rect x="823.3" y="357" width="174.1" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="826.27" y="367.5" >add_resting_order</text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="635.5" y="245" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="638.53" y="255.5" ></text>
+<title>construct_at&lt;std::pair&lt;long unsigned int, matching_engine::Order*&gt;, long unsigned int&amp;, matching_engine::Order*&amp;&gt; (6,006,006 samples, 0.29%)</title><rect x="947.1" y="293" width="3.4" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
+<text  x="950.06" y="303.5" ></text>
 </g>
 <g >
-<title>_Move_ctor_base (45,250,000 samples, 0.51%)</title><rect x="1182.3" y="309" width="6.0" height="15.0" fill="rgb(245,188,45)" rx="2" ry="2" />
-<text  x="1185.30" y="319.5" ></text>
+<title>rmqueue.isra.0 (1,001,001 samples, 0.05%)</title><rect x="24.5" y="133" width="0.5" height="15.0" fill="rgb(237,151,36)" rx="2" ry="2" />
+<text  x="27.46" y="143.5" ></text>
 </g>
 <g >
-<title>mix (25,500,000 samples, 0.29%)</title><rect x="227.6" y="325" width="3.4" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
-<text  x="230.60" y="335.5" ></text>
+<title>operator (2,002,002 samples, 0.10%)</title><rect x="992.2" y="277" width="1.1" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="995.18" y="287.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="213" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="223.5" ></text>
+<title>do_user_addr_fault (1,001,001 samples, 0.05%)</title><rect x="55.1" y="117" width="0.6" height="15.0" fill="rgb(228,108,25)" rx="2" ry="2" />
+<text  x="58.12" y="127.5" ></text>
 </g>
 <g >
-<title>[unknown] (3,500,000 samples, 0.04%)</title><rect x="15.3" y="229" width="0.5" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="18.34" y="239.5" ></text>
+<title>asm_exc_page_fault (5,005,005 samples, 0.25%)</title><rect x="886.9" y="293" width="2.9" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="889.90" y="303.5" ></text>
 </g>
 <g >
-<title>[unknown] (9,500,000 samples, 0.11%)</title><rect x="990.7" y="341" width="1.3" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="993.74" y="351.5" ></text>
+<title>void std::allocator_traits&lt;std::allocator&lt;matching_engine::Order&gt; &gt;::construct&lt;matching_engine::Order, matching_engine::Order&gt; (9,009,009 samples, 0.44%)</title><rect x="19.8" y="357" width="5.2" height="15.0" fill="rgb(233,131,31)" rx="2" ry="2" />
+<text  x="22.83" y="367.5" ></text>
 </g>
 <g >
-<title>[unknown] (9,500,000 samples, 0.11%)</title><rect x="990.7" y="357" width="1.3" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="993.74" y="367.5" ></text>
+<title>__munmap (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="453" width="0.6" height="15.0" fill="rgb(211,29,7)" rx="2" ry="2" />
+<text  x="1192.42" y="463.5" ></text>
 </g>
 <g >
-<title>__invoke_impl&lt;void, std::__detail::__variant::_Move_ctor_base&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;::_Move_ctor_base (18,000,000 samples, 0.20%)</title><rect x="1185.9" y="229" width="2.4" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
-<text  x="1188.93" y="239.5" ></text>
+<title>operator= (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="597" width="1179.4" height="15.0" fill="rgb(210,25,6)" rx="2" ry="2" />
+<text  x="13.58" y="607.5" >operator=</text>
 </g>
 <g >
-<title>reserve (25,250,000 samples, 0.29%)</title><rect x="63.3" y="405" width="3.4" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
-<text  x="66.29" y="415.5" ></text>
+<title>_Copy_ctor_base&lt;0, matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="277" width="494.0" height="15.0" fill="rgb(224,87,20)" rx="2" ry="2" />
+<text  x="217.19" y="287.5" >_Copy_ctor_base&lt;0, matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>fill_n&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (25,250,000 samples, 0.29%)</title><rect x="63.3" y="277" width="3.4" height="15.0" fill="rgb(233,130,31)" rx="2" ry="2" />
-<text  x="66.29" y="287.5" ></text>
+<title>hash (13,013,013 samples, 0.64%)</title><rect x="200.9" y="277" width="7.5" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="203.88" y="287.5" ></text>
 </g>
 <g >
-<title>mixed_hash&lt;long unsigned int&gt; (25,500,000 samples, 0.29%)</title><rect x="227.6" y="373" width="3.4" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
-<text  x="230.60" y="383.5" ></text>
+<title>__normal_iterator (3,003,003 samples, 0.15%)</title><rect x="634.7" y="117" width="1.7" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+<text  x="637.71" y="127.5" ></text>
 </g>
 <g >
-<title>_S_left (4,750,000 samples, 0.05%)</title><rect x="743.7" y="213" width="0.6" height="15.0" fill="rgb(241,168,40)" rx="2" ry="2" />
-<text  x="746.69" y="223.5" ></text>
+<title>StartTimer (1,001,001 samples, 0.05%)</title><rect x="708.2" y="341" width="0.5" height="15.0" fill="rgb(251,214,51)" rx="2" ry="2" />
+<text  x="711.17" y="351.5" ></text>
 </g>
 <g >
-<title>bucket_count (3,500,000 samples, 0.04%)</title><rect x="1019.9" y="357" width="0.5" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
-<text  x="1022.88" y="367.5" ></text>
+<title>wcsnlen (1,001,001 samples, 0.05%)</title><rect x="10.0" y="709" width="0.6" height="15.0" fill="rgb(241,166,39)" rx="2" ry="2" />
+<text  x="13.00" y="719.5" ></text>
 </g>
 <g >
-<title>__uninitialized_default_n_a&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (25,250,000 samples, 0.29%)</title><rect x="63.3" y="341" width="3.4" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
-<text  x="66.29" y="351.5" ></text>
+<title>_Variant_storage&lt;0, matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="261" width="494.0" height="15.0" fill="rgb(216,53,12)" rx="2" ry="2" />
+<text  x="217.19" y="271.5" >_Variant_storage&lt;0, matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>~_Copy_assign_base (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="277" width="2.6" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
-<text  x="1066.41" y="287.5" ></text>
+<title>folio_add_file_rmap_ptes (1,001,001 samples, 0.05%)</title><rect x="10.0" y="533" width="0.6" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+<text  x="13.00" y="543.5" ></text>
 </g>
 <g >
-<title>next (10,000,000 samples, 0.11%)</title><rect x="231.0" y="373" width="1.3" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
-<text  x="234.01" y="383.5" ></text>
+<title>__tlb_batch_free_encoded_pages (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="277" width="0.6" height="15.0" fill="rgb(205,3,0)" rx="2" ry="2" />
+<text  x="1192.42" y="287.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="991.6" y="197" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.64" y="207.5" ></text>
+<title>do_read_fault (1,001,001 samples, 0.05%)</title><rect x="10.0" y="581" width="0.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="13.00" y="591.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,750,000 samples, 0.02%)</title><rect x="991.8" y="181" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.77" y="191.5" ></text>
+<title>sysvec_apic_timer_interrupt (1,001,001 samples, 0.05%)</title><rect x="524.8" y="181" width="0.6" height="15.0" fill="rgb(220,69,16)" rx="2" ry="2" />
+<text  x="527.80" y="191.5" ></text>
 </g>
 <g >
-<title>[unknown] (9,000,000 samples, 0.10%)</title><rect x="14.6" y="389" width="1.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="17.60" y="399.5" ></text>
+<title>unsigned long&amp; std::vector&lt;unsigned long, std::allocator&lt;unsigned long&gt; &gt;::emplace_back&lt;unsigned long&gt; (1,001,001 samples, 0.05%)</title><rect x="10.6" y="373" width="0.6" height="15.0" fill="rgb(222,78,18)" rx="2" ry="2" />
+<text  x="13.58" y="383.5" ></text>
 </g>
 <g >
-<title>operator[] (45,750,000 samples, 0.52%)</title><rect x="1020.5" y="405" width="6.1" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
-<text  x="1023.45" y="415.5" ></text>
+<title>free_pcppages_bulk (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="197" width="0.6" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="1192.42" y="207.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="222.7" y="261" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.74" y="271.5" ></text>
+<title>size (7,007,007 samples, 0.34%)</title><rect x="889.8" y="325" width="4.0" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="892.79" y="335.5" ></text>
 </g>
 <g >
-<title>__normal_iterator (2,500,000 samples, 0.03%)</title><rect x="803.5" y="437" width="0.4" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
-<text  x="806.55" y="447.5" ></text>
+<title>handle_mm_fault (1,001,001 samples, 0.05%)</title><rect x="10.0" y="645" width="0.6" height="15.0" fill="rgb(234,135,32)" rx="2" ry="2" />
+<text  x="13.00" y="655.5" ></text>
 </g>
 <g >
-<title>create (75,000,000 samples, 0.85%)</title><rect x="982.0" y="389" width="10.0" height="15.0" fill="rgb(206,7,1)" rx="2" ry="2" />
-<text  x="985.00" y="399.5" ></text>
+<title>_raw_spin_unlock_irqrestore (1,001,001 samples, 0.05%)</title><rect x="11.2" y="149" width="0.5" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
+<text  x="14.16" y="159.5" ></text>
 </g>
 <g >
-<title>[libc.so.6] (9,500,000 samples, 0.11%)</title><rect x="61.9" y="405" width="1.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="64.92" y="415.5" ></text>
+<title>matching_engine::Order&amp; std::vector&lt;matching_engine::Order, std::allocator&lt;matching_engine::Order&gt; &gt;::emplace_back&lt;matching_engine::Order&gt; (9,009,009 samples, 0.44%)</title><rect x="19.8" y="373" width="5.2" height="15.0" fill="rgb(219,65,15)" rx="2" ry="2" />
+<text  x="22.83" y="383.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="53" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="63.5" ></text>
+<title>reset (9,009,009 samples, 0.44%)</title><rect x="725.5" y="389" width="5.2" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
+<text  x="728.52" y="399.5" ></text>
 </g>
 <g >
-<title>__normal_iterator (6,750,000 samples, 0.08%)</title><rect x="707.1" y="181" width="0.9" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
-<text  x="710.07" y="191.5" ></text>
+<title>clear (1,001,001 samples, 0.05%)</title><rect x="730.1" y="245" width="0.6" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="733.15" y="255.5" ></text>
 </g>
 <g >
-<title>find (1,151,000,000 samples, 13.01%)</title><rect x="80.1" y="421" width="153.5" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
-<text  x="83.10" y="431.5" >find</text>
+<title>handle_softirqs (1,001,001 samples, 0.05%)</title><rect x="11.2" y="69" width="0.5" height="15.0" fill="rgb(238,156,37)" rx="2" ry="2" />
+<text  x="14.16" y="79.5" ></text>
 </g>
 <g >
-<title>brk (2,750,000 samples, 0.03%)</title><rect x="10.6" y="421" width="0.4" height="15.0" fill="rgb(252,220,52)" rx="2" ry="2" />
-<text  x="13.63" y="431.5" ></text>
+<title>~_Variant_base (2,002,002 samples, 0.10%)</title><rect x="1188.3" y="357" width="1.1" height="15.0" fill="rgb(233,132,31)" rx="2" ry="2" />
+<text  x="1191.26" y="367.5" ></text>
 </g>
 <g >
-<title>__fill_n_a&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (25,250,000 samples, 0.29%)</title><rect x="63.3" y="261" width="3.4" height="15.0" fill="rgb(215,49,11)" rx="2" ry="2" />
-<text  x="66.29" y="271.5" ></text>
+<title>hash (9,009,009 samples, 0.44%)</title><rect x="950.5" y="293" width="5.2" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+<text  x="953.53" y="303.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="245" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="255.5" ></text>
+<title>set_pte_range (1,001,001 samples, 0.05%)</title><rect x="10.0" y="549" width="0.6" height="15.0" fill="rgb(224,90,21)" rx="2" ry="2" />
+<text  x="13.00" y="559.5" ></text>
 </g>
 <g >
-<title>reset (21,500,000 samples, 0.24%)</title><rect x="813.2" y="453" width="2.8" height="15.0" fill="rgb(229,114,27)" rx="2" ry="2" />
-<text  x="816.15" y="463.5" ></text>
+<title>__raw_callee_save___pv_queued_spin_unlock (1,001,001 samples, 0.05%)</title><rect x="24.5" y="85" width="0.5" height="15.0" fill="rgb(248,202,48)" rx="2" ry="2" />
+<text  x="27.46" y="95.5" ></text>
 </g>
 <g >
-<title>mixed_hash&lt;long unsigned int&gt; (147,750,000 samples, 1.67%)</title><rect x="717.3" y="213" width="19.7" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
-<text  x="720.27" y="223.5" ></text>
+<title>~variant (2,002,002 samples, 0.10%)</title><rect x="1188.3" y="373" width="1.1" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
+<text  x="1191.26" y="383.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="309" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="319.5" ></text>
+<title>_M_lower_bound (11,011,011 samples, 0.54%)</title><rect x="987.0" y="293" width="6.3" height="15.0" fill="rgb(240,162,38)" rx="2" ry="2" />
+<text  x="989.97" y="303.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,500,000 samples, 0.02%)</title><rect x="803.7" y="309" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="806.68" y="319.5" ></text>
+<title>tlb_finish_mmu (2,002,002 samples, 0.10%)</title><rect x="11.2" y="213" width="1.1" height="15.0" fill="rgb(251,212,50)" rx="2" ry="2" />
+<text  x="14.16" y="223.5" ></text>
 </g>
 <g >
-<title>pop_back (2,250,000 samples, 0.03%)</title><rect x="704.7" y="213" width="0.3" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
-<text  x="707.67" y="223.5" ></text>
+<title>_M_default_append (10,010,010 samples, 0.49%)</title><rect x="49.9" y="293" width="5.8" height="15.0" fill="rgb(205,2,0)" rx="2" ry="2" />
+<text  x="52.91" y="303.5" ></text>
 </g>
 <g >
-<title>clear (2,500,000 samples, 0.03%)</title><rect x="815.7" y="293" width="0.3" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
-<text  x="818.69" y="303.5" ></text>
+<title>zap_pmd_range.isra.0 (1,001,001 samples, 0.05%)</title><rect x="12.3" y="165" width="0.6" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+<text  x="15.31" y="175.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="277" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="287.5" ></text>
+<title>~_Move_ctor_base (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="197" width="1.2" height="15.0" fill="rgb(231,124,29)" rx="2" ry="2" />
+<text  x="1055.91" y="207.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="803.7" y="277" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="806.75" y="287.5" ></text>
+<title>handle_softirqs (1,001,001 samples, 0.05%)</title><rect x="524.8" y="133" width="0.6" height="15.0" fill="rgb(238,156,37)" rx="2" ry="2" />
+<text  x="527.80" y="143.5" ></text>
 </g>
 <g >
-<title>bucket_count (750,000 samples, 0.01%)</title><rect x="737.0" y="197" width="0.1" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
-<text  x="740.05" y="207.5" ></text>
+<title>do_anonymous_page (3,003,003 samples, 0.15%)</title><rect x="888.1" y="197" width="1.7" height="15.0" fill="rgb(238,155,37)" rx="2" ry="2" />
+<text  x="891.06" y="207.5" ></text>
 </g>
 <g >
-<title>destroy_at&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="341" width="2.6" height="15.0" fill="rgb(236,145,34)" rx="2" ry="2" />
-<text  x="1066.41" y="351.5" ></text>
+<title>do_find&lt;long unsigned int&gt; (214,214,214 samples, 10.49%)</title><rect x="1054.1" y="309" width="123.8" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
+<text  x="1057.07" y="319.5" >do_find&lt;long un..</text>
 </g>
 <g >
-<title>push_back (33,500,000 samples, 0.38%)</title><rect x="1026.6" y="405" width="4.4" height="15.0" fill="rgb(215,47,11)" rx="2" ry="2" />
-<text  x="1029.55" y="415.5" ></text>
+<title>RunSpecifiedBenchmarks (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="645" width="1179.4" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
+<text  x="13.58" y="655.5" >RunSpecifiedBenchmarks</text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="405" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="415.5" ></text>
+<title>[libc.so.6] (3,003,003 samples, 0.15%)</title><rect x="11.2" y="389" width="1.7" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="14.16" y="399.5" ></text>
 </g>
 <g >
-<title>_M_reset (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="213" width="2.6" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
-<text  x="1066.41" y="223.5" ></text>
+<title>_Copy_assign_base (13,013,013 samples, 0.64%)</title><rect x="1180.7" y="261" width="7.6" height="15.0" fill="rgb(245,187,44)" rx="2" ry="2" />
+<text  x="1183.75" y="271.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="66.5" y="101" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.53" y="111.5" ></text>
+<title>__uninit_default_n&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int&gt; (10,010,010 samples, 0.49%)</title><rect x="49.9" y="229" width="5.8" height="15.0" fill="rgb(209,22,5)" rx="2" ry="2" />
+<text  x="52.91" y="239.5" ></text>
 </g>
 <g >
-<title>begin (19,250,000 samples, 0.22%)</title><rect x="813.5" y="341" width="2.5" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
-<text  x="816.45" y="351.5" ></text>
+<title>match_buy_order (6,006,006 samples, 0.29%)</title><rect x="708.7" y="389" width="3.5" height="15.0" fill="rgb(235,141,33)" rx="2" ry="2" />
+<text  x="711.75" y="399.5" ></text>
 </g>
 <g >
-<title>_M_end (2,000,000 samples, 0.02%)</title><rect x="740.0" y="229" width="0.2" height="15.0" fill="rgb(229,113,27)" rx="2" ry="2" />
-<text  x="742.95" y="239.5" ></text>
+<title>cancel (1,122,122,121 samples, 54.95%)</title><rect x="59.7" y="389" width="648.5" height="15.0" fill="rgb(247,193,46)" rx="2" ry="2" />
+<text  x="62.75" y="399.5" >cancel</text>
 </g>
 <g >
-<title>~OrderPool (19,250,000 samples, 0.22%)</title><rect x="813.5" y="373" width="2.5" height="15.0" fill="rgb(219,66,15)" rx="2" ry="2" />
-<text  x="816.45" y="383.5" ></text>
+<title>unmap_page_range (1,001,001 samples, 0.05%)</title><rect x="12.3" y="181" width="0.6" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="15.31" y="191.5" ></text>
 </g>
 <g >
-<title>clear (19,250,000 samples, 0.22%)</title><rect x="813.5" y="357" width="2.5" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
-<text  x="816.45" y="367.5" ></text>
+<title>seed (1,001,001 samples, 0.05%)</title><rect x="10.6" y="405" width="0.6" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
+<text  x="13.58" y="415.5" ></text>
 </g>
 <g >
-<title>RunBenchmarks (8,843,500,000 samples, 99.97%)</title><rect x="10.1" y="693" width="1179.7" height="15.0" fill="rgb(215,48,11)" rx="2" ry="2" />
-<text  x="13.13" y="703.5" >RunBenchmarks</text>
+<title>size (172,172,172 samples, 8.43%)</title><rect x="1078.4" y="261" width="99.5" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="1081.36" y="271.5" >size</text>
 </g>
 <g >
-<title>~_Copy_ctor_base (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="245" width="2.6" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
-<text  x="1066.41" y="255.5" ></text>
+<title>asm_exc_page_fault (1,001,001 samples, 0.05%)</title><rect x="950.0" y="261" width="0.5" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="952.95" y="271.5" ></text>
 </g>
 <g >
-<title>do_find&lt;long unsigned int&gt; (1,151,000,000 samples, 13.01%)</title><rect x="80.1" y="389" width="153.5" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
-<text  x="83.10" y="399.5" >do_find&lt;long unsign..</text>
+<title>construct&lt;std::pair&lt;long unsigned int, matching_engine::Order*&gt;, long unsigned int&amp;, matching_engine::Order*&amp;&gt; (6,006,006 samples, 0.29%)</title><rect x="947.1" y="309" width="3.4" height="15.0" fill="rgb(209,19,4)" rx="2" ry="2" />
+<text  x="950.06" y="319.5" ></text>
 </g>
 <g >
-<title>at (22,750,000 samples, 0.26%)</title><rect x="1078.0" y="357" width="3.0" height="15.0" fill="rgb(237,149,35)" rx="2" ry="2" />
-<text  x="1080.98" y="367.5" ></text>
+<title>entry_SYSCALL_64_after_hwframe (3,003,003 samples, 0.15%)</title><rect x="11.2" y="341" width="1.7" height="15.0" fill="rgb(218,63,15)" rx="2" ry="2" />
+<text  x="14.16" y="351.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="66.5" y="149" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.49" y="159.5" ></text>
+<title>mixed_hash&lt;long unsigned int&gt; (9,009,009 samples, 0.44%)</title><rect x="950.5" y="325" width="5.2" height="15.0" fill="rgb(238,153,36)" rx="2" ry="2" />
+<text  x="953.53" y="335.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="66.6" y="85" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.56" y="95.5" ></text>
+<title>empty (16,016,016 samples, 0.78%)</title><rect x="525.4" y="197" width="9.2" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="528.38" y="207.5" ></text>
 </g>
 <g >
-<title>bucket_idx_from_hash (12,500,000 samples, 0.14%)</title><rect x="1002.0" y="389" width="1.7" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
-<text  x="1005.04" y="399.5" ></text>
+<title>DoNIterations (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="565" width="1179.4" height="15.0" fill="rgb(218,63,15)" rx="2" ry="2" />
+<text  x="13.58" y="575.5" >DoNIterations</text>
 </g>
 <g >
-<title>__invoke&lt;std::__detail::__variant::_Move_ctor_base&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;::_Move_ctor_base (18,000,000 samples, 0.20%)</title><rect x="1185.9" y="245" width="2.4" height="15.0" fill="rgb(212,32,7)" rx="2" ry="2" />
-<text  x="1188.93" y="255.5" ></text>
+<title>handle_mm_fault (3,003,003 samples, 0.15%)</title><rect x="888.1" y="245" width="1.7" height="15.0" fill="rgb(234,135,32)" rx="2" ry="2" />
+<text  x="891.06" y="255.5" ></text>
 </g>
 <g >
-<title>variant (45,250,000 samples, 0.51%)</title><rect x="1182.3" y="373" width="6.0" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="1185.30" y="383.5" ></text>
+<title>~_Vector_base (2,039,039,037 samples, 99.85%)</title><rect x="11.2" y="421" width="1178.2" height="15.0" fill="rgb(216,54,13)" rx="2" ry="2" />
+<text  x="14.16" y="431.5" >~_Vector_base</text>
 </g>
 <g >
-<title>_start (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="853" width="1179.8" height="15.0" fill="rgb(245,185,44)" rx="2" ry="2" />
-<text  x="13.13" y="863.5" >_start</text>
+<title>__fill_a1&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (10,010,010 samples, 0.49%)</title><rect x="49.9" y="165" width="5.8" height="15.0" fill="rgb(218,62,15)" rx="2" ry="2" />
+<text  x="52.91" y="175.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="66.5" y="117" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="69.53" y="127.5" ></text>
+<title>operator (9,009,009 samples, 0.44%)</title><rect x="950.5" y="309" width="5.2" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="953.53" y="319.5" ></text>
 </g>
 <g >
-<title>__raw_idx_visit&lt;std::__detail::__variant::_Move_ctor_base&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;::_Move_ctor_base (45,000,000 samples, 0.51%)</title><rect x="1182.3" y="293" width="6.0" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
-<text  x="1185.33" y="303.5" ></text>
+<title>size (4,004,004 samples, 0.20%)</title><rect x="632.4" y="149" width="2.3" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+<text  x="635.39" y="159.5" ></text>
 </g>
 <g >
-<title>operator new (750,000 samples, 0.01%)</title><rect x="63.2" y="373" width="0.1" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
-<text  x="66.19" y="383.5" ></text>
+<title>find (214,214,214 samples, 10.49%)</title><rect x="1054.1" y="341" width="123.8" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
+<text  x="1057.07" y="351.5" >find</text>
 </g>
 <g >
-<title>all (8,845,750,000 samples, 100%)</title><rect x="10.0" y="885" width="1180.0" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
-<text  x="13.00" y="895.5" ></text>
+<title>do_find&lt;long unsigned int&gt; (242,242,242 samples, 11.86%)</title><rect x="74.2" y="325" width="140.0" height="15.0" fill="rgb(250,210,50)" rx="2" ry="2" />
+<text  x="77.21" y="335.5" >do_find&lt;long unsi..</text>
 </g>
 <g >
-<title>construct&lt;std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;, std::variant&lt;matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt; &gt; (45,250,000 samples, 0.51%)</title><rect x="1182.3" y="405" width="6.0" height="15.0" fill="rgb(253,224,53)" rx="2" ry="2" />
-<text  x="1185.30" y="415.5" ></text>
+<title>free_pages_and_swap_cache (2,002,002 samples, 0.10%)</title><rect x="11.2" y="181" width="1.1" height="15.0" fill="rgb(222,82,19)" rx="2" ry="2" />
+<text  x="14.16" y="191.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="803.8" y="261" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="806.78" y="271.5" ></text>
+<title>_ZSt12construct_atIN15matching_engine5OrderEJS1_EQaant20is_unbounded_array_vIT_ErqXgsnwcvPvLi0E_S2_pispcl7declvalIT0_EEEEEPS2_S5_DpOS4_ (9,009,009 samples, 0.44%)</title><rect x="19.8" y="341" width="5.2" height="15.0" fill="rgb(232,124,29)" rx="2" ry="2" />
+<text  x="22.83" y="351.5" ></text>
 </g>
 <g >
-<title>[unknown] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="261" width="0.4" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="13.63" y="271.5" ></text>
+<title>emplace&lt;long unsigned int&amp;, matching_engine::Order*&amp;&gt; (159,159,159 samples, 7.79%)</title><rect x="893.8" y="341" width="92.0" height="15.0" fill="rgb(211,30,7)" rx="2" ry="2" />
+<text  x="896.84" y="351.5" >emplace&lt;lo..</text>
 </g>
 <g >
-<title>empty (35,750,000 samples, 0.40%)</title><rect x="635.7" y="261" width="4.8" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
-<text  x="638.70" y="271.5" ></text>
+<title>__alloc_frozen_pages_noprof (3,003,003 samples, 0.15%)</title><rect x="888.1" y="133" width="1.7" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+<text  x="891.06" y="143.5" ></text>
 </g>
 <g >
-<title>_ZSt12construct_atImJmEQaant20is_unbounded_array_vIT_ErqXgsnwcvPvLi0E_S0_pispcl7declvalIT0_EEEEEPS0_S3_DpOS2_ (750,000 samples, 0.01%)</title><rect x="10.2" y="405" width="0.1" height="15.0" fill="rgb(253,223,53)" rx="2" ry="2" />
-<text  x="13.23" y="415.5" ></text>
+<title>free_unref_folios (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="229" width="0.6" height="15.0" fill="rgb(209,22,5)" rx="2" ry="2" />
+<text  x="1192.42" y="239.5" ></text>
 </g>
 <g >
-<title>find (54,500,000 samples, 0.62%)</title><rect x="737.2" y="261" width="7.3" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
-<text  x="740.22" y="271.5" ></text>
+<title>do_erase&lt;ankerl::unordered_dense::v4_8_1::detail::table&lt;long unsigned int, matching_engine::Order*, ankerl::unordered_dense::v4_8_1::hash&lt;long unsigned int&gt;, std::equal_to&lt;long unsigned int&gt;, std::allocator&lt;std::pair&lt;long unsigned int, matching_engine::Order*&gt; &gt;, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false&gt;::erase (161,161,161 samples, 7.89%)</title><rect x="541.6" y="165" width="93.1" height="15.0" fill="rgb(232,127,30)" rx="2" ry="2" />
+<text  x="544.58" y="175.5" >do_erase&lt;an..</text>
 </g>
 <g >
-<title>empty (14,750,000 samples, 0.17%)</title><rect x="225.6" y="373" width="2.0" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
-<text  x="228.64" y="383.5" ></text>
+<title>std::vector&lt;unsigned long, std::allocator&lt;unsigned long&gt; &gt;::push_back (1,001,001 samples, 0.05%)</title><rect x="10.6" y="389" width="0.6" height="15.0" fill="rgb(233,130,31)" rx="2" ry="2" />
+<text  x="13.58" y="399.5" ></text>
 </g>
 <g >
-<title>operator[] (22,750,000 samples, 0.26%)</title><rect x="1078.0" y="341" width="3.0" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
-<text  x="1080.98" y="351.5" ></text>
+<title>operator new (1,001,001 samples, 0.05%)</title><rect x="49.3" y="309" width="0.6" height="15.0" fill="rgb(216,51,12)" rx="2" ry="2" />
+<text  x="52.33" y="319.5" ></text>
 </g>
 <g >
-<title>place_and_shift_up (38,000,000 samples, 0.43%)</title><rect x="1015.3" y="389" width="5.1" height="15.0" fill="rgb(218,64,15)" rx="2" ry="2" />
-<text  x="1018.28" y="399.5" ></text>
+<title>bucket_idx_from_hash (2,002,002 samples, 0.10%)</title><rect x="647.4" y="149" width="1.2" height="15.0" fill="rgb(221,77,18)" rx="2" ry="2" />
+<text  x="650.43" y="159.5" ></text>
 </g>
 <g >
-<title>matching_engine::Order&amp; std::vector&lt;matching_engine::Order, std::allocator&lt;matching_engine::Order&gt; &gt;::emplace_back&lt;matching_engine::Order&gt; (16,000,000 samples, 0.18%)</title><rect x="13.7" y="437" width="2.1" height="15.0" fill="rgb(219,65,15)" rx="2" ry="2" />
-<text  x="16.67" y="447.5" ></text>
+<title>__uninitialized_default_n&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int&gt; (10,010,010 samples, 0.49%)</title><rect x="49.9" y="261" width="5.8" height="15.0" fill="rgb(242,172,41)" rx="2" ry="2" />
+<text  x="52.91" y="271.5" ></text>
 </g>
 <g >
-<title>end (10,750,000 samples, 0.12%)</title><rect x="1066.0" y="405" width="1.5" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
-<text  x="1069.04" y="415.5" ></text>
+<title>clear (9,009,009 samples, 0.44%)</title><rect x="725.5" y="293" width="5.2" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="728.52" y="303.5" ></text>
 </g>
 <g >
-<title>_Copy_ctor_base&lt;0, matching_engine::CanceledEvent&gt; (4,272,250,000 samples, 48.30%)</title><rect x="233.6" y="341" width="569.9" height="15.0" fill="rgb(224,87,20)" rx="2" ry="2" />
-<text  x="236.64" y="351.5" >_Copy_ctor_base&lt;0, matching_engine::CanceledEvent&gt;</text>
+<title>do_fault (1,001,001 samples, 0.05%)</title><rect x="10.0" y="597" width="0.6" height="15.0" fill="rgb(248,200,47)" rx="2" ry="2" />
+<text  x="13.00" y="607.5" ></text>
 </g>
 <g >
-<title>make_same_price_resting_buys (16,000,000 samples, 0.18%)</title><rect x="13.7" y="469" width="2.1" height="15.0" fill="rgb(229,112,26)" rx="2" ry="2" />
-<text  x="16.67" y="479.5" ></text>
+<title>do_anonymous_page (4,004,004 samples, 0.20%)</title><rect x="22.7" y="229" width="2.3" height="15.0" fill="rgb(238,155,37)" rx="2" ry="2" />
+<text  x="25.73" y="239.5" ></text>
 </g>
 <g >
-<title>Run (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="533" width="1179.7" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
-<text  x="13.13" y="543.5" >Run</text>
+<title>~_Copy_ctor_base (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="181" width="1.2" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="1055.91" y="191.5" ></text>
 </g>
 <g >
-<title>~_Variant_base (10,500,000 samples, 0.12%)</title><rect x="1188.4" y="421" width="1.4" height="15.0" fill="rgb(233,132,31)" rx="2" ry="2" />
-<text  x="1191.37" y="431.5" ></text>
+<title>[libc.so.6] (1,001,001 samples, 0.05%)</title><rect x="49.3" y="277" width="0.6" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="52.33" y="287.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="222.7" y="309" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.70" y="319.5" ></text>
+<title>exc_page_fault (7,007,007 samples, 0.34%)</title><rect x="21.0" y="309" width="4.0" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+<text  x="23.99" y="319.5" ></text>
 </g>
 <g >
-<title>~_Move_ctor_base (19,750,000 samples, 0.22%)</title><rect x="1063.4" y="261" width="2.6" height="15.0" fill="rgb(231,124,29)" rx="2" ry="2" />
-<text  x="1066.41" y="271.5" ></text>
+<title>__uninitialized_default_n_a&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (10,010,010 samples, 0.49%)</title><rect x="49.9" y="277" width="5.8" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="52.91" y="287.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="222.7" y="245" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.74" y="255.5" ></text>
+<title>vma_alloc_folio_noprof (1,001,001 samples, 0.05%)</title><rect x="24.5" y="197" width="0.5" height="15.0" fill="rgb(218,61,14)" rx="2" ry="2" />
+<text  x="27.46" y="207.5" ></text>
 </g>
 <g >
-<title>mum (16,000,000 samples, 0.18%)</title><rect x="697.3" y="149" width="2.2" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
-<text  x="700.33" y="159.5" ></text>
+<title>mum (36,036,036 samples, 1.76%)</title><rect x="608.1" y="85" width="20.8" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
+<text  x="611.10" y="95.5" ></text>
 </g>
 <g >
-<title>clock_gettime (1,000,000 samples, 0.01%)</title><rect x="813.3" y="341" width="0.1" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
-<text  x="816.25" y="351.5" ></text>
+<title>asm_exc_page_fault (1,001,001 samples, 0.05%)</title><rect x="55.1" y="149" width="0.6" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="58.12" y="159.5" ></text>
 </g>
 <g >
-<title>contains (838,000,000 samples, 9.47%)</title><rect x="1066.0" y="421" width="111.8" height="15.0" fill="rgb(238,154,37)" rx="2" ry="2" />
-<text  x="1069.04" y="431.5" >contains</text>
+<title>__normal_iterator (1,001,001 samples, 0.05%)</title><rect x="708.2" y="373" width="0.5" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+<text  x="711.17" y="383.5" ></text>
 </g>
 <g >
-<title>[unknown] (1,000,000 samples, 0.01%)</title><rect x="222.7" y="277" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="225.70" y="287.5" ></text>
+<title>_Variadic_union&lt;matching_engine::CanceledEvent&gt; (854,854,854 samples, 41.86%)</title><rect x="214.2" y="245" width="494.0" height="15.0" fill="rgb(231,122,29)" rx="2" ry="2" />
+<text  x="217.19" y="255.5" >_Variadic_union&lt;matching_engine::CanceledEvent&gt;</text>
 </g>
 <g >
-<title>__munmap (750,000 samples, 0.01%)</title><rect x="815.9" y="277" width="0.1" height="15.0" fill="rgb(211,29,7)" rx="2" ry="2" />
-<text  x="818.85" y="287.5" ></text>
+<title>~basic_string (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="709" width="1179.4" height="15.0" fill="rgb(232,127,30)" rx="2" ry="2" />
+<text  x="13.58" y="719.5" >~basic_string</text>
 </g>
 <g >
-<title>end (2,500,000 samples, 0.03%)</title><rect x="803.5" y="453" width="0.4" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
-<text  x="806.55" y="463.5" ></text>
+<title>operator (13,013,013 samples, 0.64%)</title><rect x="200.9" y="293" width="7.5" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="203.88" y="303.5" ></text>
 </g>
 <g >
-<title>prepare_incoming_order (28,750,000 samples, 0.33%)</title><rect x="805.8" y="453" width="3.8" height="15.0" fill="rgb(242,173,41)" rx="2" ry="2" />
-<text  x="808.78" y="463.5" ></text>
+<title>reserve_order_capacity (16,016,016 samples, 0.78%)</title><rect x="46.4" y="373" width="9.3" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
+<text  x="49.44" y="383.5" ></text>
 </g>
 <g >
-<title>[unknown] (4,000,000 samples, 0.05%)</title><rect x="991.5" y="213" width="0.5" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="994.47" y="223.5" ></text>
+<title>_M_construct_node&lt;const std::piecewise_construct_t&amp;, std::tuple&lt;long int const&amp;&gt;, std::tuple&lt;&gt; &gt; (1,001,001 samples, 0.05%)</title><rect x="986.4" y="277" width="0.6" height="15.0" fill="rgb(220,72,17)" rx="2" ry="2" />
+<text  x="989.39" y="287.5" ></text>
 </g>
 <g >
-<title>reserve_order_capacity (35,500,000 samples, 0.40%)</title><rect x="61.9" y="437" width="4.8" height="15.0" fill="rgb(247,195,46)" rx="2" ry="2" />
-<text  x="64.92" y="447.5" ></text>
+<title>free_pcppages_bulk (1,001,001 samples, 0.05%)</title><rect x="11.7" y="117" width="0.6" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+<text  x="14.74" y="127.5" ></text>
 </g>
 <g >
-<title>std::vector&lt;unsigned long, std::allocator&lt;unsigned long&gt; &gt;::push_back (1,250,000 samples, 0.01%)</title><rect x="10.2" y="453" width="0.1" height="15.0" fill="rgb(233,130,31)" rx="2" ry="2" />
-<text  x="13.17" y="463.5" ></text>
+<title>do_user_addr_fault (1,001,001 samples, 0.05%)</title><rect x="10.0" y="661" width="0.6" height="15.0" fill="rgb(228,108,25)" rx="2" ry="2" />
+<text  x="13.00" y="671.5" ></text>
 </g>
 <g >
-<title>RunSpecifiedBenchmarks (8,843,750,000 samples, 99.98%)</title><rect x="10.1" y="709" width="1179.8" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
-<text  x="13.13" y="719.5" >RunSpecifiedBenchmarks</text>
+<title>__raw_idx_visit&lt;std::__detail::__variant::_Move_ctor_base&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;::_Move_ctor_base (12,012,012 samples, 0.59%)</title><rect x="1181.3" y="229" width="7.0" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+<text  x="1184.32" y="239.5" ></text>
 </g>
 <g >
-<title>_Move_ctor_base&lt;0, matching_engine::CanceledEvent&gt; (4,272,250,000 samples, 48.30%)</title><rect x="233.6" y="357" width="569.9" height="15.0" fill="rgb(249,206,49)" rx="2" ry="2" />
-<text  x="236.64" y="367.5" >_Move_ctor_base&lt;0, matching_engine::CanceledEvent&gt;</text>
+<title>_raw_spin_trylock (1,001,001 samples, 0.05%)</title><rect x="888.1" y="85" width="0.5" height="15.0" fill="rgb(222,80,19)" rx="2" ry="2" />
+<text  x="891.06" y="95.5" ></text>
 </g>
 <g >
-<title>~_Copy_assign_base (10,500,000 samples, 0.12%)</title><rect x="1188.4" y="389" width="1.4" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
-<text  x="1191.37" y="399.5" ></text>
+<title>mix (9,009,009 samples, 0.44%)</title><rect x="950.5" y="277" width="5.2" height="15.0" fill="rgb(205,4,1)" rx="2" ry="2" />
+<text  x="953.53" y="287.5" ></text>
 </g>
 <g >
-<title>[libc.so.6] (1,250,000 samples, 0.01%)</title><rect x="815.7" y="277" width="0.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="818.69" y="287.5" ></text>
+<title>operator[] (11,011,011 samples, 0.54%)</title><rect x="921.0" y="309" width="6.4" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
+<text  x="924.03" y="319.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="181" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="191.5" ></text>
+<title>find (242,242,242 samples, 11.86%)</title><rect x="74.2" y="357" width="140.0" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
+<text  x="77.21" y="367.5" >find</text>
 </g>
 <g >
-<title>_Variadic_union&lt;1, matching_engine::CanceledEvent&gt; (18,000,000 samples, 0.20%)</title><rect x="1185.9" y="165" width="2.4" height="15.0" fill="rgb(224,87,20)" rx="2" ry="2" />
-<text  x="1188.93" y="175.5" ></text>
+<title>__libc_start_main (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="773" width="1179.4" height="15.0" fill="rgb(236,142,34)" rx="2" ry="2" />
+<text  x="13.58" y="783.5" >__libc_start_main</text>
 </g>
 <g >
-<title>[libc.so.6] (2,750,000 samples, 0.03%)</title><rect x="10.6" y="453" width="0.4" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
-<text  x="13.63" y="463.5" ></text>
+<title>__do_visit&lt;std::__detail::__variant::__variant_idx_cookie, std::__detail::__variant::_Move_ctor_base&lt;false, matching_engine::TradeEvent, matching_engine::AcceptedEvent, matching_engine::CanceledEvent, matching_engine::ModifiedEvent, matching_engine::ReplacedEvent, matching_engine::RejectedEvent, matching_engine::BookSnapshotEvent&gt;::_Move_ctor_base (12,012,012 samples, 0.59%)</title><rect x="1181.3" y="213" width="7.0" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="1184.32" y="223.5" ></text>
 </g>
 <g >
-<title>BM_OrderBook_CancelRandom_Throughput (8,843,000,000 samples, 99.97%)</title><rect x="10.1" y="517" width="1179.7" height="15.0" fill="rgb(232,124,29)" rx="2" ry="2" />
-<text  x="13.13" y="527.5" >BM_OrderBook_CancelRandom_Throughput</text>
+<title>WaitForAllThreads (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="549" width="1179.4" height="15.0" fill="rgb(207,11,2)" rx="2" ry="2" />
+<text  x="13.58" y="559.5" >WaitForAllThreads</text>
 </g>
 <g >
-<title>[unknown] (1,250,000 samples, 0.01%)</title><rect x="635.5" y="261" width="0.2" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="638.53" y="271.5" ></text>
+<title>next (3,003,003 samples, 0.15%)</title><rect x="955.7" y="325" width="1.8" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
+<text  x="958.74" y="335.5" ></text>
 </g>
 <g >
-<title>variant&lt;0, matching_engine::CanceledEvent&gt; (4,272,250,000 samples, 48.30%)</title><rect x="233.6" y="421" width="569.9" height="15.0" fill="rgb(227,102,24)" rx="2" ry="2" />
-<text  x="236.64" y="431.5" >variant&lt;0, matching_engine::CanceledEvent&gt;</text>
+<title>[libc.so.6] (5,005,005 samples, 0.25%)</title><rect x="46.4" y="341" width="2.9" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+<text  x="49.44" y="351.5" ></text>
 </g>
 <g >
-<title>ReadCpuTimerOfChoice (1,750,000 samples, 0.02%)</title><rect x="803.6" y="389" width="0.3" height="15.0" fill="rgb(221,76,18)" rx="2" ry="2" />
-<text  x="806.65" y="399.5" ></text>
+<title>place_and_shift_up (49,049,049 samples, 2.40%)</title><rect x="957.5" y="325" width="28.3" height="15.0" fill="rgb(218,64,15)" rx="2" ry="2" />
+<text  x="960.47" y="335.5" >pl..</text>
 </g>
 <g >
-<title>construct_at&lt;std::pair&lt;long unsigned int, matching_engine::Order*&gt;, long unsigned int&amp;, matching_engine::Order*&amp;&gt; (23,000,000 samples, 0.26%)</title><rect x="1008.8" y="357" width="3.0" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
-<text  x="1011.78" y="367.5" ></text>
+<title>find (18,018,018 samples, 0.88%)</title><rect x="657.8" y="197" width="10.5" height="15.0" fill="rgb(219,67,16)" rx="2" ry="2" />
+<text  x="660.84" y="207.5" ></text>
 </g>
 <g >
-<title>[unknown] (750,000 samples, 0.01%)</title><rect x="815.9" y="197" width="0.1" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
-<text  x="818.85" y="207.5" ></text>
+<title>_Variadic_union&lt;matching_engine::CanceledEvent&gt; (5,005,005 samples, 0.25%)</title><rect x="1183.6" y="85" width="2.9" height="15.0" fill="rgb(231,122,29)" rx="2" ry="2" />
+<text  x="1186.64" y="95.5" ></text>
+</g>
+<g >
+<title>bucket_count (172,172,172 samples, 8.43%)</title><rect x="1078.4" y="277" width="99.5" height="15.0" fill="rgb(206,5,1)" rx="2" ry="2" />
+<text  x="1081.36" y="287.5" >bucket_count</text>
+</g>
+<g >
+<title>[ld-linux-x86-64.so.2] (1,001,001 samples, 0.05%)</title><rect x="10.0" y="773" width="0.6" height="15.0" fill="rgb(243,178,42)" rx="2" ry="2" />
+<text  x="13.00" y="783.5" ></text>
+</g>
+<g >
+<title>Run (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="469" width="1179.4" height="15.0" fill="rgb(217,57,13)" rx="2" ry="2" />
+<text  x="13.58" y="479.5" >Run</text>
+</g>
+<g >
+<title>operator[] (13,013,013 samples, 0.64%)</title><rect x="985.8" y="341" width="7.5" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
+<text  x="988.81" y="351.5" ></text>
+</g>
+<g >
+<title>~variant (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="261" width="1.2" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
+<text  x="1055.91" y="271.5" ></text>
+</g>
+<g >
+<title>dist_and_fingerprint_from_hash (17,017,017 samples, 0.83%)</title><rect x="930.3" y="325" width="9.8" height="15.0" fill="rgb(229,111,26)" rx="2" ry="2" />
+<text  x="933.28" y="335.5" ></text>
+</g>
+<g >
+<title>all (2,042,042,040 samples, 100%)</title><rect x="10.0" y="821" width="1180.0" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+<text  x="13.00" y="831.5" ></text>
+</g>
+<g >
+<title>lower_bound (11,011,011 samples, 0.54%)</title><rect x="987.0" y="325" width="6.3" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+<text  x="989.97" y="335.5" ></text>
+</g>
+<g >
+<title>remove_resting_order (4,004,004 samples, 0.20%)</title><rect x="723.2" y="389" width="2.3" height="15.0" fill="rgb(237,150,35)" rx="2" ry="2" />
+<text  x="726.21" y="399.5" ></text>
+</g>
+<g >
+<title>unmap_single_vma (1,001,001 samples, 0.05%)</title><rect x="12.3" y="197" width="0.6" height="15.0" fill="rgb(225,93,22)" rx="2" ry="2" />
+<text  x="15.31" y="207.5" ></text>
+</g>
+<g >
+<title>index (3,003,003 samples, 0.15%)</title><rect x="1186.5" y="197" width="1.8" height="15.0" fill="rgb(251,211,50)" rx="2" ry="2" />
+<text  x="1189.53" y="207.5" ></text>
+</g>
+<g >
+<title>construct_at&lt;matching_engine::Order, const matching_engine::Order&amp;&gt; (67,067,067 samples, 3.28%)</title><rect x="851.0" y="309" width="38.8" height="15.0" fill="rgb(222,81,19)" rx="2" ry="2" />
+<text  x="854.04" y="319.5" >con..</text>
+</g>
+<g >
+<title>contains (214,214,214 samples, 10.49%)</title><rect x="1054.1" y="357" width="123.8" height="15.0" fill="rgb(238,154,37)" rx="2" ry="2" />
+<text  x="1057.07" y="367.5" >contains</text>
+</g>
+<g >
+<title>operator= (2,041,041,039 samples, 99.95%)</title><rect x="10.6" y="581" width="1179.4" height="15.0" fill="rgb(210,25,6)" rx="2" ry="2" />
+<text  x="13.58" y="591.5" >operator=</text>
+</g>
+<g >
+<title>free_frozen_page_commit.isra.0 (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="213" width="0.6" height="15.0" fill="rgb(209,21,5)" rx="2" ry="2" />
+<text  x="1192.42" y="223.5" ></text>
+</g>
+<g >
+<title>operator[] (4,004,004 samples, 0.20%)</title><rect x="645.1" y="133" width="2.3" height="15.0" fill="rgb(216,50,12)" rx="2" ry="2" />
+<text  x="648.12" y="143.5" ></text>
+</g>
+<g >
+<title>_M_emplace_hint_unique&lt;const std::piecewise_construct_t&amp;, std::tuple&lt;long int const&amp;&gt;, std::tuple&lt;&gt; &gt; (1,001,001 samples, 0.05%)</title><rect x="986.4" y="325" width="0.6" height="15.0" fill="rgb(234,134,32)" rx="2" ry="2" />
+<text  x="989.39" y="335.5" ></text>
+</g>
+<g >
+<title>next (193,193,193 samples, 9.46%)</title><rect x="1066.2" y="293" width="111.7" height="15.0" fill="rgb(225,96,23)" rx="2" ry="2" />
+<text  x="1069.22" y="303.5" >next</text>
+</g>
+<g >
+<title>release (6,006,006 samples, 0.29%)</title><rect x="668.3" y="197" width="3.4" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="671.25" y="207.5" ></text>
+</g>
+<g >
+<title>alloc_pages_mpol (1,001,001 samples, 0.05%)</title><rect x="24.5" y="181" width="0.5" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+<text  x="27.46" y="191.5" ></text>
+</g>
+<g >
+<title>_raw_spin_unlock_irqrestore (1,001,001 samples, 0.05%)</title><rect x="11.7" y="101" width="0.6" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
+<text  x="14.74" y="111.5" ></text>
+</g>
+<g >
+<title>do_user_addr_fault (7,007,007 samples, 0.34%)</title><rect x="21.0" y="293" width="4.0" height="15.0" fill="rgb(228,108,25)" rx="2" ry="2" />
+<text  x="23.99" y="303.5" ></text>
+</g>
+<g >
+<title>__irq_exit_rcu (1,001,001 samples, 0.05%)</title><rect x="524.8" y="149" width="0.6" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+<text  x="527.80" y="159.5" ></text>
+</g>
+<g >
+<title>cancel (12,012,012 samples, 0.59%)</title><rect x="12.9" y="405" width="6.9" height="15.0" fill="rgb(247,193,46)" rx="2" ry="2" />
+<text  x="15.89" y="415.5" ></text>
+</g>
+<g >
+<title>empty (3,003,003 samples, 0.15%)</title><rect x="634.7" y="149" width="1.7" height="15.0" fill="rgb(252,218,52)" rx="2" ry="2" />
+<text  x="637.71" y="159.5" ></text>
+</g>
+<g >
+<title>operator (5,005,005 samples, 0.25%)</title><rect x="1183.6" y="149" width="2.9" height="15.0" fill="rgb(254,228,54)" rx="2" ry="2" />
+<text  x="1186.64" y="159.5" ></text>
+</g>
+<g >
+<title>begin (9,009,009 samples, 0.44%)</title><rect x="725.5" y="277" width="5.2" height="15.0" fill="rgb(223,86,20)" rx="2" ry="2" />
+<text  x="728.52" y="287.5" ></text>
+</g>
+<g >
+<title>tlb_finish_mmu (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="293" width="0.6" height="15.0" fill="rgb(251,212,50)" rx="2" ry="2" />
+<text  x="1192.42" y="303.5" ></text>
+</g>
+<g >
+<title>_M_reset (2,002,002 samples, 0.10%)</title><rect x="1052.9" y="149" width="1.2" height="15.0" fill="rgb(205,0,0)" rx="2" ry="2" />
+<text  x="1055.91" y="159.5" ></text>
+</g>
+<g >
+<title>fill_n&lt;ankerl::unordered_dense::v4_8_1::bucket_type::standard*, long unsigned int, ankerl::unordered_dense::v4_8_1::bucket_type::standard&gt; (10,010,010 samples, 0.49%)</title><rect x="49.9" y="213" width="5.8" height="15.0" fill="rgb(233,130,31)" rx="2" ry="2" />
+<text  x="52.91" y="223.5" ></text>
+</g>
+<g >
+<title>~_Move_ctor_base (2,002,002 samples, 0.10%)</title><rect x="1188.3" y="309" width="1.1" height="15.0" fill="rgb(231,124,29)" rx="2" ry="2" />
+<text  x="1191.26" y="319.5" ></text>
+</g>
+<g >
+<title>__vm_munmap (1,001,001 samples, 0.05%)</title><rect x="1189.4" y="373" width="0.6" height="15.0" fill="rgb(231,121,28)" rx="2" ry="2" />
+<text  x="1192.42" y="383.5" ></text>
 </g>
 </g>
 </svg>

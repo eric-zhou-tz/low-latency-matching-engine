@@ -1,11 +1,12 @@
-date=2026-05-21T00:09:09Z
-git_commit=N/A
-git_status=unavailable; source transferred without .git metadata
-ec2_instance_type=t3.small
+date=2026-05-23T08:10:34Z
+git_commit=53240e025442843c6a67450505499a8495ba1f56
+git_status=dirty
+ M benchmarks/results/benchmark_environment.txt
+ec2_instance_type=c7i-flex.large
 uname=Linux ip-172-31-44-213 7.0.0-1004-aws #4-Ubuntu SMP PREEMPT Mon Apr 13 13:14:24 UTC 2026 x86_64 GNU/Linux
 build_type=Release
 release_flags=-O3 -DNDEBUG -march=native
-benchmark_targets=core_hot_path,realistic_flow,stress,batch_latency
+benchmark_targets=all
 cmake_version=cmake version 4.2.3
 compiler_version=c++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0
 
@@ -17,38 +18,38 @@ Byte Order:                              Little Endian
 CPU(s):                                  2
 On-line CPU(s) list:                     0,1
 Vendor ID:                               GenuineIntel
-Model name:                              Intel(R) Xeon(R) Platinum 8259CL CPU @ 2.50GHz
+Model name:                              Intel(R) Xeon(R) Platinum 8488C
 CPU family:                              6
-Model:                                   85
+Model:                                   143
 Thread(s) per core:                      2
 Core(s) per socket:                      1
 Socket(s):                               1
-Stepping:                                7
-BogoMIPS:                                4999.99
-Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault pti fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves ida arat pku ospke
+Stepping:                                8
+BogoMIPS:                                4800.00
+Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault ssbd ibrs ibpb stibp ibrs_enhanced fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx_vnni avx512_bf16 wbnoinvd ida arat avx512vbmi umip pku ospke waitpkg avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg tme avx512_vpopcntdq rdpid cldemote movdiri movdir64b md_clear serialize amx_bf16 avx512_fp16 amx_tile amx_int8 flush_l1d arch_capabilities
 Hypervisor vendor:                       KVM
 Virtualization type:                     full
-L1d cache:                               32 KiB (1 instance)
+L1d cache:                               48 KiB (1 instance)
 L1i cache:                               32 KiB (1 instance)
-L2 cache:                                1 MiB (1 instance)
-L3 cache:                                35.8 MiB (1 instance)
+L2 cache:                                2 MiB (1 instance)
+L3 cache:                                105 MiB (1 instance)
 NUMA node(s):                            1
 NUMA node0 CPU(s):                       0,1
-Vulnerability Gather data sampling:      Unknown: Dependent on hypervisor status
+Vulnerability Gather data sampling:      Not affected
 Vulnerability Ghostwrite:                Not affected
-Vulnerability Indirect target selection: Mitigation; Aligned branch/return thunks
-Vulnerability Itlb multihit:             KVM: Mitigation: VMX unsupported
-Vulnerability L1tf:                      Mitigation; PTE Inversion
-Vulnerability Mds:                       Vulnerable: Clear CPU buffers attempted, no microcode; SMT Host state unknown
-Vulnerability Meltdown:                  Mitigation; PTI
-Vulnerability Mmio stale data:           Vulnerable: Clear CPU buffers attempted, no microcode; SMT Host state unknown
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
 Vulnerability Old microcode:             Not affected
 Vulnerability Reg file data sampling:    Not affected
-Vulnerability Retbleed:                  Vulnerable
+Vulnerability Retbleed:                  Not affected
 Vulnerability Spec rstack overflow:      Not affected
-Vulnerability Spec store bypass:         Vulnerable
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
 Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
-Vulnerability Spectre v2:                Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Retpoline
+Vulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S
 Vulnerability Srbds:                     Not affected
 Vulnerability Tsa:                       Not affected
 Vulnerability Tsx async abort:           Not affected

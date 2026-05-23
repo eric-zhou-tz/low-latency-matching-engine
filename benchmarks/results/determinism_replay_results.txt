@@ -1,12 +1,12 @@
 -----------------------------------------------------------------------------------------------------
 Benchmark                                           Time             CPU   Iterations UserCounters...
 -----------------------------------------------------------------------------------------------------
-BM_Replay_GoldenFixtures_Throughput             59965 ns        59960 ns        11782 fixture_count=16 input_bytes=856 items_per_second=266.845k/s
-BM_Replay_GoldenFixtures_Throughput             59557 ns        59555 ns        11782 fixture_count=16 input_bytes=856 items_per_second=268.658k/s
-BM_Replay_GoldenFixtures_Throughput             59604 ns        59599 ns        11782 fixture_count=16 input_bytes=856 items_per_second=268.463k/s
-BM_Replay_GoldenFixtures_Throughput             60014 ns        60010 ns        11782 fixture_count=16 input_bytes=856 items_per_second=266.621k/s
-BM_Replay_GoldenFixtures_Throughput             59674 ns        59668 ns        11782 fixture_count=16 input_bytes=856 items_per_second=268.149k/s
-BM_Replay_GoldenFixtures_Throughput_mean        59763 ns        59758 ns            5 fixture_count=16 input_bytes=856 items_per_second=267.747k/s
-BM_Replay_GoldenFixtures_Throughput_median      59674 ns        59668 ns            5 fixture_count=16 input_bytes=856 items_per_second=268.149k/s
-BM_Replay_GoldenFixtures_Throughput_stddev        212 ns          212 ns            5 fixture_count=133.28n input_bytes=7.13048u items_per_second=946.816/s
-BM_Replay_GoldenFixtures_Throughput_cv           0.35 %          0.35 %             5 fixture_count=0.00% input_bytes=0.00% items_per_second=0.35%
+BM_Replay_GoldenFixtures_Throughput             36103 ns        36103 ns        19032 fixture_count=16 input_bytes=856 items_per_second=443.178k/s
+BM_Replay_GoldenFixtures_Throughput             36049 ns        36047 ns        19032 fixture_count=16 input_bytes=856 items_per_second=443.866k/s
+BM_Replay_GoldenFixtures_Throughput             36270 ns        36268 ns        19032 fixture_count=16 input_bytes=856 items_per_second=441.155k/s
+BM_Replay_GoldenFixtures_Throughput             36075 ns        36073 ns        19032 fixture_count=16 input_bytes=856 items_per_second=443.542k/s
+BM_Replay_GoldenFixtures_Throughput             36228 ns        36228 ns        19032 fixture_count=16 input_bytes=856 items_per_second=441.651k/s
+BM_Replay_GoldenFixtures_Throughput_mean        36145 ns        36144 ns            5 fixture_count=16 input_bytes=856 items_per_second=442.678k/s
+BM_Replay_GoldenFixtures_Throughput_median      36103 ns        36103 ns            5 fixture_count=16 input_bytes=856 items_per_second=443.178k/s
+BM_Replay_GoldenFixtures_Throughput_stddev       98.1 ns         98.2 ns            5 fixture_count=133.28n input_bytes=7.13048u items_per_second=1.20226k/s
+BM_Replay_GoldenFixtures_Throughput_cv           0.27 %          0.27 %             5 fixture_count=0.00% input_bytes=0.00% items_per_second=0.27%

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.9.4 -> Benchmark Refresh: EC2 c7i-flex.large
+
+- Refreshed the official native EC2/Linux benchmark suite on `c7i-flex.large` at commit `53240e0` with a Release `-O3 -DNDEBUG -march=native` build.
+- Verified correctness before benchmark execution with 130/130 CTest cases passing.
+- Updated `BENCHMARKS.md`, `README.md`, `docs/HOTPATH.md`, `docs/benchmark_history.md`, `benchmarks/README.md`, `benchmarks/benchmark_history.db`, and `benchmarks/benchmark_history.sql` so current results are clearly labeled as c7i-flex.large while earlier v0.x rows remain historical t3.small data.
+- Refreshed official artifacts under `benchmarks/results/` for core hot path, realistic flow, stress, determinism/replay, and fixed-batch latency.
+- Regenerated the documented Linux `cpu-clock` flamegraphs for random cancel, direct true mixed, end-to-end true mixed, and deep sparse stress profiles.
+- Ran a separate supplemental `perf stat` pass for core hot path, realistic flow, and stress; hardware PMU counters were unavailable on this EC2/kernel combination, so the artifacts record the unsupported `cycles` event instead of invented counter values.
+
+
 ## v0.9.3 -> Manual CLI Replay Mode
 
 - Moved manual command mode to CLI option 2 and shifted local benchmark options down so direct command entry is easier to find.

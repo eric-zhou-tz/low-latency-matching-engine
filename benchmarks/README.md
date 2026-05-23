@@ -7,6 +7,11 @@ The Markdown benchmark reports remain the primary reviewer-facing view:
 
 This directory also includes a small SQLite copy for technical reviewers who want to query benchmark history directly.
 
+The current official refresh is the native EC2 `c7i-flex.large` run from
+`2026-05-23T08:10:34Z` at commit `53240e0`. Earlier v0.x benchmark rows were
+run on EC2 `t3.small` unless their environment says otherwise; keep those rows
+as historical hardware context rather than relabeling them.
+
 ## Files
 
 | File | Purpose |
@@ -51,3 +56,7 @@ ORDER BY run_date DESC;
 ## Data Notes
 
 Missing historical fields are stored as `NULL` rather than inferred. The `source_doc` and `source_artifact` columns identify where each row came from, and notes carry short context when a version, commit, or benchmark interpretation is only available from surrounding documentation.
+
+Official throughput and latency rows come from normal native benchmark runs.
+Supplemental `perf stat` diagnostics are stored separately and may report
+unsupported PMU counters; they should not be used as headline throughput rows.

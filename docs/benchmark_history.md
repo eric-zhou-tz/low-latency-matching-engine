@@ -5,6 +5,20 @@ This file tracks benchmark results over time. Current results are summarized in
 For SQL queries, see `../benchmarks/benchmark_history.db` and the plain-text
 dump at `../benchmarks/benchmark_history.sql`.
 
+## Current Official Refresh
+
+Historical benchmark development through earlier v0.x releases was performed on
+EC2 `t3.small`. The refreshed v1 benchmark suite was rerun on EC2
+`c7i-flex.large` for more stable sustained CPU performance and profiling
+consistency. The historical table below preserves older t3 rows as historical
+context; the authoritative row-level c7i refresh data now lives in SQLite.
+
+| Date | Commit | Environment | Validation | Notes |
+| --- | --- | --- | --- | --- |
+| 2026-05-23T08:10:34Z | `53240e0` | AWS EC2 `c7i-flex.large`, Ubuntu 26.04, Linux 7.0.0-1004-aws, Intel Xeon Platinum 8488C, GCC 15.2.0 | 130/130 CTest cases passed | Official native EC2 full-suite refresh. Headline rows: OrderBook true mixed 23.52M ops/sec, random cancel 26.14M ops/sec, end-to-end true mixed 2.17M commands/sec, best-level churn 27.97M ops/sec, deep sparse 3.53M ops/sec. Full row history is in `../benchmarks/benchmark_history.db`. |
+
+## Historical Markdown Rows
+
 | Date | Version / Tag | Commit | Environment | Build Type | Workload | Input Size | Time | CPU Time | Throughput | p50 Latency | p95 Latency | p99 Latency | p999 Latency | Max Latency | Notes |
 | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- | --- | --- | --- |
 | 2026-05-20 | N/A | N/A | N/A | N/A | Benchmark organization refactor | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A | Methodology/documentation change only; benchmark sources are now grouped into core hot path, realistic flow, stress, determinism/replay, and experimental reserve-sweep categories. No new EC2 performance results were recorded for this row. |
