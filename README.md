@@ -102,6 +102,12 @@ Additional docs:
 | Dense order-id maps | Cache-friendlier cancel/modify lookup than node-based maps, while order lifetime stays in the pool. |
 | Structured events | Matching logic avoids string formatting; presentation work happens at the boundary. |
 
+Early local structure experiments found the current `std::map` price-level
+layout performing better than the tested B-tree and price-ladder variants on
+the measured workloads. Those results are still treated as directional only:
+the methodology and workload coverage need more investigation before publishing
+the comparison as a formal benchmark claim.
+
 ## Hot Path Optimizations
 
 - Intrusive queues avoid same-price scans during cancels and fills.
