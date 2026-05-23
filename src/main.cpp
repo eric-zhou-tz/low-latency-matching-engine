@@ -8,7 +8,7 @@
 /**
  * @brief Command-line entry point for the matching engine scaffold.
  *
- * Shows a recruiter-facing menu while keeping engine selection argument parsing
+ * Shows an interactive menu while keeping engine selection argument parsing
  * at the process boundary.
  */
 int main(int argc, char* argv[]) {

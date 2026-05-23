@@ -6,6 +6,7 @@
 #include "io/parser.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cctype>
 #include <iomanip>
 #include <istream>
@@ -13,14 +14,17 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <variant>
 #include <vector>
 
 namespace matching_engine {
 namespace {
 
+constexpr auto trace_line_delay = std::chrono::milliseconds{20};
+
 /**
- * @brief One guided presentation step in the recruiter demo.
+ * @brief One guided presentation step in the demo.
  */
 struct DemoStep {
     std::string title;
@@ -38,6 +42,16 @@ struct VisibleOrder {
     Side side{Side::Buy};
     Price price{};
     Quantity quantity{};
+};
+
+/**
+ * @brief Presentation counters derived from live book snapshots.
+ */
+struct BookTraceCounts {
+    std::size_t symbols{};
+    std::size_t resting_orders{};
+    std::size_t bid_levels{};
+    std::size_t ask_levels{};
 };
 
 /**
@@ -93,13 +107,35 @@ bool wait_for_enter(std::istream& input, std::ostream& output, std::string_view 
 }
 
 /**
+ * @brief Waits for demo navigation input and detects a request to return to the menu.
+ */
+bool should_continue_demo(std::istream& input, std::ostream& output, std::string_view prompt) {
+    output << prompt;
+    output.flush();
+
+    std::string response;
+    if (!std::getline(input, response)) {
+        return false;
+    }
+
+    const std::string control = uppercase_copy(trim(response));
+    if (control == "Q" || control == "QUIT" || control == "EXIT" || control == "MENU") {
+        output << "\nReturning to main menu.\n";
+        return false;
+    }
+
+    // Any other response behaves like Enter so the demo stays easy to drive.
+    return true;
+}
+
+/**
  * @brief Prints the top-level menu shown when the binary launches.
  */
 void print_main_menu(std::ostream& output) {
     output << "============================================================\n"
            << "        Low-Latency Matching Engine\n"
            << "============================================================\n\n"
-           << "1) Interactive recruiter demo\n"
+           << "1) Interactive guided demo\n"
            << "2) Benchmark comparison: optimized engine vs std baseline\n"
            << "3) Advanced benchmarks\n"
            << "4) Manual command mode\n"
@@ -179,6 +215,50 @@ void print_help(std::ostream& output) {
     });
 
     return found == orders.end() ? nullptr : &*found;
+}
+
+/**
+ * @brief Returns the concrete action name produced by the parser.
+ */
+[[nodiscard]] std::string action_type_name(const Action& action) {
+    struct NameVisitor {
+        /**
+         * @brief Names a parsed limit submit.
+         */
+        [[nodiscard]] std::string operator()(const SubmitOrderAction&) const {
+            return "SubmitOrderAction";
+        }
+
+        /**
+         * @brief Names a parsed market submit.
+         */
+        [[nodiscard]] std::string operator()(const MarketOrderAction&) const {
+            return "MarketOrderAction";
+        }
+
+        /**
+         * @brief Names a parsed cancel.
+         */
+        [[nodiscard]] std::string operator()(const CancelOrderAction&) const {
+            return "CancelOrderAction";
+        }
+
+        /**
+         * @brief Names a parsed modify.
+         */
+        [[nodiscard]] std::string operator()(const ModifyOrderAction&) const {
+            return "ModifyOrderAction";
+        }
+
+        /**
+         * @brief Names a parsed book snapshot request.
+         */
+        [[nodiscard]] std::string operator()(const PrintBookAction&) const {
+            return "PrintBookAction";
+        }
+    };
+
+    return std::visit(NameVisitor{}, action);
 }
 
 /**
@@ -451,6 +531,136 @@ void print_help(std::ostream& output) {
     return std::any_of(events.begin(), events.end(), [](const auto& event) {
         return std::holds_alternative<AcceptedEvent>(event);
     });
+}
+
+/**
+ * @brief Counts trade events emitted by a processed action.
+ */
+[[nodiscard]] std::size_t trade_count(const std::vector<Event>& events) {
+    return static_cast<std::size_t>(
+        std::count_if(events.begin(), events.end(), [](const auto& event) {
+            return std::holds_alternative<TradeEvent>(event);
+        }));
+}
+
+/**
+ * @brief Counts visible symbols, orders, and price levels after execution.
+ */
+[[nodiscard]] BookTraceCounts book_trace_counts(const Exchange& exchange) {
+    BookTraceCounts counts;
+
+    for (const auto& symbol_book : exchange.debug_snapshots()) {
+        ++counts.symbols;
+        counts.bid_levels += symbol_book.book.bids.size();
+        counts.ask_levels += symbol_book.book.asks.size();
+
+        for (const auto& level : symbol_book.book.bids) {
+            // Count live bid orders from the structured snapshot, not cached CLI state.
+            counts.resting_orders += level.orders.size();
+        }
+
+        for (const auto& level : symbol_book.book.asks) {
+            // Count live ask orders from the structured snapshot, not cached CLI state.
+            counts.resting_orders += level.orders.size();
+        }
+    }
+
+    return counts;
+}
+
+/**
+ * @brief Derives the user-facing lifecycle status from events and live state.
+ */
+[[nodiscard]] std::string lifecycle_status(const Action& action,
+                                           const std::vector<Event>& events,
+                                           const std::vector<VisibleOrder>& before_orders,
+                                           const Exchange& exchange) {
+    for (const auto& event : events) {
+        if (std::holds_alternative<RejectedEvent>(event) && !has_acceptance(events)) {
+            // Rejections before acceptance leave no order lifecycle to inspect.
+            return "REJECTED";
+        }
+    }
+
+    if (std::holds_alternative<CancelOrderAction>(action)) {
+        return has_acceptance(events) ? "ACCEPTED" : "CANCELED";
+    }
+
+    const OrderId order_id = action_order_id(action);
+    const auto after_orders = visible_orders(exchange);
+    if (find_visible_order(after_orders, order_id) != nullptr) {
+        // A live order after processing means the action left resting liquidity.
+        return "RESTING";
+    }
+
+    const Quantity requested_quantity = action_quantity(action, before_orders);
+    const Quantity filled_quantity = incoming_fill_quantity(action, events);
+
+    if (std::holds_alternative<SubmitOrderAction>(action) ||
+        std::holds_alternative<MarketOrderAction>(action) ||
+        std::holds_alternative<ModifyOrderAction>(action)) {
+        if (requested_quantity > 0 && filled_quantity >= requested_quantity) {
+            return "FILLED";
+        }
+
+        if (has_acceptance(events) || filled_quantity > 0) {
+            return filled_quantity > 0 ? "PARTIAL" : "EXPIRED";
+        }
+    }
+
+    if (std::holds_alternative<PrintBookAction>(action)) {
+        return "SNAPSHOT";
+    }
+
+    return "APPLIED";
+}
+
+/**
+ * @brief Formats live parse, route, match, lifecycle, and snapshot trace lines.
+ */
+[[nodiscard]] std::vector<std::string> format_execution_trace(
+    const Action& action,
+    const std::vector<Event>& events,
+    const std::vector<VisibleOrder>& before_orders,
+    const Exchange& exchange) {
+    std::vector<std::string> lines;
+    const std::string symbol = action_symbol(action, before_orders);
+    const BookTraceCounts counts = book_trace_counts(exchange);
+
+    lines.push_back("parse: OK -> " + action_type_name(action));
+    lines.push_back(symbol.empty() ? "route: symbol=(none)" : "route: symbol=" + symbol);
+
+    std::ostringstream match_line;
+    match_line << "match: trades=" << trade_count(events)
+               << " filled_quantity=" << incoming_fill_quantity(action, events);
+    lines.push_back(match_line.str());
+
+    lines.push_back("lifecycle: status=" +
+                    lifecycle_status(action, events, before_orders, exchange));
+
+    std::ostringstream snapshot_line;
+    snapshot_line << "book_snapshot: symbols=" << counts.symbols
+                  << " resting_orders=" << counts.resting_orders
+                  << " bid_levels=" << counts.bid_levels << " ask_levels=" << counts.ask_levels;
+    lines.push_back(snapshot_line.str());
+
+    return lines;
+}
+
+/**
+ * @brief Prints trace lines with a consistent indentation.
+ */
+void print_trace_lines(const std::vector<std::string>& lines,
+                       std::ostream& output,
+                       std::string_view indent) {
+    for (const auto& line : lines) {
+        // Indentation keeps traces readable inside both manual and guided output.
+        output << indent << line << '\n';
+        output.flush();
+
+        // A short pause makes each derived pipeline step visible without feeling sluggish.
+        std::this_thread::sleep_for(trace_line_delay);
+    }
 }
 
 /**
@@ -743,6 +953,8 @@ bool execute_command_line(const std::string& line,
     const auto action = parser.parse_line(line);
     if (!action) {
         output << "REJECTED invalid command\n";
+        output << "Live execution trace:\n"
+               << "  parse: ERROR -> invalid command\n";
         return false;
     }
 
@@ -761,6 +973,11 @@ bool execute_command_line(const std::string& line,
     for (const auto& line_text : format_execution_events(*action, events, before_orders)) {
         output << line_text << '\n';
     }
+
+    output << "Live execution trace:\n";
+    print_trace_lines(format_execution_trace(*action, events, before_orders, exchange),
+                      output,
+                      "  ");
 
     return true;
 }
@@ -816,11 +1033,12 @@ bool execute_command_line(const std::string& line,
         },
         DemoStep{
             .title = "IOC partial execution",
-            .explanation = "An IOC order should execute immediately against available liquidity and "
-                           "cancel any unfilled remainder.",
+            .explanation = "An IOC sell limit at 100 should execute immediately against bids priced "
+                           "100 or better, then cancel any unfilled remainder.",
             .commands = {"SUBMIT 3001 AAPL SELL 100 100 IOC", "PRINT"},
-            .expected = "The IOC order should sell into eligible bids. Any leftover quantity should "
-                        "be canceled and should not rest on the book.",
+            .expected = "The IOC order should first hit the 103 bid from order 2002, then continue "
+                        "into 100 bids. Any leftover quantity should be canceled and should not "
+                        "rest on the book.",
         },
         DemoStep{
             .title = "FOK failure",
@@ -937,9 +1155,9 @@ void print_demo_step_intro(const DemoStep& step,
 }
 
 /**
- * @brief Runs the deterministic guided recruiter demo.
+ * @brief Runs the deterministic guided product demo.
  */
-void run_recruiter_demo(std::istream& input, std::ostream& output) {
+void run_guided_demo(std::istream& input, std::ostream& output) {
     Parser parser;
     Exchange exchange;
     const auto steps = make_demo_steps();
@@ -947,26 +1165,34 @@ void run_recruiter_demo(std::istream& input, std::ostream& output) {
     for (std::size_t index = 0; index < steps.size(); ++index) {
         clear_screen(output);
         print_demo_step_intro(steps[index], index + 1, steps.size(), output);
-        if (!wait_for_enter(input, output, "Press Enter to execute this step...")) {
+        if (!should_continue_demo(input, output, "Press Enter to execute this step, or Q to return to the main menu...")) {
             return;
         }
 
         output << "\nExecuted events:\n";
         bool printed_event = false;
+        std::vector<std::string> trace_lines;
         for (const auto& command : steps[index].commands) {
             const auto action = parser.parse_line(command);
             if (!action) {
                 output << "  REJECTED invalid command\n";
+                trace_lines.push_back("command: " + command);
+                trace_lines.push_back("  parse: ERROR -> invalid command");
                 printed_event = true;
                 continue;
             }
 
+            const auto before_orders = visible_orders(exchange);
             if (std::holds_alternative<PrintBookAction>(*action)) {
                 // Demo steps print the final book once after all commands run.
+                trace_lines.push_back("command: " + command);
+                for (const auto& line :
+                     format_execution_trace(*action, {}, before_orders, exchange)) {
+                    trace_lines.push_back("  " + line);
+                }
                 continue;
             }
 
-            const auto before_orders = visible_orders(exchange);
             std::vector<Event> events;
             exchange.process(*action, events);
 
@@ -974,21 +1200,29 @@ void run_recruiter_demo(std::istream& input, std::ostream& output) {
                 output << "  " << event_line << '\n';
                 printed_event = true;
             }
+
+            trace_lines.push_back("command: " + command);
+            for (const auto& line : format_execution_trace(*action, events, before_orders, exchange)) {
+                trace_lines.push_back("  " + line);
+            }
         }
 
         if (!printed_event) {
             output << "  (no execution events)\n";
         }
 
+        output << "\nLive execution trace:\n";
+        print_trace_lines(trace_lines, output, "  ");
+
         output << "\nCurrent book:\n\n";
         print_books(exchange, output);
 
-        if (!wait_for_enter(input, output, "Press Enter for next step...")) {
+        if (!should_continue_demo(input, output, "Press Enter for next step, or Q to return to the main menu...")) {
             return;
         }
     }
 
-    output << "\nInteractive recruiter demo complete.\n";
+    output << "\nInteractive guided demo complete.\n";
     wait_for_enter(input, output, "Press Enter to return to the main menu...");
 }
 
@@ -1060,7 +1294,7 @@ void run_cli_presentation(std::istream& input, std::ostream& output) {
         output << '\n';
 
         if (choice == "1") {
-            run_recruiter_demo(input, output);
+            run_guided_demo(input, output);
         } else if (choice == "2") {
             print_placeholder(
                 input,
@@ -1082,7 +1316,7 @@ void run_cli_presentation(std::istream& input, std::ostream& output) {
             output << '\n';
             wait_for_enter(input, output, "Press Enter to return to the main menu...");
         } else if (choice == "7" || choice == "EXIT") {
-            output << "Bye bye!.\n";
+            output << "Bye bye!\n";
             return;
         } else {
             output << "Invalid selection. Please choose 1 through 7.\n\n";

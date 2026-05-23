@@ -5,7 +5,7 @@
 namespace matching_engine {
 
 /**
- * @brief Runs the interactive recruiter-facing command-line presentation.
+ * @brief Runs the interactive command-line presentation.
  *
  * @param input User input stream.
  * @param output Presentation output stream.
