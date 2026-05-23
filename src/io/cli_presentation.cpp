@@ -7,20 +7,25 @@
 #include "io/parser.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
 #include <cctype>
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <istream>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <variant>
 #include <vector>
 
 namespace matching_engine {
 namespace {
+
+constexpr auto replay_command_delay = std::chrono::milliseconds{20};
 
 /**
  * @brief One guided presentation step in the demo.
@@ -286,6 +291,33 @@ void append_unique_directory(std::vector<std::filesystem::path>& directories,
 #endif
 
     return directories;
+}
+
+/**
+ * @brief Finds the default CLI replay command file from common launch locations.
+ */
+[[nodiscard]] std::filesystem::path find_replay_cli_file(std::string_view executable_path) {
+    std::vector<std::filesystem::path> candidates;
+    const auto current = std::filesystem::current_path();
+
+    candidates.push_back(current / "tests" / "replay_cli.txt");
+    candidates.push_back(current.parent_path() / "tests" / "replay_cli.txt");
+
+    const auto executable_dir = executable_directory(executable_path);
+    if (!executable_dir.empty()) {
+        // Binaries commonly run from build/ or build-release/ while tests live in the repo root.
+        candidates.push_back(executable_dir / "tests" / "replay_cli.txt");
+        candidates.push_back(executable_dir.parent_path() / "tests" / "replay_cli.txt");
+    }
+
+    for (const auto& candidate : candidates) {
+        if (std::filesystem::exists(candidate)) {
+            // Canonical paths make the CLI output easy to inspect.
+            return std::filesystem::absolute(candidate).lexically_normal();
+        }
+    }
+
+    return {};
 }
 
 /**
@@ -1632,10 +1664,67 @@ void run_manual_command_mode(std::istream& input, std::ostream& output) {
 }
 
 /**
- * @brief Shows a placeholder feature message and pauses for readability.
+ * @brief Runs commands from tests/replay_cli.txt through the presentation pipeline.
  */
-void print_placeholder(std::istream& input, std::ostream& output, std::string_view message) {
-    output << message << "\n\n";
+void run_replay_command_file(std::istream& input,
+                             std::ostream& output,
+                             std::string_view executable_path) {
+    const auto replay_path = find_replay_cli_file(executable_path);
+    if (replay_path.empty()) {
+        output << "Replay file not found.\n"
+               << "Put one command per line in tests/replay_cli.txt, then choose option 5.\n\n";
+        wait_for_enter(input, output, "Press Enter to return to the main menu...");
+        return;
+    }
+
+    std::ifstream replay_input{replay_path};
+    if (!replay_input) {
+        output << "Could not open " << replay_path << ".\n\n";
+        wait_for_enter(input, output, "Press Enter to return to the main menu...");
+        return;
+    }
+
+    Parser parser;
+    Exchange exchange;
+    std::string line;
+    std::size_t executed_lines = 0;
+
+    output << "Replay commands from file.\n"
+           << "Edit tests/replay_cli.txt to change this script.\n"
+           << "Using: " << replay_path << "\n\n";
+
+    if (!should_continue_demo(input,
+                              output,
+                              "Press Enter to replay this file, or Q to return to the main menu...")) {
+        return;
+    }
+
+    output << '\n';
+
+    while (std::getline(replay_input, line)) {
+        const std::string command = trim(line);
+        if (command.empty()) {
+            continue;
+        }
+
+        output << "> " << command << '\n';
+        const bool command_applied =
+            execute_command_line(command, parser, exchange, output, true, false);
+        if (command_applied && uppercase_copy(command) != "PRINT") {
+            // Replays use the same book visualizer as manual mode and the guided demo.
+            output << "Current book:\n\n";
+            print_books(exchange, output);
+        }
+        output << '\n';
+        output.flush();
+
+        // A short replay pause makes file playback readable without slowing manual entry.
+        std::this_thread::sleep_for(replay_command_delay);
+        ++executed_lines;
+    }
+
+    output << "Replay complete. Executed " << executed_lines << " command"
+           << (executed_lines == 1 ? "" : "s") << ".\n\n";
     wait_for_enter(input, output, "Press Enter to return to the main menu...");
 }
 
@@ -1668,7 +1757,7 @@ void run_cli_presentation(std::istream& input,
         } else if (choice == "4") {
             run_local_benchmark_runner(input, output, executable_path);
         } else if (choice == "5") {
-            print_placeholder(input, output, "Replay-from-file mode is not wired yet.");
+            run_replay_command_file(input, output, executable_path);
         } else if (choice == "6" || choice == "HELP") {
             print_help(output);
             output << '\n';

@@ -123,6 +123,17 @@ Run the demo order stream:
 ./build/matching_engine < examples/demo.orders
 ```
 
+Run the interactive CLI:
+
+```bash
+./build/matching_engine
+```
+
+To replay your own command file from the CLI, put one command per line in
+`tests/replay_cli.txt`, then choose option `5) Replay commands from file`.
+Option `2) Manual command mode` accepts commands directly; type `EXIT` there to
+return to the main menu.
+
 Run the demo through each engine model:
 
 ```bash

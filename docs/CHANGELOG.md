@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.9.3 -> 
+
+- Moved manual command mode to CLI option 2 and shifted local benchmark options down so direct command entry is easier to find.
+- Updated manual command mode with explicit `EXIT` guidance and automatic aligned bid/ask book visualization after each parsed command.
+- Wired CLI option 5 into replay-from-file mode using `tests/replay_cli.txt`, including a pre-replay confirmation prompt, echoed commands, short playback delay, and live book visualization.
+- Added `tests/replay_cli.txt` as the editable sample replay script and documented the workflow in `README.md`.
+- Added CLI presentation tests covering manual mode, automatic book snapshots, and replay-from-file execution.
+- Verified the local build and full CTest suite after the CLI replay changes: 130/130 tests passed.
+
 ## v0.9.2 -> Full Local Benchmark Suite Runner
 
 - Wired CLI option 3 into a full local benchmark-suite runner that launches the core hot-path, batch-latency, realistic-flow, stress, determinism-replay, and experimental reserve-sweep executables in sequence.

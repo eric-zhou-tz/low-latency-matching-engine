@@ -83,3 +83,23 @@ EXIT
     expect_contains(output, "id=10");
     expect_not_contains(output, "Live execution trace:");
 }
+
+TEST(CliPresentationTest, ReplayOptionRunsDefaultReplayCliFile) {
+    const std::string output = run_cli_text(R"(5
+
+
+7
+)");
+
+    expect_contains(output, "Replay commands from file.");
+    expect_contains(output, "Edit tests/replay_cli.txt to change this script.");
+    expect_contains(output, "Press Enter to replay this file, or Q to return to the main menu...");
+    expect_contains(output, "tests/replay_cli.txt");
+    expect_contains(output, "> SUBMIT 1001 AAPL BUY 100 50 GTC");
+    expect_contains(output, "TRADE symbol=AAPL buy_id=1003 sell_id=1002 price=103 quantity=10");
+    expect_contains(output, "Current book:");
+    expect_contains(output, "Book: AAPL");
+    expect_contains(output, "Book: MSFT");
+    expect_contains(output, "Replay complete. Executed 5 commands.");
+    expect_not_contains(output, "Replay-from-file mode is not wired yet.");
+}
