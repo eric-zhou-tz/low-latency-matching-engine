@@ -1,9 +1,11 @@
 # Hot Path Analysis
 
-## 2026-05-23 EC2 c7i-flex.large Rerun
+## Current EC2 c7i-flex.large Snapshot
 
-This pass reran the hot/critical path workflow on EC2 and generated chart and
-flamegraph artifacts from the Linux run.
+The current documented hot-path snapshot combines the latest focused
+core/realistic throughput refresh from `2026-05-23T08:54:21Z` with the
+full-suite stress, replay, latency, chart, and flamegraph artifacts from
+`2026-05-23T08:10:34Z`.
 
 ### Environment
 
@@ -12,8 +14,10 @@ flamegraph artifacts from the Linux run.
 - CPU: Intel Xeon Platinum 8488C
 - Compiler: GCC/G++ 15.2.0
 - Build: Release, `-O3 -DNDEBUG -march=native`
-- Source: fresh EC2 clone of commit `53240e0`; generated benchmark artifacts
-  made the worktree dirty after the run began
+- Focused throughput source: local tree at `7a5980e1` with uncommitted
+  std-toy comparison benchmark and EC2 runner changes
+- Full-suite artifact source: fresh EC2 clone of commit `53240e0`; generated
+  benchmark artifacts made the worktree dirty after the run began
 - Validation: `130/130` CTest cases passed before benchmark execution
 
 Historical benchmark development before the `v0.9.4` refresh was performed on
@@ -45,17 +49,20 @@ Raw reports and perf data live under `benchmarks/results/`:
 
 ### Throughput Snapshot
 
-All rows are Google Benchmark median rows from the EC2 run.
+All rows are Google Benchmark median rows from pinned EC2 runs. Core and
+realistic-flow rows use the `08:54:21Z` focused refresh so they match
+`README.md` and `BENCHMARKS.md`; stress rows remain from the `08:10:34Z`
+full-suite artifact refresh.
 
 | Workload | CPU Time | Throughput |
 | --- | ---: | ---: |
-| Passive insert, 100k ops | `2.92 ms` | `34.22M ops/sec` |
-| One-level crossing match, 100k ops | `3.09 ms` | `32.37M ops/sec` |
-| Random cancel, 100k ops | `3.83 ms` | `26.14M ops/sec` |
-| Unknown cancel, 100k ops | `0.31 ms` | `318.31M ops/sec` |
-| Modify if present, 100k ops | `1.65 ms` | `60.51M ops/sec` |
-| OrderBook true mixed, 100k ops | `4.25 ms` | `23.52M ops/sec` |
-| End-to-end true mixed, 100k commands | `46.04 ms` | `2.17M commands/sec` |
+| Passive insert, 100k ops | `2.97 ms` | `33.64M ops/sec` |
+| One-level crossing match, 100k ops | `3.09 ms` | `32.40M ops/sec` |
+| Random cancel, 100k ops | `3.87 ms` | `25.85M ops/sec` |
+| Unknown cancel, 100k ops | `0.30 ms` | `332.12M ops/sec` |
+| Modify if present, 100k ops | `1.61 ms` | `62.28M ops/sec` |
+| OrderBook true mixed, 100k ops | `4.33 ms` | `23.12M ops/sec` |
+| End-to-end true mixed, 100k commands | `45.17 ms` | `2.21M commands/sec` |
 | Best-level churn, 1M ops | `35.75 ms` | `27.97M ops/sec` |
 | Level create/delete churn, 1M ops | `22.53 ms` | `44.39M ops/sec` |
 | Shallow GTC mixed, 100k primary ops | `6.65 ms` | `27.82M ops/sec` |
@@ -64,7 +71,8 @@ All rows are Google Benchmark median rows from the EC2 run.
 ### Latency Snapshot
 
 Core latency rows are median values across five trials at a 256-operation batch
-size. These are amortized batch latencies, not true single-order tail latency.
+size from the `08:10:34Z` full-suite refresh. These are amortized batch
+latencies, not true single-order tail latency.
 
 | Workload | p50 | p99 | Max |
 | --- | ---: | ---: | ---: |
@@ -94,11 +102,11 @@ failed with `No supported events found. The cycles event is not supported.`
 
 | Path | Classification | Reason |
 | --- | --- | --- |
-| End-to-end parser/format boundary | Hot | End-to-end true mixed is roughly 11x slower than direct `OrderBook` true mixed in throughput. |
+| End-to-end parser/format boundary | Hot | Direct `OrderBook` true mixed is roughly 10x faster than end-to-end true mixed in throughput. |
 | Random cancel | Hot | Random cancel has the highest p50/p99 among core batch-latency rows and remains much slower than hash-miss cancel. |
 | Deep sparse price-level access | Hot under adversarial books | Sparse 50k-level workload falls to ~3.53M ops/sec and shows tree lookup work in perf. |
 | Intrusive queue unlink itself | Warm | It is part of hot cancel/remove frames, but the queue operation is no longer isolated as the dominant cost. |
-| Unknown cancel | Cold | The rejection path is extremely fast at ~318M ops/sec and ~12 ns p99 batch latency. |
+| Unknown cancel | Cold | The rejection path is extremely fast at ~332M ops/sec and ~12 ns p99 batch latency. |
 
 ### Caveats
 

@@ -6,6 +6,11 @@ Latest focused core/realistic/std-toy comparison run: pinned-core EC2/Linux run 
 
 Latest full suite including stress and replay remains the pinned-core EC2/Linux run from `2026-05-23T08:10:34Z`.
 
+The current documentation snapshot intentionally combines those two runs:
+core/realistic throughput and std-toy comparison rows come from `08:54:21Z`;
+stress, replay, profiling artifacts, and core batch-latency rows come from the
+`08:10:34Z` full-suite run unless a row says otherwise.
+
 | Item | Latest EC2 Run |
 | --- | --- |
 | Environment | AWS EC2 `c7i-flex.large`, Ubuntu Linux, `taskset -c 0` |
@@ -50,6 +55,10 @@ Rigor controls:
 | Validation | Correctness tests before EC2 benchmark execution |
 
 Hot-path benchmarks measure typed matching operations directly against `OrderBook`. Realistic-flow benchmarks measure either the same mixed order stream on `OrderBook` or the public parser/exchange/formatter path. The std-toy comparison target runs the same direct book workloads against the optimized implementation and the simple std-container baseline at 10,000 operations per row. Stress benchmarks target adversarial book shapes. Replay benchmarks exercise deterministic fixture streams through the public path.
+
+Core and realistic-flow throughput rows below use the `2026-05-23T08:54:21Z`
+focused refresh. Core batch-latency, stress, replay, and profiling rows use the
+`2026-05-23T08:10:34Z` full-suite refresh.
 
 ## Core Hot Path
 

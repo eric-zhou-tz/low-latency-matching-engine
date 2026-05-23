@@ -8,6 +8,42 @@ Orders are processed synchronously through an event-driven command flow. A parse
 
 The current implementation is intentionally focused on correctness, deterministic behavior, and clean systems design with targeted hot-path optimizations where they make the matching rules clearer. It uses ordered standard-library maps for price levels, intrusive FIFO queues for per-price order priority, and pooled order storage with a free-list reuse path so cancellation and matching remain easy to inspect while avoiding avoidable node allocation.
 
+## Complexity Analysis
+
+| Operation | Complexity | Notes |
+| --- | --- | --- |
+| Exchange submit route | O(1) average + book work | Duplicate check and symbol lookup use flat hash maps. |
+| Exchange cancel/modify route | O(1) average + book work | `order_to_book_` avoids scanning symbol books. |
+| Best bid/ask lookup | O(1) | `begin()` on the ordered price tree. |
+| Insert resting order | O(log P) + O(1) average | Price-level tree insertion/find, pool create, FIFO tail append, order-id index insert. |
+| Match execution | O(K + E) amortized | `K` fills; `E` exhausted price levels erased by iterator. |
+| `FOK` preflight | O(L) | Walks crossing price levels and uses aggregate `total_volume`, not per-order scans. |
+| Cancel by ID | O(1) average + O(log P) + O(1) | Hash lookup, price-level lookup, intrusive unlink, pool release. |
+| Same-price size-reduction modify | O(1) average + O(log P) | Route lookup, order lookup, price-level aggregate update. |
+| Cancel-replace modify | O(1) average + cancel + match/rest | Removes old priority, then executes the replacement through normal matching. |
+| Print snapshot | O(N) | Walks every resting order for presentation text. |
+
+Definitions:
+
+- `P` = number of price levels on a side of the book.
+- `K` = number of matched resting orders that generate fills.
+- `Q` = number of resting orders at one price level.
+- `L` = number of crossing price levels inspected by an `FOK` preflight.
+- `E` = number of price levels exhausted during matching.
+- `N` = number of resting orders in a snapshot.
+
+The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. The exchange-level `order_to_book_` index also removes the previous cross-symbol scan before entering the book. Pool allocation is amortized by fixed-size blocks, cancel/match release paths return slots to the free list instead of calling the general-purpose allocator, and cancel returns a single result instead of using an event vector.
+
+Big O does not fully describe the hot path. The current design pays
+`std::map`'s pointer-chasing cost to keep price ordering simple and
+deterministic, then offsets some of that cost with cache-friendlier choices in
+the order-id indexes and order storage. Flat hash maps keep lookup metadata
+contiguous, intrusive queues avoid separate list-node allocations, and pooled
+order blocks make live orders less scattered than per-order heap allocation.
+Reserve sizing is therefore a locality decision as much as a growth decision:
+too little reserve can trigger rehashing or block growth, while too much reserve
+can inflate the working set and hurt cache/TLB behavior.
+
 ## Core Components
 
 ### Exchange
@@ -385,42 +421,6 @@ strings such as `"accepted order 42"` and `"unknown order id 42"` are created by
 repeated event-vector construction while preserving explicit event
 materialization. Cancellation uses `CancelResult` directly because it emits only
 one result.
-
-## Complexity Analysis
-
-| Operation | Complexity | Notes |
-| --- | --- | --- |
-| Exchange submit route | O(1) average + book work | Duplicate check and symbol lookup use flat hash maps. |
-| Exchange cancel/modify route | O(1) average + book work | `order_to_book_` avoids scanning symbol books. |
-| Best bid/ask lookup | O(1) | `begin()` on the ordered price tree. |
-| Insert resting order | O(log P) + O(1) average | Price-level tree insertion/find, pool create, FIFO tail append, order-id index insert. |
-| Match execution | O(K + E) amortized | `K` fills; `E` exhausted price levels erased by iterator. |
-| `FOK` preflight | O(L) | Walks crossing price levels and uses aggregate `total_volume`, not per-order scans. |
-| Cancel by ID | O(1) average + O(log P) + O(1) | Hash lookup, price-level lookup, intrusive unlink, pool release. |
-| Same-price size-reduction modify | O(1) average + O(log P) | Route lookup, order lookup, price-level aggregate update. |
-| Cancel-replace modify | O(1) average + cancel + match/rest | Removes old priority, then executes the replacement through normal matching. |
-| Print snapshot | O(N) | Walks every resting order for presentation text. |
-
-Definitions:
-
-- `P` = number of price levels on a side of the book.
-- `K` = number of matched resting orders that generate fills.
-- `Q` = number of resting orders at one price level.
-- `L` = number of crossing price levels inspected by an `FOK` preflight.
-- `E` = number of price levels exhausted during matching.
-- `N` = number of resting orders in a snapshot.
-
-The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. The exchange-level `order_to_book_` index also removes the previous cross-symbol scan before entering the book. Pool allocation is amortized by fixed-size blocks, cancel/match release paths return slots to the free list instead of calling the general-purpose allocator, and cancel returns a single result instead of using an event vector.
-
-Big O does not fully describe the hot path. The current design pays
-`std::map`'s pointer-chasing cost to keep price ordering simple and
-deterministic, then offsets some of that cost with cache-friendlier choices in
-the order-id indexes and order storage. Flat hash maps keep lookup metadata
-contiguous, intrusive queues avoid separate list-node allocations, and pooled
-order blocks make live orders less scattered than per-order heap allocation.
-Reserve sizing is therefore a locality decision as much as a growth decision:
-too little reserve can trigger rehashing or block growth, while too much reserve
-can inflate the working set and hurt cache/TLB behavior.
 
 ## Determinism
 

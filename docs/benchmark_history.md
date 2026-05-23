@@ -15,7 +15,7 @@ context; the authoritative row-level c7i refresh data now lives in SQLite.
 
 | Date | Commit | Environment | Validation | Notes |
 | --- | --- | --- | --- | --- |
-| 2026-05-23T08:54:21Z | `7a5980e1` + local std-toy comparison benchmark changes | AWS EC2 `c7i-flex.large`, Ubuntu 26.04, Linux 7.0.0-1004-aws, Intel Xeon Platinum 8488C, GCC 15.2.0 | 130/130 CTest cases passed | Focused core, realistic-flow, and optimized-vs-std-toy comparison run. Stress and replay benchmark targets were intentionally not rerun. Full row history is in `../benchmarks/benchmark_history.db`. |
+| 2026-05-23T08:54:21Z | `7a5980e1` + local std-toy comparison benchmark changes | AWS EC2 `c7i-flex.large`, Ubuntu 26.04, Linux 7.0.0-1004-aws, Intel Xeon Platinum 8488C, GCC 15.2.0 | 130/130 CTest cases passed | Focused core, realistic-flow, and optimized-vs-std-toy comparison run. Headline rows: OrderBook true mixed 23.12M ops/sec, random cancel 25.85M ops/sec, end-to-end true mixed 2.21M commands/sec, largest optimized-vs-std-toy gap 1,642.78x. Stress and replay benchmark targets were intentionally not rerun. Full row history is in `../benchmarks/benchmark_history.db`. |
 | 2026-05-23T08:10:34Z | `53240e0` | AWS EC2 `c7i-flex.large`, Ubuntu 26.04, Linux 7.0.0-1004-aws, Intel Xeon Platinum 8488C, GCC 15.2.0 | 130/130 CTest cases passed | Official native EC2 full-suite refresh. Headline rows: OrderBook true mixed 23.52M ops/sec, random cancel 26.14M ops/sec, end-to-end true mixed 2.17M commands/sec, best-level churn 27.97M ops/sec, deep sparse 3.53M ops/sec. Full row history is in `../benchmarks/benchmark_history.db`. |
 
 ## Historical Markdown Rows

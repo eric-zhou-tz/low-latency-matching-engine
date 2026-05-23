@@ -10,27 +10,35 @@ symbol-level order books, matches against resting liquidity with FIFO semantics,
 and emits structured events for accepted orders, trades, cancels, modifies, and
 rejects.
 
+## Table of Contents
+
+- [Architecture](#architecture)
+- [Hot Path Optimizations](#hot-path-optimizations)
+- [Quick Start](#quick-start)
+- [Repository Tour](#repository-tour)
+
 ## Performance Highlights
 
-Latest EC2 Release run: AWS `c7i-flex.large`, Ubuntu Linux, pinned core,
-GCC/G++ 15.2.0, `-O3 -DNDEBUG -march=native`.
+Latest focused EC2 Release run: AWS `c7i-flex.large`, Ubuntu Linux, Intel Xeon
+Platinum 8488C, pinned to one CPU with `taskset -c 0`, GCC/G++ 15.2.0,
+`-O3 -DNDEBUG -march=native`.
 
-| Workload | Throughput |
-| --- | ---: |
-| Random cancel, 100,000 orders | `25.85M ops/sec` |
-| One-level crossing match, 100,000 orders | `32.40M ops/sec` |
-| True mixed OrderBook flow, 100,000 operations | `23.12M ops/sec` |
-| End-to-end true mixed CLI-style flow, 100,000 commands | `2.21M commands/sec` |
+| Workload | What It Measures | Count | Throughput |
+| --- | --- | ---: | ---: |
+| Random cancel | Live order-id lookup, FIFO unlink, pool release | 100,000 orders | `25.85M ops/sec` |
+| One-level crossing match | Aggressive orders consuming one resting level | 100,000 orders | `32.40M ops/sec` |
+| True mixed OrderBook flow | Direct matching-core submits, cancels, modifies, taker flow | 100,000 operations | `23.12M ops/sec` |
+| End-to-end true mixed CLI-style flow | Parser -> exchange -> book -> event formatting | 100,000 commands | `2.21M commands/sec` |
 
 Optimized `OrderBook` versus the simple std-container toy baseline on the same
 10,000-operation direct-book workloads:
 
-| Workload | Optimized | Std Toy Baseline | Speedup |
-| --- | ---: | ---: | ---: |
-| Passive insert | `42.97M ops/sec` | `351.87k ops/sec` | `122.13x` |
-| Random cancel | `75.72M ops/sec` | `236.12k ops/sec` | `320.71x` |
-| Modify if present | `81.91M ops/sec` | `443.89k ops/sec` | `184.53x` |
-| True mixed OrderBook flow | `27.39M ops/sec` | `4.67M ops/sec` | `5.86x` |
+| Workload | Count | Optimized | Std Toy Baseline | Speedup |
+| --- | ---: | ---: | ---: | ---: |
+| Passive insert | 10,000 operations | `42.97M ops/sec` | `351.87k ops/sec` | `122.13x` |
+| Random cancel | 10,000 operations | `75.72M ops/sec` | `236.12k ops/sec` | `320.71x` |
+| Modify if present | 10,000 operations | `81.91M ops/sec` | `443.89k ops/sec` | `184.53x` |
+| True mixed OrderBook flow | 10,000 operations | `27.39M ops/sec` | `4.67M ops/sec` | `5.86x` |
 
 Hot-path rows measure typed `OrderBook` work directly. End-to-end rows include
 parsing, exchange routing, matching, and event formatting, so they are expected
@@ -102,33 +110,6 @@ Additional docs:
 - Cancel routing maps live order ids directly to owning symbol books.
 - Parser and formatter work are separated from direct `OrderBook` benchmarks.
 - Caller-owned event buffers avoid fresh vectors for multi-fill submissions.
-
-## Future Scaling Directions
-
-The current engine is intentionally single-process and deterministic. The next
-scaling steps would preserve that matching model while reducing ingress,
-networking, and replay overhead:
-
-- Partition symbols across matching shards so independent books can run on
-  separate cores.
-- Add lock-free ingress queues with explicit sequencing before commands enter a
-  symbol book.
-- Explore NUMA-aware placement for order pools, queues, and symbol ownership.
-- Replace text command ingestion with a compact binary protocol for lower parse
-  and allocation overhead.
-- Add persistent replay logs for crash recovery and deterministic audit trails.
-- Evaluate kernel-bypass networking only after the single-core matching path and
-  replay semantics are fully stable.
-
-## Benchmark Interpretation
-
-- Hot-path benchmarks isolate the typed matching core.
-- End-to-end benchmarks include parser, exchange, book, and formatting overhead.
-- Microbenchmarks explain data-structure costs; mixed-flow benchmarks exercise
-  more realistic command sequences.
-- Batch latency rows are amortized per operation, not true single-order tail
-  latency.
-- Release benchmark numbers come from Linux/EC2, not local macOS runs.
 
 ## Profiling Snapshots
 
@@ -270,6 +251,96 @@ cmake --build build --config Release
 Final benchmark validation is run on Ubuntu Linux/EC2 with CPU pinning. Docker is
 used for Linux compatibility checks, not headline performance numbers.
 
+### EC2 Benchmark Run
+
+Start an Ubuntu EC2 instance and make sure its security group allows SSH from
+your IP address. The current benchmark host is `3.20.238.237`; replace
+`EC2_HOST` if the instance changes.
+
+From your local machine, set the SSH target and connect:
+
+```bash
+export EC2_HOST=3.20.238.237
+export EC2_USER=ubuntu
+export EC2_KEY="$HOME/.ssh/matching-engine-key.pem"
+
+chmod 600 "$EC2_KEY"
+ssh -i "$EC2_KEY" "$EC2_USER@$EC2_HOST"
+```
+
+On the EC2 host, install the build tools:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+  build-essential \
+  cmake \
+  curl \
+  git \
+  ninja-build \
+  python3 \
+  sqlite3
+```
+
+Clone a clean copy and run the full pinned Release benchmark workflow:
+
+```bash
+rm -rf low-latency-matching-engine
+git clone https://github.com/eric-zhou-tz/low-latency-matching-engine.git
+cd low-latency-matching-engine
+
+CMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native" \
+PIN_CPU=0 \
+BENCHMARK_TARGETS=all \
+benchmarks/run_ec2_benchmarks.sh
+```
+
+For a focused pass, set `BENCHMARK_TARGETS` to one comma-separated subset:
+
+```bash
+BENCHMARK_TARGETS=core_hot_path,realistic_flow,std_toy_comparison \
+CMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native" \
+PIN_CPU=0 \
+benchmarks/run_ec2_benchmarks.sh
+```
+
+If you need to benchmark local uncommitted changes, sync the tree without build
+directories or macOS sidecar files:
+
+```bash
+rsync -az --delete \
+  --exclude '.git/' \
+  --exclude 'build*/' \
+  --exclude 'release-artifacts/' \
+  --exclude '.DS_Store' \
+  --exclude '._*' \
+  -e "ssh -i $EC2_KEY" \
+  ./ "$EC2_USER@$EC2_HOST:~/matching-engine-work/"
+
+ssh -i "$EC2_KEY" "$EC2_USER@$EC2_HOST"
+cd ~/matching-engine-work
+CMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native" \
+PIN_CPU=0 \
+BENCHMARK_TARGETS=all \
+benchmarks/run_ec2_benchmarks.sh
+```
+
+Copy benchmark artifacts back to your local checkout:
+
+```bash
+mkdir -p benchmarks/results
+scp -i "$EC2_KEY" \
+  "$EC2_USER@$EC2_HOST:~/low-latency-matching-engine/benchmarks/results/*" \
+  benchmarks/results/
+```
+
+If you used the rsync workflow, copy from
+`~/matching-engine-work/benchmarks/results/*` instead.
+
+After updating published results, update [BENCHMARKS.md](BENCHMARKS.md),
+`benchmarks/benchmark_history.db`, and `benchmarks/benchmark_history.sql`
+together.
+
 ## Docker Validation
 
 ```bash
@@ -309,3 +380,20 @@ benchmarks/ Benchmark sources, EC2 runners, and history artifacts
 docs/       Architecture, benchmark, and hot-path notes
 CONTRIBUTING.md Contributor workflow and validation expectations
 ```
+
+## Future Scaling Directions
+
+The current engine is intentionally single-process and deterministic. The next
+scaling steps would preserve that matching model while reducing ingress,
+networking, and replay overhead:
+
+- Partition symbols across matching shards so independent books can run on
+  separate cores.
+- Add lock-free ingress queues with explicit sequencing before commands enter a
+  symbol book.
+- Explore NUMA-aware placement for order pools, queues, and symbol ownership.
+- Replace text command ingestion with a compact binary protocol for lower parse
+  and allocation overhead.
+- Add persistent replay logs for crash recovery and deterministic audit trails.
+- Evaluate kernel-bypass networking only after the single-core matching path and
+  replay semantics are fully stable.

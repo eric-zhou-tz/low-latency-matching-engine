@@ -4,6 +4,7 @@ build-release/
 cmake-build-*/
 compile_commands.json
 local-benchmark-results/
+release-artifacts/
 
 *.o
 *.obj
