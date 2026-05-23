@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:24.04 AS build
+FROM ubuntu:24.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -10,22 +10,32 @@ RUN apt-get update \
         ca-certificates \
         cmake \
         curl \
+        git \
         ninja-build \
+        python3 \
         unzip \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
+
+FROM base AS build
 
 COPY CMakeLists.txt ./
 COPY include ./include
 COPY src ./src
 COPY tests ./tests
 COPY examples ./examples
-COPY benchmark ./benchmark
+COPY benchmarks ./benchmarks
+COPY toy ./toy
 
-RUN cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+RUN cmake -S . -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG"
 RUN cmake --build build
-RUN ctest --test-dir build --output-on-failure
+
+FROM build AS validation
+
+CMD ["./build/matching_engine"]
 
 FROM build AS dev
 

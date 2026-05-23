@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v0.9.3 -> 
+## v0.9.3 -> Manual CLI Replay Mode
 
 - Moved manual command mode to CLI option 2 and shifted local benchmark options down so direct command entry is easier to find.
 - Updated manual command mode with explicit `EXIT` guidance and automatic aligned bid/ask book visualization after each parsed command.

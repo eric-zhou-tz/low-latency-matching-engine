@@ -79,7 +79,7 @@ a single `CancelResult` and does not need an event buffer.
 Additional documentation:
 
 - [Architecture](docs/ARCHITECTURE.md)
-- [Benchmarks](Benchmarks.md)
+- [Benchmarks](BENCHMARKS.md)
 - [Benchmark History](docs/benchmark_history.md)
 - [Hot Path Analysis](docs/HOTPATH.md)
 - [Changelog](docs/CHANGELOG.md)
@@ -227,22 +227,53 @@ cmake --build build
 ```
 
 Detailed benchmark results and methodology are available in
-[Benchmarks.md](Benchmarks.md).
+[BENCHMARKS.md](BENCHMARKS.md).
 
-## Linux Development
+## Docker Validation
 
-The repository includes Docker workflows for Linux validation and reproducible
-development environments. Docker is used for reproducible Linux builds and
-validation, not as the source of published latency measurements; benchmark
-numbers come from native Release builds on Linux/EC2.
+Docker provides a reproducible Ubuntu build and validation path. It is useful
+for checking Linux compatibility, tests, command-line flows, and benchmark
+executable startup. Published performance numbers still come from native
+Release builds on the Linux/EC2 benchmark host.
 
-Build Linux test container:
+Build the validation image:
 
 ```bash
-docker build --target build -t matching-engine-test .
+docker build --target validation -t matching-engine-test .
 ```
 
-Run interactive Linux development environment:
+Run the container's default interactive CLI:
+
+```bash
+docker run --rm -it matching-engine-test
+```
+
+Run the demo order stream in Docker:
+
+```bash
+docker run --rm -i matching-engine-test /bin/bash -lc \
+  './build/matching_engine --model=fast < examples/demo.orders'
+```
+
+Build and run the lean runtime image:
+
+```bash
+docker build --target runtime -t matching-engine-runtime .
+docker run --rm -i matching-engine-runtime --model=fast < examples/demo.orders
+```
+
+Run the full Docker validation workflow:
+
+```bash
+./scripts/docker_validate.sh
+```
+
+The validation script builds a Release image, runs the full CTest suite, checks
+parser/replay/CLI test binaries, exercises the advertised CLI menu flows, and
+launches short benchmark sanity checks. It intentionally does not run the full
+EC2 benchmark suite or record benchmark results.
+
+Build an interactive Linux development shell:
 
 ```bash
 docker build --target dev -t matching-engine-dev .

@@ -1,5 +1,12 @@
-build/
 .git/
-.gitignore
 .DS_Store
-Dockerfile
+._*
+
+build/
+build-linux/
+build-release/
+local-benchmark-results/
+benchmarks/results/
+benchmarks/benchmark_history.db
+
+.gitignore

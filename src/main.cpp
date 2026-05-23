@@ -5,6 +5,27 @@
 #include <string>
 #include <string_view>
 
+#if !defined(_WIN32)
+#include <unistd.h>
+#endif
+
+namespace {
+
+/**
+ * @brief Checks whether standard input is attached to an interactive terminal.
+ */
+[[nodiscard]] bool stdin_is_terminal() {
+#if defined(_WIN32)
+    // Windows CI is not part of the Docker workflow; keep the portable fallback interactive.
+    return true;
+#else
+    // Piped order streams should use replay mode instead of being parsed as menu choices.
+    return ::isatty(fileno(stdin)) != 0;
+#endif
+}
+
+} // namespace
+
 /**
  * @brief Command-line entry point for the matching engine scaffold.
  *
@@ -35,7 +56,11 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
-    (void)model;
+    if (!stdin_is_terminal()) {
+        // Redirected input is the documented one-command replay path for examples and fixtures.
+        matching_engine::run_script(std::cin, std::cout, model);
+        return 0;
+    }
 
     // Launch the presentation shell and pass argv[0] so benchmark binaries can be found.
     matching_engine::run_cli_presentation(std::cin, std::cout, argv[0]);
