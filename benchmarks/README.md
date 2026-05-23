@@ -24,38 +24,11 @@ historical hardware context rather than relabeling them.
 | `schema.sql` | Table and index definitions. |
 | `results/std_toy_comparison_results.{txt,json}` | Focused optimized `OrderBook` versus std-toy direct-book comparison artifacts. |
 
-## Open the Database
+## Database Usage
 
-```bash
-sqlite3 benchmarks/benchmark_history.db
-```
-
-## Recreate from the SQL Dump
-
-```bash
-rm -f /tmp/benchmark_history.db
-sqlite3 /tmp/benchmark_history.db < benchmarks/benchmark_history.sql
-```
-
-## Example Queries
-
-```sql
-SELECT * FROM benchmark_results ORDER BY run_date DESC;
-```
-
-```sql
-SELECT version, benchmark_name, items_per_second
-FROM benchmark_results
-ORDER BY items_per_second DESC
-LIMIT 10;
-```
-
-```sql
-SELECT version, benchmark_name, p50_latency_ns, p99_latency_ns
-FROM benchmark_results
-WHERE p99_latency_ns IS NOT NULL
-ORDER BY run_date DESC;
-```
+Detailed instructions for opening, querying, exporting, recreating, and updating
+the SQLite benchmark history now live in `../BENCHMARKS.md` under
+`Benchmark History Database`.
 
 ## Data Notes
 

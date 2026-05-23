@@ -22,6 +22,16 @@ GCC/G++ 15.2.0, `-O3 -DNDEBUG -march=native`.
 | True mixed OrderBook flow, 100,000 operations | `23.12M ops/sec` |
 | End-to-end true mixed CLI-style flow, 100,000 commands | `2.21M commands/sec` |
 
+Optimized `OrderBook` versus the simple std-container toy baseline on the same
+10,000-operation direct-book workloads:
+
+| Workload | Optimized | Std Toy Baseline | Speedup |
+| --- | ---: | ---: | ---: |
+| Passive insert | `42.97M ops/sec` | `351.87k ops/sec` | `122.13x` |
+| Random cancel | `75.72M ops/sec` | `236.12k ops/sec` | `320.71x` |
+| Modify if present | `81.91M ops/sec` | `443.89k ops/sec` | `184.53x` |
+| True mixed OrderBook flow | `27.39M ops/sec` | `4.67M ops/sec` | `5.86x` |
+
 Hot-path rows measure typed `OrderBook` work directly. End-to-end rows include
 parsing, exchange routing, matching, and event formatting, so they are expected
 to be lower.
@@ -31,7 +41,7 @@ provenance, and historical results.
 
 ## Architecture
 
-![Matching engine CLI benchmark comparison mode](docs/cli-benchmark-mode.png)
+![Matching engine CLI benchmark comparison mode](docs/cli-benchmark-mode.gif)
 
 Core flow:
 

@@ -253,6 +253,99 @@ Profile flamegraphs:
 
 Queryable history for technical review is available in `benchmarks/benchmark_history.db`, with the regenerating SQL dump in `benchmarks/benchmark_history.sql`.
 
+## Benchmark History Database
+
+Use the SQLite database when you want row-level history, comparisons across
+runs, or CSV exports for analysis. The Markdown tables stay focused on the
+current results; the database is the authoritative historical store.
+
+Open the checked-in database:
+
+```bash
+sqlite3 benchmarks/benchmark_history.db
+```
+
+Recommended interactive settings:
+
+```sql
+.headers on
+.mode column
+.timer on
+.schema benchmark_results
+```
+
+Recreate the database from the SQL dump:
+
+```bash
+rm -f /tmp/benchmark_history.db
+sqlite3 /tmp/benchmark_history.db < benchmarks/benchmark_history.sql
+sqlite3 /tmp/benchmark_history.db "SELECT COUNT(*) FROM benchmark_results;"
+```
+
+Run one-off shell queries:
+
+```bash
+sqlite3 -header -column benchmarks/benchmark_history.db \
+  "SELECT run_date, benchmark_name, workload_size, items_per_second
+   FROM benchmark_results
+   WHERE items_per_second IS NOT NULL
+   ORDER BY run_date DESC
+   LIMIT 10;"
+```
+
+Compare a workload across runs:
+
+```sql
+SELECT run_date, version, commit_hash, workload_size,
+       ROUND(items_per_second / 1000000.0, 3) AS million_items_per_second,
+       notes
+FROM benchmark_results
+WHERE benchmark_name LIKE '%Random Cancel%'
+  AND workload_size LIKE '100%'
+  AND items_per_second IS NOT NULL
+ORDER BY run_date;
+```
+
+Inspect latency rows:
+
+```sql
+SELECT run_date, benchmark_name, workload_size,
+       p50_latency_ns, p95_latency_ns, p99_latency_ns, max_latency_ns
+FROM benchmark_results
+WHERE p99_latency_ns IS NOT NULL
+ORDER BY run_date DESC;
+```
+
+Trace the source artifact for a reported number:
+
+```sql
+SELECT run_date, benchmark_name, workload_size, source_doc, source_artifact,
+       notes
+FROM benchmark_results
+WHERE benchmark_name LIKE '%True Mixed%'
+ORDER BY run_date DESC;
+```
+
+Export rows for plotting:
+
+```bash
+sqlite3 -header -csv benchmarks/benchmark_history.db \
+  "SELECT run_date, benchmark_name, workload_size, items_per_second
+   FROM benchmark_results
+   WHERE benchmark_category = 'Core Hot Path'
+     AND items_per_second IS NOT NULL
+   ORDER BY run_date, benchmark_name;" \
+  > /tmp/core_hot_path_history.csv
+```
+
+When `BENCHMARKS.md` changes meaningfully, add matching rows to
+`benchmarks/benchmark_history.db`, preserve missing metrics as `NULL`, include
+environment and source-artifact provenance, and regenerate the SQL dump:
+
+```bash
+sqlite3 benchmarks/benchmark_history.db .dump > benchmarks/benchmark_history.sql
+```
+
 ## Reproducibility
 
 Build and test:
