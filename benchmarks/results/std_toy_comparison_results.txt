@@ -1,0 +1,111 @@
+-----------------------------------------------------------------------------------------------------------------------------
+Benchmark                                                                   Time             CPU   Iterations UserCounters...
+-----------------------------------------------------------------------------------------------------------------------------
+BM_Compare_Optimized_PassiveInsert_Throughput/10000                    232707 ns       232702 ns         3033 items_per_second=42.9735M/s
+BM_Compare_Optimized_PassiveInsert_Throughput/10000                    231410 ns       231410 ns         3033 items_per_second=43.2134M/s
+BM_Compare_Optimized_PassiveInsert_Throughput/10000                    234335 ns       234329 ns         3033 items_per_second=42.675M/s
+BM_Compare_Optimized_PassiveInsert_Throughput/10000                    233528 ns       233532 ns         3033 items_per_second=42.8206M/s
+BM_Compare_Optimized_PassiveInsert_Throughput/10000                    231783 ns       231791 ns         3033 items_per_second=43.1423M/s
+BM_Compare_Optimized_PassiveInsert_Throughput/10000_mean               232753 ns       232753 ns            5 items_per_second=42.965M/s
+BM_Compare_Optimized_PassiveInsert_Throughput/10000_median             232707 ns       232702 ns            5 items_per_second=42.9735M/s
+BM_Compare_Optimized_PassiveInsert_Throughput/10000_stddev               1209 ns         1207 ns            5 items_per_second=222.574k/s
+BM_Compare_Optimized_PassiveInsert_Throughput/10000_cv                   0.52 %          0.52 %             5 items_per_second=0.52%
+BM_Compare_StdToy_PassiveInsert_Throughput/10000                     28426406 ns     28424655 ns           25 items_per_second=351.807k/s
+BM_Compare_StdToy_PassiveInsert_Throughput/10000                     29509684 ns     29509186 ns           25 items_per_second=338.878k/s
+BM_Compare_StdToy_PassiveInsert_Throughput/10000                     28285516 ns     28283955 ns           25 items_per_second=353.557k/s
+BM_Compare_StdToy_PassiveInsert_Throughput/10000                     28420961 ns     28419829 ns           25 items_per_second=351.867k/s
+BM_Compare_StdToy_PassiveInsert_Throughput/10000                     28355685 ns     28355323 ns           25 items_per_second=352.667k/s
+BM_Compare_StdToy_PassiveInsert_Throughput/10000_mean                28599650 ns     28598590 ns            5 items_per_second=349.755k/s
+BM_Compare_StdToy_PassiveInsert_Throughput/10000_median              28420961 ns     28419829 ns            5 items_per_second=351.867k/s
+BM_Compare_StdToy_PassiveInsert_Throughput/10000_stddev                511934 ns       512242 ns            5 items_per_second=6.12233k/s
+BM_Compare_StdToy_PassiveInsert_Throughput/10000_cv                      1.79 %          1.79 %             5 items_per_second=1.75%
+BM_Compare_Optimized_OneLevelCrossingMatch_Throughput/10000            231497 ns       231469 ns         3058 items_per_second=43.2023M/s
+BM_Compare_Optimized_OneLevelCrossingMatch_Throughput/10000            231603 ns       231560 ns         3058 items_per_second=43.1853M/s
+BM_Compare_Optimized_OneLevelCrossingMatch_Throughput/10000            233252 ns       233209 ns         3058 items_per_second=42.8799M/s
+BM_Compare_Optimized_OneLevelCrossingMatch_Throughput/10000            229189 ns       229148 ns         3058 items_per_second=43.6399M/s
+BM_Compare_Optimized_OneLevelCrossingMatch_Throughput/10000            228811 ns       228779 ns         3058 items_per_second=43.7102M/s
+BM_Compare_Optimized_OneLevelCrossingMatch_Throughput/10000_mean       230870 ns       230833 ns            5 items_per_second=43.3235M/s
+BM_Compare_Optimized_OneLevelCrossingMatch_Throughput/10000_median     231497 ns       231469 ns            5 items_per_second=43.2023M/s
+BM_Compare_Optimized_OneLevelCrossingMatch_Throughput/10000_stddev       1849 ns         1846 ns            5 items_per_second=346.484k/s
+BM_Compare_Optimized_OneLevelCrossingMatch_Throughput/10000_cv           0.80 %          0.80 %             5 items_per_second=0.80%
+BM_Compare_StdToy_OneLevelCrossingMatch_Throughput/10000             22398095 ns     22396685 ns           31 items_per_second=446.495k/s
+BM_Compare_StdToy_OneLevelCrossingMatch_Throughput/10000             22370579 ns     22370177 ns           31 items_per_second=447.024k/s
+BM_Compare_StdToy_OneLevelCrossingMatch_Throughput/10000             22388041 ns     22386821 ns           31 items_per_second=446.691k/s
+BM_Compare_StdToy_OneLevelCrossingMatch_Throughput/10000             22344830 ns     22344103 ns           31 items_per_second=447.545k/s
+BM_Compare_StdToy_OneLevelCrossingMatch_Throughput/10000             22970631 ns     22970328 ns           31 items_per_second=435.344k/s
+BM_Compare_StdToy_OneLevelCrossingMatch_Throughput/10000_mean        22494435 ns     22493623 ns            5 items_per_second=444.62k/s
+BM_Compare_StdToy_OneLevelCrossingMatch_Throughput/10000_median      22388041 ns     22386821 ns            5 items_per_second=446.691k/s
+BM_Compare_StdToy_OneLevelCrossingMatch_Throughput/10000_stddev        266967 ns       267229 ns            5 items_per_second=5.20049k/s
+BM_Compare_StdToy_OneLevelCrossingMatch_Throughput/10000_cv              1.19 %          1.19 %             5 items_per_second=1.17%
+BM_Compare_Optimized_RandomCancel_Throughput/10000                     132973 ns       132941 ns         5267 items_per_second=75.2213M/s
+BM_Compare_Optimized_RandomCancel_Throughput/10000                     132079 ns       132057 ns         5267 items_per_second=75.7248M/s
+BM_Compare_Optimized_RandomCancel_Throughput/10000                     131338 ns       131305 ns         5267 items_per_second=76.1586M/s
+BM_Compare_Optimized_RandomCancel_Throughput/10000                     132637 ns       132602 ns         5267 items_per_second=75.4134M/s
+BM_Compare_Optimized_RandomCancel_Throughput/10000                     131989 ns       131951 ns         5267 items_per_second=75.7857M/s
+BM_Compare_Optimized_RandomCancel_Throughput/10000_mean                132203 ns       132171 ns            5 items_per_second=75.6608M/s
+BM_Compare_Optimized_RandomCancel_Throughput/10000_median              132079 ns       132057 ns            5 items_per_second=75.7248M/s
+BM_Compare_Optimized_RandomCancel_Throughput/10000_stddev                 631 ns          631 ns            5 items_per_second=361.198k/s
+BM_Compare_Optimized_RandomCancel_Throughput/10000_cv                    0.48 %          0.48 %             5 items_per_second=0.48%
+BM_Compare_StdToy_RandomCancel_Throughput/10000                      42355360 ns     42351860 ns           17 items_per_second=236.117k/s
+BM_Compare_StdToy_RandomCancel_Throughput/10000                      42318786 ns     42318152 ns           17 items_per_second=236.305k/s
+BM_Compare_StdToy_RandomCancel_Throughput/10000                      42271230 ns     42269826 ns           17 items_per_second=236.575k/s
+BM_Compare_StdToy_RandomCancel_Throughput/10000                      42734247 ns     42732229 ns           17 items_per_second=234.015k/s
+BM_Compare_StdToy_RandomCancel_Throughput/10000                      42431754 ns     42430280 ns           17 items_per_second=235.681k/s
+BM_Compare_StdToy_RandomCancel_Throughput/10000_mean                 42422275 ns     42420469 ns            5 items_per_second=235.739k/s
+BM_Compare_StdToy_RandomCancel_Throughput/10000_median               42355360 ns     42351860 ns            5 items_per_second=236.117k/s
+BM_Compare_StdToy_RandomCancel_Throughput/10000_stddev                 183997 ns       183821 ns            5 items_per_second=1.01702k/s
+BM_Compare_StdToy_RandomCancel_Throughput/10000_cv                       0.43 %          0.43 %             5 items_per_second=0.43%
+BM_Compare_Optimized_UnknownCancel_Throughput/10000                     27483 ns        27438 ns        25637 items_per_second=364.453M/s
+BM_Compare_Optimized_UnknownCancel_Throughput/10000                     27336 ns        27287 ns        25637 items_per_second=366.481M/s
+BM_Compare_Optimized_UnknownCancel_Throughput/10000                     27607 ns        27562 ns        25637 items_per_second=362.825M/s
+BM_Compare_Optimized_UnknownCancel_Throughput/10000                     27673 ns        27628 ns        25637 items_per_second=361.956M/s
+BM_Compare_Optimized_UnknownCancel_Throughput/10000                     27502 ns        27459 ns        25637 items_per_second=364.177M/s
+BM_Compare_Optimized_UnknownCancel_Throughput/10000_mean                27520 ns        27475 ns            5 items_per_second=363.979M/s
+BM_Compare_Optimized_UnknownCancel_Throughput/10000_median              27502 ns        27459 ns            5 items_per_second=364.177M/s
+BM_Compare_Optimized_UnknownCancel_Throughput/10000_stddev                129 ns          130 ns            5 items_per_second=1.72835M/s
+BM_Compare_Optimized_UnknownCancel_Throughput/10000_cv                   0.47 %          0.47 %             5 items_per_second=0.47%
+BM_Compare_StdToy_UnknownCancel_Throughput/10000                     44880708 ns     44879920 ns           16 items_per_second=222.817k/s
+BM_Compare_StdToy_UnknownCancel_Throughput/10000                     44924377 ns     44920350 ns           16 items_per_second=222.616k/s
+BM_Compare_StdToy_UnknownCancel_Throughput/10000                     45232659 ns     45229526 ns           16 items_per_second=221.095k/s
+BM_Compare_StdToy_UnknownCancel_Throughput/10000                     45860911 ns     45855847 ns           16 items_per_second=218.075k/s
+BM_Compare_StdToy_UnknownCancel_Throughput/10000                     45112999 ns     45109441 ns           16 items_per_second=221.683k/s
+BM_Compare_StdToy_UnknownCancel_Throughput/10000_mean                45202331 ns     45199017 ns            5 items_per_second=221.257k/s
+BM_Compare_StdToy_UnknownCancel_Throughput/10000_median              45112999 ns     45109441 ns            5 items_per_second=221.683k/s
+BM_Compare_StdToy_UnknownCancel_Throughput/10000_stddev                394755 ns       393655 ns            5 items_per_second=1.91151k/s
+BM_Compare_StdToy_UnknownCancel_Throughput/10000_cv                      0.87 %          0.87 %             5 items_per_second=0.86%
+BM_Compare_Optimized_ModifyIfPresent_Throughput/10000                  122009 ns       121961 ns         5717 items_per_second=81.9936M/s
+BM_Compare_Optimized_ModifyIfPresent_Throughput/10000                  121432 ns       121397 ns         5717 items_per_second=82.3742M/s
+BM_Compare_Optimized_ModifyIfPresent_Throughput/10000                  122130 ns       122083 ns         5717 items_per_second=81.9113M/s
+BM_Compare_Optimized_ModifyIfPresent_Throughput/10000                  122201 ns       122166 ns         5717 items_per_second=81.8558M/s
+BM_Compare_Optimized_ModifyIfPresent_Throughput/10000                  122190 ns       122152 ns         5717 items_per_second=81.8655M/s
+BM_Compare_Optimized_ModifyIfPresent_Throughput/10000_mean             121992 ns       121952 ns            5 items_per_second=82.0001M/s
+BM_Compare_Optimized_ModifyIfPresent_Throughput/10000_median           122130 ns       122083 ns            5 items_per_second=81.9113M/s
+BM_Compare_Optimized_ModifyIfPresent_Throughput/10000_stddev              323 ns          320 ns            5 items_per_second=216.133k/s
+BM_Compare_Optimized_ModifyIfPresent_Throughput/10000_cv                 0.26 %          0.26 %             5 items_per_second=0.26%
+BM_Compare_StdToy_ModifyIfPresent_Throughput/10000                   22778583 ns     22778073 ns           31 items_per_second=439.019k/s
+BM_Compare_StdToy_ModifyIfPresent_Throughput/10000                   22529060 ns     22527930 ns           31 items_per_second=443.893k/s
+BM_Compare_StdToy_ModifyIfPresent_Throughput/10000                   22474532 ns     22473568 ns           31 items_per_second=444.967k/s
+BM_Compare_StdToy_ModifyIfPresent_Throughput/10000                   22527079 ns     22525767 ns           31 items_per_second=443.936k/s
+BM_Compare_StdToy_ModifyIfPresent_Throughput/10000                   22549694 ns     22549437 ns           31 items_per_second=443.47k/s
+BM_Compare_StdToy_ModifyIfPresent_Throughput/10000_mean              22571790 ns     22570955 ns            5 items_per_second=443.057k/s
+BM_Compare_StdToy_ModifyIfPresent_Throughput/10000_median            22529060 ns     22527930 ns            5 items_per_second=443.893k/s
+BM_Compare_StdToy_ModifyIfPresent_Throughput/10000_stddev              118886 ns       119099 ns            5 items_per_second=2.32377k/s
+BM_Compare_StdToy_ModifyIfPresent_Throughput/10000_cv                    0.53 %          0.53 %             5 items_per_second=0.52%
+BM_Compare_Optimized_OrderBookTrueMixed_Throughput/10000               360310 ns       360298 ns         1877 items_per_second=27.7548M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_Optimized_OrderBookTrueMixed_Throughput/10000               361732 ns       361738 ns         1877 items_per_second=27.6443M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_Optimized_OrderBookTrueMixed_Throughput/10000               365129 ns       365130 ns         1877 items_per_second=27.3875M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_Optimized_OrderBookTrueMixed_Throughput/10000               368063 ns       368083 ns         1877 items_per_second=27.1678M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_Optimized_OrderBookTrueMixed_Throughput/10000               370868 ns       370870 ns         1877 items_per_second=26.9637M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_Optimized_OrderBookTrueMixed_Throughput/10000_mean          365220 ns       365224 ns            5 items_per_second=27.3836M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_Optimized_OrderBookTrueMixed_Throughput/10000_median        365129 ns       365130 ns            5 items_per_second=27.3875M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_Optimized_OrderBookTrueMixed_Throughput/10000_stddev          4366 ns         4372 ns            5 items_per_second=327.378k/s max_live_orders=2.13248u preload_orders=2.13248u reserve_order_capacity=8.52992u
+BM_Compare_Optimized_OrderBookTrueMixed_Throughput/10000_cv              1.20 %          1.20 %             5 items_per_second=1.20% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%
+BM_Compare_StdToy_OrderBookTrueMixed_Throughput/10000                 2122873 ns      2122726 ns          324 items_per_second=4.71092M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_StdToy_OrderBookTrueMixed_Throughput/10000                 2140873 ns      2140805 ns          324 items_per_second=4.67114M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_StdToy_OrderBookTrueMixed_Throughput/10000                 2141556 ns      2141559 ns          324 items_per_second=4.6695M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_StdToy_OrderBookTrueMixed_Throughput/10000                 2151450 ns      2151383 ns          324 items_per_second=4.64817M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_StdToy_OrderBookTrueMixed_Throughput/10000                 2131514 ns      2131466 ns          324 items_per_second=4.69161M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_StdToy_OrderBookTrueMixed_Throughput/10000_mean            2137653 ns      2137588 ns            5 items_per_second=4.67827M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_StdToy_OrderBookTrueMixed_Throughput/10000_median          2140873 ns      2140805 ns            5 items_per_second=4.67114M/s max_live_orders=256 preload_orders=256 reserve_order_capacity=1.024k
+BM_Compare_StdToy_OrderBookTrueMixed_Throughput/10000_stddev            10864 ns        10895 ns            5 items_per_second=23.8631k/s max_live_orders=2.13248u preload_orders=2.13248u reserve_order_capacity=8.52992u
+BM_Compare_StdToy_OrderBookTrueMixed_Throughput/10000_cv                 0.51 %          0.51 %             5 items_per_second=0.51% max_live_orders=0.00% preload_orders=0.00% reserve_order_capacity=0.00%

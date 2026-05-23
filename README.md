@@ -190,7 +190,9 @@ ctest --test-dir build --output-on-failure
 Benchmarks are implemented using Google Benchmark and executed on a dedicated
 Ubuntu EC2 benchmark host using Release-mode builds.
 
-Current official benchmark results are from EC2 `c7i-flex.large` on commit
+Current focused core/realistic/std-toy comparison results are from EC2
+`c7i-flex.large` on local source commit `7a5980e1` plus uncommitted benchmark
+runner changes. The latest full suite including stress and replay is from commit
 `53240e0`. Historical benchmark development through earlier v0.x releases was
 performed on EC2 `t3.small`, and those historical rows remain labeled with their
 original hardware.
@@ -203,19 +205,20 @@ Current benchmark coverage includes:
 - True mixed OrderBook workloads with GTC, cancel, modify, IOC, market, and FOK flow
 - Amortized batch latency for matching-engine hot paths
 - End-to-end CLI-style parse/process/format throughput
+- Optimized `OrderBook` versus std-toy direct-book comparison
 
 Latest EC2 Release hot-path highlights:
 
-- 100,000-order insert: `34.22M items/s`
-- 100,000-order crossing match: `32.37M items/s`
-- 100,000 random cancel: `26.14M items/s`
-- 100,000 unknown cancel: `318.31M items/s`
-- 100,000 true mixed OrderBook flow: `23.52M items/s`
+- 100,000-order insert: `33.64M items/s`
+- 100,000-order crossing match: `32.40M items/s`
+- 100,000 random cancel: `25.85M items/s`
+- 100,000 unknown cancel: `332.12M items/s`
+- 100,000 true mixed OrderBook flow: `23.12M items/s`
 
 Latest EC2 Release end-to-end CLI-style highlights:
 
-- 100,000 command passive insert flow: `1.97M commands/s`
-- 100,000 command true mixed flow: `2.17M commands/s`
+- 100,000 command passive insert flow: `2.03M commands/s`
+- 100,000 command true mixed flow: `2.21M commands/s`
 
 End-to-end results include parser, exchange, OrderBook, and event-formatting
 overhead. They should not be compared directly to OrderBook hot-path

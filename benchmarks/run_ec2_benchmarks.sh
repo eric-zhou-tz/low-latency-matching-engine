@@ -81,8 +81,8 @@ write_metadata() {
                 git -C "$ROOT_DIR" status --short
             fi
         else
-            echo "git_commit=N/A"
-            echo "git_status=unavailable; source transferred without .git metadata"
+            echo "git_commit=${SOURCE_COMMIT:-N/A}"
+            echo "git_status=${SOURCE_STATUS:-unavailable; source transferred without .git metadata}"
         fi
         echo "ec2_instance_type=$(get_ec2_instance_type)"
         echo "uname=$(uname -a)"
@@ -125,6 +125,14 @@ if should_run realistic_flow; then
         --benchmark_out="$OUTPUT_DIR/realistic_flow_results.json" \
         --benchmark_out_format=json \
         | tee "$OUTPUT_DIR/realistic_flow_results.txt"
+fi
+
+if should_run std_toy_comparison; then
+    run_pinned "$BUILD_DIR/std_toy_comparison_benchmark" \
+        --benchmark_repetitions="$THROUGHPUT_REPETITIONS" \
+        --benchmark_out="$OUTPUT_DIR/std_toy_comparison_results.json" \
+        --benchmark_out_format=json \
+        | tee "$OUTPUT_DIR/std_toy_comparison_results.txt"
 fi
 
 if should_run stress; then

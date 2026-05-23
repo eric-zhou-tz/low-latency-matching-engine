@@ -142,6 +142,16 @@ target_include_directories(realistic_flow_benchmark
 )
 link_google_benchmark(realistic_flow_benchmark)
 
+add_executable(std_toy_comparison_benchmark
+    benchmarks/std_toy_comparison/std_toy_comparison_benchmark.cpp
+)
+target_include_directories(std_toy_comparison_benchmark
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}
+        ${PROJECT_SOURCE_DIR}/benchmarks/realistic_flow
+)
+link_google_benchmark(std_toy_comparison_benchmark)
+
 add_executable(stress_benchmark
     benchmarks/stress/best_level_churn_benchmark.cpp
     benchmarks/stress/level_create_delete_churn_benchmark.cpp

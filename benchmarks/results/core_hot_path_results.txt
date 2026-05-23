@@ -1,138 +1,138 @@
 ----------------------------------------------------------------------------------------------------------------------
 Benchmark                                                            Time             CPU   Iterations UserCounters...
 ----------------------------------------------------------------------------------------------------------------------
-BM_OrderBook_PassiveInsert_Throughput/1000                       23067 ns        23101 ns        30272 items_per_second=43.2875M/s
-BM_OrderBook_PassiveInsert_Throughput/1000                       23194 ns        23227 ns        30272 items_per_second=43.0533M/s
-BM_OrderBook_PassiveInsert_Throughput/1000                       23395 ns        23426 ns        30272 items_per_second=42.6875M/s
-BM_OrderBook_PassiveInsert_Throughput/1000                       23468 ns        23505 ns        30272 items_per_second=42.5438M/s
-BM_OrderBook_PassiveInsert_Throughput/1000                       23214 ns        23250 ns        30272 items_per_second=43.0101M/s
-BM_OrderBook_PassiveInsert_Throughput/1000_mean                  23267 ns        23302 ns            5 items_per_second=42.9164M/s
-BM_OrderBook_PassiveInsert_Throughput/1000_median                23214 ns        23250 ns            5 items_per_second=43.0101M/s
-BM_OrderBook_PassiveInsert_Throughput/1000_stddev                  162 ns          162 ns            5 items_per_second=298.512k/s
-BM_OrderBook_PassiveInsert_Throughput/1000_cv                     0.70 %          0.70 %             5 items_per_second=0.70%
-BM_OrderBook_PassiveInsert_Throughput/10000                     238978 ns       239042 ns         2885 items_per_second=41.8336M/s
-BM_OrderBook_PassiveInsert_Throughput/10000                     238632 ns       238685 ns         2885 items_per_second=41.8962M/s
-BM_OrderBook_PassiveInsert_Throughput/10000                     244205 ns       244295 ns         2885 items_per_second=40.9342M/s
-BM_OrderBook_PassiveInsert_Throughput/10000                     240380 ns       240451 ns         2885 items_per_second=41.5885M/s
-BM_OrderBook_PassiveInsert_Throughput/10000                     236371 ns       236400 ns         2885 items_per_second=42.3012M/s
-BM_OrderBook_PassiveInsert_Throughput/10000_mean                239713 ns       239775 ns            5 items_per_second=41.7108M/s
-BM_OrderBook_PassiveInsert_Throughput/10000_median              238978 ns       239042 ns            5 items_per_second=41.8336M/s
-BM_OrderBook_PassiveInsert_Throughput/10000_stddev                2894 ns         2916 ns            5 items_per_second=504.03k/s
-BM_OrderBook_PassiveInsert_Throughput/10000_cv                    1.21 %          1.22 %             5 items_per_second=1.21%
-BM_OrderBook_PassiveInsert_Throughput/100000                   2906148 ns      2906459 ns          238 items_per_second=34.4061M/s
-BM_OrderBook_PassiveInsert_Throughput/100000                   2925374 ns      2925455 ns          238 items_per_second=34.1827M/s
-BM_OrderBook_PassiveInsert_Throughput/100000                   2927544 ns      2927575 ns          238 items_per_second=34.158M/s
-BM_OrderBook_PassiveInsert_Throughput/100000                   2922017 ns      2922221 ns          238 items_per_second=34.2205M/s
-BM_OrderBook_PassiveInsert_Throughput/100000                   2906848 ns      2906941 ns          238 items_per_second=34.4004M/s
-BM_OrderBook_PassiveInsert_Throughput/100000_mean              2917586 ns      2917730 ns            5 items_per_second=34.2736M/s
-BM_OrderBook_PassiveInsert_Throughput/100000_median            2922017 ns      2922221 ns            5 items_per_second=34.2205M/s
-BM_OrderBook_PassiveInsert_Throughput/100000_stddev              10315 ns        10249 ns            5 items_per_second=120.512k/s
-BM_OrderBook_PassiveInsert_Throughput/100000_cv                   0.35 %          0.35 %             5 items_per_second=0.35%
-BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               27436 ns        27423 ns        25316 items_per_second=36.4655M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               27499 ns        27483 ns        25316 items_per_second=36.3859M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               27213 ns        27200 ns        25316 items_per_second=36.7653M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               27113 ns        27101 ns        25316 items_per_second=36.8996M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               27766 ns        27753 ns        25316 items_per_second=36.0324M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/1000_mean          27405 ns        27392 ns            5 items_per_second=36.5097M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/1000_median        27436 ns        27423 ns            5 items_per_second=36.4655M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/1000_stddev          256 ns          256 ns            5 items_per_second=339.995k/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/1000_cv             0.93 %          0.93 %             5 items_per_second=0.93%
-BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             273553 ns       273521 ns         2567 items_per_second=36.5603M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             273871 ns       273837 ns         2567 items_per_second=36.5181M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             276947 ns       276913 ns         2567 items_per_second=36.1124M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             274063 ns       274037 ns         2567 items_per_second=36.4914M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             276539 ns       276502 ns         2567 items_per_second=36.166M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/10000_mean        274995 ns       274962 ns            5 items_per_second=36.3696M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/10000_median      274063 ns       274037 ns            5 items_per_second=36.4914M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/10000_stddev        1613 ns         1611 ns            5 items_per_second=212.63k/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/10000_cv            0.59 %          0.59 %             5 items_per_second=0.58%
-BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3110630 ns      3110418 ns          226 items_per_second=32.15M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3071243 ns      3070922 ns          226 items_per_second=32.5635M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3090983 ns      3090690 ns          226 items_per_second=32.3552M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3082584 ns      3082268 ns          226 items_per_second=32.4436M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3089812 ns      3089598 ns          226 items_per_second=32.3667M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/100000_mean      3089050 ns      3088779 ns            5 items_per_second=32.3758M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/100000_median    3089812 ns      3089598 ns            5 items_per_second=32.3667M/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/100000_stddev      14396 ns        14438 ns            5 items_per_second=151.095k/s
-BM_OrderBook_OneLevelCrossingMatch_Throughput/100000_cv           0.47 %          0.47 %             5 items_per_second=0.47%
-BM_OrderBook_CancelRandom_Throughput/1000                        10221 ns        10212 ns        69059 items_per_second=97.9266M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/1000                        10169 ns        10158 ns        69059 items_per_second=98.4464M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/1000                        10202 ns        10194 ns        69059 items_per_second=98.1009M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/1000                        10277 ns        10266 ns        69059 items_per_second=97.411M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/1000                        10279 ns        10271 ns        69059 items_per_second=97.3638M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/1000_mean                   10230 ns        10220 ns            5 items_per_second=97.8497M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/1000_median                 10221 ns        10212 ns            5 items_per_second=97.9266M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/1000_stddev                  48.0 ns         48.2 ns            5 items_per_second=461.934k/s order_id_max_load_factor=6.664n
-BM_OrderBook_CancelRandom_Throughput/1000_cv                      0.47 %          0.47 %             5 items_per_second=0.47% order_id_max_load_factor=0.00%
-BM_OrderBook_CancelRandom_Throughput/10000                      129411 ns       129343 ns         5319 items_per_second=77.3138M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/10000                      129794 ns       129730 ns         5319 items_per_second=77.0833M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/10000                      128362 ns       128292 ns         5319 items_per_second=77.9473M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/10000                      128793 ns       128737 ns         5319 items_per_second=77.6776M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/10000                      127462 ns       127396 ns         5319 items_per_second=78.4955M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/10000_mean                 128765 ns       128700 ns            5 items_per_second=77.7035M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/10000_median               128793 ns       128737 ns            5 items_per_second=77.6776M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/10000_stddev                  913 ns          914 ns            5 items_per_second=553.125k/s order_id_max_load_factor=6.664n
-BM_OrderBook_CancelRandom_Throughput/10000_cv                     0.71 %          0.71 %             5 items_per_second=0.71% order_id_max_load_factor=0.00%
-BM_OrderBook_CancelRandom_Throughput/100000                    3816407 ns      3816042 ns          189 items_per_second=26.2052M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/100000                    3811950 ns      3811874 ns          189 items_per_second=26.2338M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/100000                    3852370 ns      3852253 ns          189 items_per_second=25.9588M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/100000                    3826437 ns      3826238 ns          189 items_per_second=26.1353M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/100000                    3847825 ns      3847756 ns          189 items_per_second=25.9892M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/100000_mean               3830998 ns      3830832 ns            5 items_per_second=26.1045M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/100000_median             3826437 ns      3826238 ns            5 items_per_second=26.1353M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelRandom_Throughput/100000_stddev               18279 ns        18334 ns            5 items_per_second=124.825k/s order_id_max_load_factor=6.664n
-BM_OrderBook_CancelRandom_Throughput/100000_cv                    0.48 %          0.48 %             5 items_per_second=0.48% order_id_max_load_factor=0.00%
-BM_OrderBook_CancelUnknown_Throughput/1000                        3185 ns         3159 ns       221439 items_per_second=316.563M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/1000                        3164 ns         3136 ns       221439 items_per_second=318.841M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/1000                        3174 ns         3147 ns       221439 items_per_second=317.786M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/1000                        3181 ns         3153 ns       221439 items_per_second=317.131M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/1000                        3271 ns         3240 ns       221439 items_per_second=308.648M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/1000_mean                   3195 ns         3167 ns            5 items_per_second=315.794M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/1000_median                 3181 ns         3153 ns            5 items_per_second=317.131M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/1000_stddev                 43.3 ns         41.6 ns            5 items_per_second=4.08366M/s order_id_max_load_factor=6.664n
-BM_OrderBook_CancelUnknown_Throughput/1000_cv                     1.35 %          1.31 %             5 items_per_second=1.29% order_id_max_load_factor=0.00%
-BM_OrderBook_CancelUnknown_Throughput/10000                      26572 ns        26531 ns        26413 items_per_second=376.915M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/10000                      26526 ns        26482 ns        26413 items_per_second=377.608M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/10000                      26498 ns        26455 ns        26413 items_per_second=378M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/10000                      28053 ns        27548 ns        26413 items_per_second=363.003M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/10000                      26248 ns        26201 ns        26413 items_per_second=381.672M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/10000_mean                 26779 ns        26643 ns            5 items_per_second=375.44M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/10000_median               26526 ns        26482 ns            5 items_per_second=377.608M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/10000_stddev                 723 ns          522 ns            5 items_per_second=7.19277M/s order_id_max_load_factor=6.664n
-BM_OrderBook_CancelUnknown_Throughput/10000_cv                    2.70 %          1.96 %             5 items_per_second=1.92% order_id_max_load_factor=0.00%
-BM_OrderBook_CancelUnknown_Throughput/100000                    307902 ns       307660 ns         2294 items_per_second=325.034M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/100000                    306586 ns       306274 ns         2294 items_per_second=326.505M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/100000                    314488 ns       314154 ns         2294 items_per_second=318.315M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/100000                    333858 ns       333546 ns         2294 items_per_second=299.809M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/100000                    327597 ns       327292 ns         2294 items_per_second=305.537M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/100000_mean               318086 ns       317786 ns            5 items_per_second=315.04M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/100000_median             314488 ns       314154 ns            5 items_per_second=318.315M/s order_id_max_load_factor=0.8
-BM_OrderBook_CancelUnknown_Throughput/100000_stddev              12126 ns        12114 ns            5 items_per_second=11.8779M/s order_id_max_load_factor=6.664n
-BM_OrderBook_CancelUnknown_Throughput/100000_cv                   3.81 %          3.81 %             5 items_per_second=3.77% order_id_max_load_factor=0.00%
-BM_OrderBook_ModifyIfPresent_Throughput/1000                     11788 ns        11780 ns        59026 items_per_second=84.8916M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/1000                     11832 ns        11822 ns        59026 items_per_second=84.5874M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/1000                     11894 ns        11886 ns        59026 items_per_second=84.1339M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/1000                     11849 ns        11841 ns        59026 items_per_second=84.4555M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/1000                     11939 ns        11927 ns        59026 items_per_second=83.841M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/1000_mean                11860 ns        11851 ns            5 items_per_second=84.3819M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/1000_median              11849 ns        11841 ns            5 items_per_second=84.4555M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/1000_stddev               58.0 ns         57.2 ns            5 items_per_second=406.701k/s order_id_max_load_factor=6.664n
-BM_OrderBook_ModifyIfPresent_Throughput/1000_cv                   0.49 %          0.48 %             5 items_per_second=0.48% order_id_max_load_factor=0.00%
-BM_OrderBook_ModifyIfPresent_Throughput/10000                   115652 ns       115598 ns         6119 items_per_second=86.507M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/10000                   115999 ns       115934 ns         6119 items_per_second=86.2563M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/10000                   115326 ns       115266 ns         6119 items_per_second=86.7562M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/10000                   115790 ns       115729 ns         6119 items_per_second=86.4086M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/10000                   115515 ns       115461 ns         6119 items_per_second=86.6096M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/10000_mean              115656 ns       115597 ns            5 items_per_second=86.5075M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/10000_median            115652 ns       115598 ns            5 items_per_second=86.507M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/10000_stddev               257 ns          255 ns            5 items_per_second=190.483k/s order_id_max_load_factor=6.664n
-BM_OrderBook_ModifyIfPresent_Throughput/10000_cv                  0.22 %          0.22 %             5 items_per_second=0.22% order_id_max_load_factor=0.00%
-BM_OrderBook_ModifyIfPresent_Throughput/100000                 1649970 ns      1649716 ns          424 items_per_second=60.6165M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/100000                 1659157 ns      1658920 ns          424 items_per_second=60.2802M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/100000                 1636694 ns      1636333 ns          424 items_per_second=61.1122M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/100000                 1652991 ns      1652744 ns          424 items_per_second=60.5054M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/100000                 1668624 ns      1668527 ns          424 items_per_second=59.9331M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/100000_mean            1653487 ns      1653248 ns            5 items_per_second=60.4895M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/100000_median          1652991 ns      1652744 ns            5 items_per_second=60.5054M/s order_id_max_load_factor=0.8
-BM_OrderBook_ModifyIfPresent_Throughput/100000_stddev            11788 ns        11879 ns            5 items_per_second=435.194k/s order_id_max_load_factor=6.664n
-BM_OrderBook_ModifyIfPresent_Throughput/100000_cv                 0.71 %          0.72 %             5 items_per_second=0.72% order_id_max_load_factor=0.00%
+BM_OrderBook_PassiveInsert_Throughput/1000                       23143 ns        23164 ns        30555 items_per_second=43.1699M/s
+BM_OrderBook_PassiveInsert_Throughput/1000                       23185 ns        23209 ns        30555 items_per_second=43.0872M/s
+BM_OrderBook_PassiveInsert_Throughput/1000                       22742 ns        22762 ns        30555 items_per_second=43.9329M/s
+BM_OrderBook_PassiveInsert_Throughput/1000                       22715 ns        22744 ns        30555 items_per_second=43.9685M/s
+BM_OrderBook_PassiveInsert_Throughput/1000                       22886 ns        22907 ns        30555 items_per_second=43.6541M/s
+BM_OrderBook_PassiveInsert_Throughput/1000_mean                  22934 ns        22957 ns            5 items_per_second=43.5625M/s
+BM_OrderBook_PassiveInsert_Throughput/1000_median                22886 ns        22907 ns            5 items_per_second=43.6541M/s
+BM_OrderBook_PassiveInsert_Throughput/1000_stddev                  220 ns          219 ns            5 items_per_second=415.458k/s
+BM_OrderBook_PassiveInsert_Throughput/1000_cv                     0.96 %          0.96 %             5 items_per_second=0.95%
+BM_OrderBook_PassiveInsert_Throughput/10000                     230075 ns       230032 ns         3034 items_per_second=43.4722M/s
+BM_OrderBook_PassiveInsert_Throughput/10000                     230167 ns       230109 ns         3034 items_per_second=43.4577M/s
+BM_OrderBook_PassiveInsert_Throughput/10000                     229098 ns       229114 ns         3034 items_per_second=43.6463M/s
+BM_OrderBook_PassiveInsert_Throughput/10000                     229949 ns       229979 ns         3034 items_per_second=43.4823M/s
+BM_OrderBook_PassiveInsert_Throughput/10000                     231259 ns       231232 ns         3034 items_per_second=43.2467M/s
+BM_OrderBook_PassiveInsert_Throughput/10000_mean                230110 ns       230093 ns            5 items_per_second=43.461M/s
+BM_OrderBook_PassiveInsert_Throughput/10000_median              230075 ns       230032 ns            5 items_per_second=43.4722M/s
+BM_OrderBook_PassiveInsert_Throughput/10000_stddev                 771 ns          753 ns            5 items_per_second=142.179k/s
+BM_OrderBook_PassiveInsert_Throughput/10000_cv                    0.33 %          0.33 %             5 items_per_second=0.33%
+BM_OrderBook_PassiveInsert_Throughput/100000                   2952331 ns      2952558 ns          236 items_per_second=33.8689M/s
+BM_OrderBook_PassiveInsert_Throughput/100000                   2975521 ns      2975622 ns          236 items_per_second=33.6064M/s
+BM_OrderBook_PassiveInsert_Throughput/100000                   2975660 ns      2975711 ns          236 items_per_second=33.6054M/s
+BM_OrderBook_PassiveInsert_Throughput/100000                   2947767 ns      2947982 ns          236 items_per_second=33.9215M/s
+BM_OrderBook_PassiveInsert_Throughput/100000                   2972625 ns      2972801 ns          236 items_per_second=33.6383M/s
+BM_OrderBook_PassiveInsert_Throughput/100000_mean              2964781 ns      2964935 ns            5 items_per_second=33.7281M/s
+BM_OrderBook_PassiveInsert_Throughput/100000_median            2972625 ns      2972801 ns            5 items_per_second=33.6383M/s
+BM_OrderBook_PassiveInsert_Throughput/100000_stddev              13599 ns        13535 ns            5 items_per_second=154.243k/s
+BM_OrderBook_PassiveInsert_Throughput/100000_cv                   0.46 %          0.46 %             5 items_per_second=0.46%
+BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               26027 ns        26018 ns        26834 items_per_second=38.4357M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               26242 ns        26234 ns        26834 items_per_second=38.1189M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               26147 ns        26138 ns        26834 items_per_second=38.2587M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               26129 ns        26120 ns        26834 items_per_second=38.2853M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/1000               26460 ns        26448 ns        26834 items_per_second=37.8098M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/1000_mean          26201 ns        26191 ns            5 items_per_second=38.1817M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/1000_median        26147 ns        26138 ns            5 items_per_second=38.2587M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/1000_stddev          164 ns          163 ns            5 items_per_second=236.335k/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/1000_cv             0.62 %          0.62 %             5 items_per_second=0.62%
+BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             262649 ns       262622 ns         2679 items_per_second=38.0775M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             259482 ns       259441 ns         2679 items_per_second=38.5444M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             261910 ns       261855 ns         2679 items_per_second=38.1891M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             262002 ns       261982 ns         2679 items_per_second=38.1706M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/10000             261689 ns       261668 ns         2679 items_per_second=38.2164M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/10000_mean        261546 ns       261513 ns            5 items_per_second=38.2396M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/10000_median      261910 ns       261855 ns            5 items_per_second=38.1891M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/10000_stddev        1208 ns         1213 ns            5 items_per_second=178.206k/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/10000_cv            0.46 %          0.46 %             5 items_per_second=0.47%
+BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3048783 ns      3048616 ns          226 items_per_second=32.8018M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3086716 ns      3086507 ns          226 items_per_second=32.3991M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3083585 ns      3083457 ns          226 items_per_second=32.4311M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3146194 ns      3145811 ns          226 items_per_second=31.7883M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/100000           3095049 ns      3094792 ns          226 items_per_second=32.3123M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/100000_mean      3092065 ns      3091836 ns            5 items_per_second=32.3465M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/100000_median    3086716 ns      3086507 ns            5 items_per_second=32.3991M/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/100000_stddev      35045 ns        34959 ns            5 items_per_second=363.988k/s
+BM_OrderBook_OneLevelCrossingMatch_Throughput/100000_cv           1.13 %          1.13 %             5 items_per_second=1.13%
+BM_OrderBook_CancelRandom_Throughput/1000                        10241 ns        10232 ns        68455 items_per_second=97.728M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/1000                        10309 ns        10301 ns        68455 items_per_second=97.0824M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/1000                        10207 ns        10200 ns        68455 items_per_second=98.0397M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/1000                        10172 ns        10164 ns        68455 items_per_second=98.3866M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/1000                        10239 ns        10233 ns        68455 items_per_second=97.7194M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/1000_mean                   10234 ns        10226 ns            5 items_per_second=97.7912M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/1000_median                 10239 ns        10232 ns            5 items_per_second=97.728M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/1000_stddev                  50.5 ns         50.4 ns            5 items_per_second=481.614k/s order_id_max_load_factor=6.664n
+BM_OrderBook_CancelRandom_Throughput/1000_cv                      0.49 %          0.49 %             5 items_per_second=0.49% order_id_max_load_factor=0.00%
+BM_OrderBook_CancelRandom_Throughput/10000                      130299 ns       130238 ns         5376 items_per_second=76.7823M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/10000                      129359 ns       129297 ns         5376 items_per_second=77.3416M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/10000                      128918 ns       128861 ns         5376 items_per_second=77.603M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/10000                      129489 ns       129427 ns         5376 items_per_second=77.2633M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/10000                      129197 ns       129127 ns         5376 items_per_second=77.4432M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/10000_mean                 129452 ns       129390 ns            5 items_per_second=77.2867M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/10000_median               129359 ns       129297 ns            5 items_per_second=77.3416M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/10000_stddev                  519 ns          519 ns            5 items_per_second=309.25k/s order_id_max_load_factor=6.664n
+BM_OrderBook_CancelRandom_Throughput/10000_cv                     0.40 %          0.40 %             5 items_per_second=0.40% order_id_max_load_factor=0.00%
+BM_OrderBook_CancelRandom_Throughput/100000                    3910311 ns      3910302 ns          178 items_per_second=25.5735M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/100000                    3868463 ns      3868100 ns          178 items_per_second=25.8525M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/100000                    3908022 ns      3907675 ns          178 items_per_second=25.5907M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/100000                    3844308 ns      3844123 ns          178 items_per_second=26.0137M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/100000                    3814198 ns      3813743 ns          178 items_per_second=26.221M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/100000_mean               3869060 ns      3868788 ns            5 items_per_second=25.8503M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/100000_median             3868463 ns      3868100 ns            5 items_per_second=25.8525M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelRandom_Throughput/100000_stddev               41360 ns        41456 ns            5 items_per_second=277.555k/s order_id_max_load_factor=6.664n
+BM_OrderBook_CancelRandom_Throughput/100000_cv                    1.07 %          1.07 %             5 items_per_second=1.07% order_id_max_load_factor=0.00%
+BM_OrderBook_CancelUnknown_Throughput/1000                        3217 ns         3198 ns       219039 items_per_second=312.712M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/1000                        3196 ns         3178 ns       219039 items_per_second=314.701M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/1000                        3226 ns         3207 ns       219039 items_per_second=311.787M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/1000                        3246 ns         3229 ns       219039 items_per_second=309.665M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/1000                        3259 ns         3244 ns       219039 items_per_second=308.268M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/1000_mean                   3229 ns         3211 ns            5 items_per_second=311.427M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/1000_median                 3226 ns         3207 ns            5 items_per_second=311.787M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/1000_stddev                 24.6 ns         26.1 ns            5 items_per_second=2.52916M/s order_id_max_load_factor=6.664n
+BM_OrderBook_CancelUnknown_Throughput/1000_cv                     0.76 %          0.81 %             5 items_per_second=0.81% order_id_max_load_factor=0.00%
+BM_OrderBook_CancelUnknown_Throughput/10000                      26568 ns        26514 ns        26266 items_per_second=377.163M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/10000                      26862 ns        26812 ns        26266 items_per_second=372.974M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/10000                      26920 ns        26866 ns        26266 items_per_second=372.212M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/10000                      26613 ns        26557 ns        26266 items_per_second=376.547M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/10000                      26818 ns        26766 ns        26266 items_per_second=373.609M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/10000_mean                 26756 ns        26703 ns            5 items_per_second=374.501M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/10000_median               26818 ns        26766 ns            5 items_per_second=373.609M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/10000_stddev                 156 ns          158 ns            5 items_per_second=2.2157M/s order_id_max_load_factor=6.664n
+BM_OrderBook_CancelUnknown_Throughput/10000_cv                    0.58 %          0.59 %             5 items_per_second=0.59% order_id_max_load_factor=0.00%
+BM_OrderBook_CancelUnknown_Throughput/100000                    307882 ns       307479 ns         2301 items_per_second=325.226M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/100000                    307281 ns       306881 ns         2301 items_per_second=325.86M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/100000                    301493 ns       301098 ns         2301 items_per_second=332.118M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/100000                    299733 ns       299322 ns         2301 items_per_second=334.088M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/100000                    299992 ns       299545 ns         2301 items_per_second=333.84M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/100000_mean               303276 ns       302865 ns            5 items_per_second=330.226M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/100000_median             301493 ns       301098 ns            5 items_per_second=332.118M/s order_id_max_load_factor=0.8
+BM_OrderBook_CancelUnknown_Throughput/100000_stddev               3993 ns         4003 ns            5 items_per_second=4.34817M/s order_id_max_load_factor=6.664n
+BM_OrderBook_CancelUnknown_Throughput/100000_cv                   1.32 %          1.32 %             5 items_per_second=1.32% order_id_max_load_factor=0.00%
+BM_OrderBook_ModifyIfPresent_Throughput/1000                     11042 ns        11035 ns        62908 items_per_second=90.6194M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/1000                     11076 ns        11069 ns        62908 items_per_second=90.3458M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/1000                     10976 ns        10970 ns        62908 items_per_second=91.155M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/1000                     11024 ns        11018 ns        62908 items_per_second=90.7638M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/1000                     11148 ns        11141 ns        62908 items_per_second=89.762M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/1000_mean                11053 ns        11046 ns            5 items_per_second=90.5292M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/1000_median              11042 ns        11035 ns            5 items_per_second=90.6194M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/1000_stddev               64.1 ns         63.5 ns            5 items_per_second=518.916k/s order_id_max_load_factor=6.664n
+BM_OrderBook_ModifyIfPresent_Throughput/1000_cv                   0.58 %          0.57 %             5 items_per_second=0.57% order_id_max_load_factor=0.00%
+BM_OrderBook_ModifyIfPresent_Throughput/10000                   105816 ns       105765 ns         6640 items_per_second=94.5495M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/10000                   104528 ns       104474 ns         6640 items_per_second=95.718M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/10000                   105118 ns       105069 ns         6640 items_per_second=95.1754M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/10000                   105387 ns       105339 ns         6640 items_per_second=94.9314M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/10000                   105370 ns       105320 ns         6640 items_per_second=94.9483M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/10000_mean              105244 ns       105193 ns            5 items_per_second=95.0645M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/10000_median            105370 ns       105320 ns            5 items_per_second=94.9483M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/10000_stddev               472 ns          474 ns            5 items_per_second=428.892k/s order_id_max_load_factor=6.664n
+BM_OrderBook_ModifyIfPresent_Throughput/10000_cv                  0.45 %          0.45 %             5 items_per_second=0.45% order_id_max_load_factor=0.00%
+BM_OrderBook_ModifyIfPresent_Throughput/100000                 1599980 ns      1599841 ns          432 items_per_second=62.5062M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/100000                 1635580 ns      1635298 ns          432 items_per_second=61.151M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/100000                 1637425 ns      1637189 ns          432 items_per_second=61.0803M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/100000                 1603772 ns      1603555 ns          432 items_per_second=62.3614M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/100000                 1605916 ns      1605623 ns          432 items_per_second=62.2811M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/100000_mean            1616535 ns      1616301 ns            5 items_per_second=61.876M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/100000_median          1605916 ns      1605623 ns            5 items_per_second=62.2811M/s order_id_max_load_factor=0.8
+BM_OrderBook_ModifyIfPresent_Throughput/100000_stddev            18363 ns        18334 ns            5 items_per_second=699.241k/s order_id_max_load_factor=6.664n
+BM_OrderBook_ModifyIfPresent_Throughput/100000_cv                 1.14 %          1.13 %             5 items_per_second=1.13% order_id_max_load_factor=0.00%

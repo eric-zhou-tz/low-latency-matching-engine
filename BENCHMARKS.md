@@ -2,7 +2,9 @@
 
 ## Executive Summary
 
-Latest full suite: pinned-core EC2/Linux run on `2026-05-23T08:10:34Z`.
+Latest focused core/realistic/std-toy comparison run: pinned-core EC2/Linux run on `2026-05-23T08:54:21Z`.
+
+Latest full suite including stress and replay remains the pinned-core EC2/Linux run from `2026-05-23T08:10:34Z`.
 
 | Item | Latest EC2 Run |
 | --- | --- |
@@ -12,14 +14,15 @@ Latest full suite: pinned-core EC2/Linux run on `2026-05-23T08:10:34Z`.
 | Build flags | `-O3 -DNDEBUG -march=native` |
 | Framework | Google Benchmark for throughput; custom fixed-batch latency runner |
 | Validation | 130/130 CTest cases passed before benchmarks |
-| Source | Fresh EC2 clone of `53240e0` before generated artifacts were written |
+| Source | Local tree at `7a5980e1` with uncommitted std-toy comparison benchmark and EC2 runner changes |
 
 | Highlight | Metric |
 | --- | ---: |
-| OrderBook true mixed hot path, 100,000 operations | `23.52M ops/sec` |
+| OrderBook true mixed hot path, 100,000 operations | `23.12M ops/sec` |
 | OrderBook true mixed p99 batch latency, 256-op batches | `0.092 us/op` |
-| End-to-end true mixed flow, 100,000 commands | `2.17M commands/sec` |
-| End-to-end true mixed p99 batch latency, 256-command batches | `0.546 us/op` |
+| End-to-end true mixed flow, 100,000 commands | `2.21M commands/sec` |
+| End-to-end true mixed p99 batch latency, 256-command batches | `0.541 us/op` |
+| Largest optimized-vs-std-toy gap, unknown cancel at 10,000 operations | `1,642.78x` |
 | Best-level churn stress, 1,000,000 operations | `27.97M ops/sec` |
 
 The suite separates direct matching-core performance from public-boundary cost. Hot-path results isolate `OrderBook`; end-to-end results include parser, exchange routing, matching, and event formatting.
@@ -46,7 +49,7 @@ Rigor controls:
 | Compiler barriers | `benchmark::DoNotOptimize(...)` and `benchmark::ClobberMemory()` where benchmarked state/results must stay visible |
 | Validation | Correctness tests before EC2 benchmark execution |
 
-Hot-path benchmarks measure typed matching operations directly against `OrderBook`. Realistic-flow benchmarks measure either the same mixed order stream on `OrderBook` or the public parser/exchange/formatter path. Stress benchmarks target adversarial book shapes. Replay benchmarks exercise deterministic fixture streams through the public path.
+Hot-path benchmarks measure typed matching operations directly against `OrderBook`. Realistic-flow benchmarks measure either the same mixed order stream on `OrderBook` or the public parser/exchange/formatter path. The std-toy comparison target runs the same direct book workloads against the optimized implementation and the simple std-container baseline at 10,000 operations per row. Stress benchmarks target adversarial book shapes. Replay benchmarks exercise deterministic fixture streams through the public path.
 
 ## Core Hot Path
 
@@ -56,11 +59,11 @@ Core hot-path benchmarks measure the matching engine without parser, CLI, filesy
 
 | Benchmark | Description | Input Size | Throughput |
 | --- | --- | ---: | ---: |
-| Passive Insert | Non-crossing GTC limit orders resting on the book | 100,000 operations | `34.22M ops/sec` |
-| One-Level Crossing Match | Aggressive orders consuming resting liquidity at one price level | 100,000 operations | `32.37M ops/sec` |
-| Random Cancel | Cancel by live order id with shuffled lookup order | 100,000 operations | `26.14M ops/sec` |
-| Unknown Cancel | Rejected cancel path through the order-id lookup miss path | 100,000 operations | `318.31M ops/sec` |
-| Modify If Present | Same-price quantity reduction preserving FIFO priority | 100,000 operations | `60.51M ops/sec` |
+| Passive Insert | Non-crossing GTC limit orders resting on the book | 100,000 operations | `33.64M ops/sec` |
+| One-Level Crossing Match | Aggressive orders consuming resting liquidity at one price level | 100,000 operations | `32.40M ops/sec` |
+| Random Cancel | Cancel by live order id with shuffled lookup order | 100,000 operations | `25.85M ops/sec` |
+| Unknown Cancel | Rejected cancel path through the order-id lookup miss path | 100,000 operations | `332.12M ops/sec` |
+| Modify If Present | Same-price quantity reduction preserving FIFO priority | 100,000 operations | `62.28M ops/sec` |
 
 ### Latency
 
@@ -95,9 +98,9 @@ Realistic-flow benchmarks use a deterministic mixed stream: GTC submits, cancels
 
 | Benchmark | Description | Input Size | Throughput |
 | --- | --- | ---: | ---: |
-| OrderBook True Mixed | Direct matching-core mixed exchange flow | 100,000 operations | `23.52M ops/sec` |
-| End-to-End Passive Insert | Public command path for non-crossing inserts | 100,000 commands | `1.97M commands/sec` |
-| End-to-End True Mixed | Parser -> Exchange -> OrderBook -> event formatting | 100,000 commands | `2.17M commands/sec` |
+| OrderBook True Mixed | Direct matching-core mixed exchange flow | 100,000 operations | `23.12M ops/sec` |
+| End-to-End Passive Insert | Public command path for non-crossing inserts | 100,000 commands | `2.03M commands/sec` |
+| End-to-End True Mixed | Parser -> Exchange -> OrderBook -> event formatting | 100,000 commands | `2.21M commands/sec` |
 
 ### Latency
 
@@ -106,7 +109,7 @@ Latency rows report 256-operation amortized batches. The `OrderBook` row is the 
 | Benchmark | p50 | p99 | p999 | Max |
 | --- | ---: | ---: | ---: | ---: |
 | OrderBook True Mixed | `0.052 us` | `0.092 us` | `N/A` | `0.112 us` |
-| End-to-End True Mixed | `0.474 us` | `0.546 us` | `N/A` | `0.673 us` |
+| End-to-End True Mixed | `0.469 us` | `0.541 us` | `N/A` | `0.694 us` |
 
 Engineering notes:
 
@@ -116,6 +119,28 @@ Engineering notes:
 | IOC, FOK, and market orders are transient taker flow. | They exercise rejection, expiration, and multi-level matching without polluting cancel/modify live sets. |
 | End-to-end throughput is intentionally lower than hot-path throughput. | It includes command parsing, symbol routing, variant/event handling, and string formatting overhead. |
 | Batch latency is amortized. | It is useful for comparing workload shape and regressions, but it is not a true one-order tail latency claim. |
+
+## Optimized vs Std Toy Baseline
+
+This focused EC2 comparison ran the optimized `OrderBook` and the simple std-container toy book against the same direct book workloads. Each row uses 10,000 operations because the toy baseline intentionally scans visible std::deque price levels for duplicate checks, cancels, modifies, and misses; larger rows would mostly measure the old baseline's O(n) scan behavior for much longer without changing the conclusion.
+
+| Workload | Optimized | Std Toy Baseline | Difference |
+| --- | ---: | ---: | ---: |
+| Passive Insert | `42.97M ops/sec` | `351.87k ops/sec` | `122.13x` |
+| One-Level Crossing Match | `43.20M ops/sec` | `446.69k ops/sec` | `96.72x` |
+| Random Cancel | `75.72M ops/sec` | `236.12k ops/sec` | `320.71x` |
+| Unknown Cancel | `364.18M ops/sec` | `221.68k ops/sec` | `1,642.78x` |
+| Modify If Present | `81.91M ops/sec` | `443.89k ops/sec` | `184.53x` |
+| OrderBook True Mixed | `27.39M ops/sec` | `4.67M ops/sec` | `5.86x` |
+
+Why the gap is large:
+
+| Difference | What It Shows |
+| --- | --- |
+| The optimized book keeps a dense order-id index that points directly to live order nodes. | Cancel, modify, duplicate-id checks, and rejected misses avoid scanning visible price-level queues. |
+| Resting orders live in pooled stable storage with intrusive FIFO links. | Filled and canceled orders can be unlinked without searching through same-price queues. |
+| Price levels still use ordered trees. | Best-price traversal stays deterministic while hot same-price operations avoid std-container scan costs. |
+| The true-mixed row is closer than the pure lookup rows. | Mixed flow includes submits, taker orders, and event emission where both implementations do real matching work, so the id-scan advantage is diluted but still material. |
 
 ## Stress
 
@@ -254,6 +279,7 @@ Run focused categories:
 ```bash
 BENCHMARK_TARGETS=core_hot_path benchmarks/run_ec2_benchmarks.sh
 BENCHMARK_TARGETS=realistic_flow benchmarks/run_ec2_benchmarks.sh
+BENCHMARK_TARGETS=std_toy_comparison benchmarks/run_ec2_benchmarks.sh
 BENCHMARK_TARGETS=stress benchmarks/run_ec2_benchmarks.sh
 BENCHMARK_TARGETS=replay benchmarks/run_ec2_benchmarks.sh
 BENCHMARK_TARGETS=batch_latency benchmarks/run_ec2_benchmarks.sh
@@ -266,6 +292,7 @@ Artifact expectations:
 | `benchmarks/results/benchmark_environment.txt` | Environment, commit, compiler, flags, and CPU metadata |
 | `benchmarks/results/core_hot_path_results.{txt,json}` | Core hot-path throughput |
 | `benchmarks/results/realistic_flow_results.{txt,json}` | Realistic direct and end-to-end throughput |
+| `benchmarks/results/std_toy_comparison_results.{txt,json}` | Optimized `OrderBook` versus std-toy direct-book throughput |
 | `benchmarks/results/stress_benchmark_results.{txt,json}` | Stress workload throughput |
 | `benchmarks/results/determinism_replay_results.{txt,json}` | Replay throughput |
 | `benchmarks/results/batch_latency_results.{txt,json}` | Amortized fixed-batch latency |

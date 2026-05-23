@@ -7,10 +7,13 @@ The Markdown benchmark reports remain the primary reviewer-facing view:
 
 This directory also includes a small SQLite copy for technical reviewers who want to query benchmark history directly.
 
-The current official refresh is the native EC2 `c7i-flex.large` run from
-`2026-05-23T08:10:34Z` at commit `53240e0`. Earlier v0.x benchmark rows were
-run on EC2 `t3.small` unless their environment says otherwise; keep those rows
-as historical hardware context rather than relabeling them.
+The current focused core/realistic/std-toy comparison refresh is the native EC2
+`c7i-flex.large` run from `2026-05-23T08:54:21Z` at local source commit
+`7a5980e1` plus uncommitted benchmark-runner changes. The latest full suite
+including stress and replay remains the `2026-05-23T08:10:34Z` run at commit
+`53240e0`. Earlier v0.x benchmark rows were run on EC2 `t3.small` unless their
+environment says otherwise; keep those rows as historical hardware context
+rather than relabeling them.
 
 ## Files
 
@@ -19,6 +22,7 @@ as historical hardware context rather than relabeling them.
 | `benchmark_history.db` | SQLite database populated from the benchmark docs and checked-in result artifacts. |
 | `benchmark_history.sql` | Plain SQL dump that can recreate the database without opening the binary file. |
 | `schema.sql` | Table and index definitions. |
+| `results/std_toy_comparison_results.{txt,json}` | Focused optimized `OrderBook` versus std-toy direct-book comparison artifacts. |
 
 ## Open the Database
 
