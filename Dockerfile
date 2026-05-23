@@ -24,7 +24,6 @@ COPY CMakeLists.txt ./
 COPY include ./include
 COPY src ./src
 COPY tests ./tests
-COPY examples ./examples
 COPY benchmarks ./benchmarks
 COPY toy ./toy
 
@@ -51,6 +50,6 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY --from=build /workspace/build/matching_engine /usr/local/bin/matching_engine
-COPY examples ./examples
+COPY tests/replay_cli.txt ./tests/replay_cli.txt
 
 ENTRYPOINT ["matching_engine"]

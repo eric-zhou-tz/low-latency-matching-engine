@@ -47,13 +47,13 @@ main() {
     run_container ./build/golden_replay_tests
     run_container ./build/cli_presentation_tests
 
-    log "Validating direct demo replay through the optimized engine"
+    log "Validating direct replay script through the optimized engine"
     run_container /bin/bash -lc \
-        './build/matching_engine --model=fast < examples/demo.orders | grep -F "CANCELED order_id=1" >/dev/null'
+        './build/matching_engine --model=fast < tests/replay_cli.txt | grep -F "ACCEPTED accepted order 1001" >/dev/null'
 
-    log "Validating direct demo replay through the std baseline"
+    log "Validating direct replay script through the std baseline"
     run_container /bin/bash -lc \
-        './build/matching_engine --model=toy-std < examples/demo.orders | grep -F "CANCELED order_id=1" >/dev/null'
+        './build/matching_engine --model=toy-std < tests/replay_cli.txt | grep -F "ACCEPTED accepted order 1001" >/dev/null'
 
     run_cli_flow "help mode" $'6\n\n7\n' "Supported commands:"
     run_cli_flow "manual command mode" \

@@ -31,9 +31,7 @@ provenance, and historical results.
 
 ## Architecture
 
-```text
-[architecture diagram placeholder]
-```
+![Matching engine CLI benchmark comparison mode](docs/cli-benchmark-mode.png)
 
 Core flow:
 
@@ -48,6 +46,7 @@ the hot path so the matching core can be benchmarked and tested directly.
 Additional docs:
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Contributing](CONTRIBUTING.md)
 - [Hot Path Analysis](docs/HOTPATH.md)
 - [Benchmarks](BENCHMARKS.md)
 - [Benchmark History](docs/benchmark_history.md)
@@ -94,6 +93,23 @@ Additional docs:
 - Parser and formatter work are separated from direct `OrderBook` benchmarks.
 - Caller-owned event buffers avoid fresh vectors for multi-fill submissions.
 
+## Future Scaling Directions
+
+The current engine is intentionally single-process and deterministic. The next
+scaling steps would preserve that matching model while reducing ingress,
+networking, and replay overhead:
+
+- Partition symbols across matching shards so independent books can run on
+  separate cores.
+- Add lock-free ingress queues with explicit sequencing before commands enter a
+  symbol book.
+- Explore NUMA-aware placement for order pools, queues, and symbol ownership.
+- Replace text command ingestion with a compact binary protocol for lower parse
+  and allocation overhead.
+- Add persistent replay logs for crash recovery and deterministic audit trails.
+- Evaluate kernel-bypass networking only after the single-core matching path and
+  replay semantics are fully stable.
+
 ## Benchmark Interpretation
 
 - Hot-path benchmarks isolate the typed matching core.
@@ -104,19 +120,83 @@ Additional docs:
   latency.
 - Release benchmark numbers come from Linux/EC2, not local macOS runs.
 
+## Profiling Snapshots
+
+These flamegraphs come from pinned EC2 Release profiles using `perf` CPU-clock
+sampling with `-O3 -DNDEBUG -march=native -fno-omit-frame-pointer -g`.
+
+### Random Cancel Hot Path
+
+<img src="docs/perf-random-cancel.svg" alt="Random cancel flamegraph" width="900">
+
+Random cancel is dominated by `OrderBook::remove_resting_order`, with visible
+time in dense-map erase, queue unlinking, and cancel event construction. That is
+the expected pressure point for arbitrary-id cancellation: the engine must find
+the live order, unlink it from its FIFO level, update aggregate level state, and
+remove the id from lookup structures without scanning the book. The profile
+keeps allocator impact limited by using pooled order storage and reusable event
+buffers, while the remaining cost is mostly cache-sensitive hash-table and
+price-level metadata updates.
+
+### End-to-End True Mixed Flow
+
+<img src="docs/perf-end-to-end-true-mixed.svg" alt="End-to-end true mixed flow flamegraph" width="900">
+
+The end-to-end profile spreads work across workload generation, parser input
+extraction, exchange routing, matching, and event formatting. `Parser::parse_line`,
+`std::operator>>`, `format_event`, `std::to_string`, and small `malloc` samples
+show the boundary cost that hot-path-only benchmarks intentionally exclude.
+Inside the matching core, modifies, cancels, submits, and buy/sell matching paths
+still appear as branch-heavy control flow because each command can accept, fill,
+rest, cancel, reject, or touch multiple price levels.
+
 ## Quick Start
+
+### Prerequisites
+
+- CMake 3.20 or newer
+- C++20 compiler such as GCC, Clang, or Apple Clang
+- Docker for the recommended onboarding and validation path
+- Ninja optional for faster native builds
+- SQLite optional for inspecting benchmark history locally
+- Linux `perf` tools optional for low-level benchmark counter analysis
+
+CMake fetches GoogleTest, Google Benchmark, and `unordered_dense`
+automatically during configure.
+
+### Docker Quick Start
+
+Docker is the recommended first path because it builds and validates the project
+in a clean Ubuntu environment.
 
 ```bash
 git clone https://github.com/eric-zhou-tz/low-latency-matching-engine.git
 cd low-latency-matching-engine
-cmake -S . -B build
-cmake --build build
+docker build --target validation -t matching-engine-test .
+docker run --rm matching-engine-test ctest --test-dir build --output-on-failure -C Release
+docker run --rm -i matching-engine-test /bin/bash -lc \
+  './build/matching_engine --model=fast < tests/replay_cli.txt'
+```
+
+For the full containerized smoke suite:
+
+```bash
+./scripts/docker_validate.sh
+```
+
+### Native CMake Build
+
+```bash
+git clone https://github.com/eric-zhou-tz/low-latency-matching-engine.git
+cd low-latency-matching-engine
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
 ```
 
 Run the demo:
 
 ```bash
-./build/matching_engine --model=fast < examples/demo.orders
+./build/matching_engine --model=fast < tests/replay_cli.txt
 ```
 
 Run the interactive CLI:
@@ -135,7 +215,7 @@ Run the interactive CLI:
 Example:
 
 ```bash
-./build/matching_engine --model=toy-std < examples/demo.orders
+./build/matching_engine --model=toy-std < tests/replay_cli.txt
 ```
 
 ## Command Protocol
@@ -162,7 +242,7 @@ Behavior summary:
 ## Testing
 
 ```bash
-ctest --test-dir build --output-on-failure
+ctest --test-dir build --output-on-failure -C Release
 ```
 
 ## Benchmarking
@@ -174,7 +254,7 @@ cmake -S . -B build -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=native"
 
-cmake --build build
+cmake --build build --config Release
 ```
 
 Final benchmark validation is run on Ubuntu Linux/EC2 with CPU pinning. Docker is
@@ -185,13 +265,28 @@ used for Linux compatibility checks, not headline performance numbers.
 ```bash
 docker build --target validation -t matching-engine-test .
 docker run --rm -i matching-engine-test /bin/bash -lc \
-  './build/matching_engine --model=fast < examples/demo.orders'
+  './build/matching_engine --model=fast < tests/replay_cli.txt'
 ./scripts/docker_validate.sh
 ```
 
 The validation script builds a Release image, runs CTest, checks parser/replay
 and CLI binaries, exercises advertised CLI flows, and launches short benchmark
 sanity checks.
+
+## Repository Tour
+
+1. Start with this README for the project goals, quick start, command protocol,
+   and validation paths.
+2. Read [Contributing](CONTRIBUTING.md) before changing code, fixtures, or
+   benchmarks.
+3. Read [Architecture](docs/ARCHITECTURE.md) for the parser, exchange, and
+   order book design.
+4. Read [Benchmarks](BENCHMARKS.md) for the latest measured results,
+   environment, build flags, and methodology.
+5. Read [Hot Path Analysis](docs/HOTPATH.md) for the latency-sensitive matching
+   path and data-structure notes.
+6. Read [Benchmark History](docs/benchmark_history.md) for a lightweight guide
+   to the SQLite-backed benchmark history.
 
 ## Repository Structure
 
@@ -201,6 +296,6 @@ src/        Engine implementation
 tests/      Unit, replay, and CLI tests
 toy/        Simple std-container baseline
 benchmarks/ Benchmark sources, EC2 runners, and history artifacts
-examples/   Example order streams
 docs/       Architecture, benchmark, and hot-path notes
+CONTRIBUTING.md Contributor workflow and validation expectations
 ```

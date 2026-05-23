@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!stdin_is_terminal()) {
-        // Redirected input is the documented one-command replay path for examples and fixtures.
+        // Redirected input is the documented one-command replay path for fixtures.
         matching_engine::run_script(std::cin, std::cout, model);
         return 0;
     }
