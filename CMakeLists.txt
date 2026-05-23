@@ -93,76 +93,73 @@ add_executable(order_book_stress_tests tests/stress/order_book_stress_tests.cpp)
 target_link_libraries(order_book_stress_tests PRIVATE engine GTest::gtest_main)
 gtest_discover_tests(order_book_stress_tests)
 
-if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE STREQUAL "Release")
-    FetchContent_Declare(
-        googlebenchmark
-        URL https://github.com/google/benchmark/archive/refs/tags/v1.8.3.zip
-        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-    )
+FetchContent_Declare(
+    googlebenchmark
+    URL https://github.com/google/benchmark/archive/refs/tags/v1.8.3.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
 
-    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
-    set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
-    set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(googlebenchmark)
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
+set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googlebenchmark)
 
-    function(link_google_benchmark target_name)
-        target_link_libraries(${target_name}
-            PRIVATE
-                engine
-                benchmark::benchmark
-                benchmark::benchmark_main
-        )
-    endfunction()
-
-    add_executable(core_hot_path_benchmark
-        benchmarks/core_hot_path/passive_insert_benchmark.cpp
-        benchmarks/core_hot_path/one_level_crossing_benchmark.cpp
-        benchmarks/core_hot_path/cancel_lookup_benchmark.cpp
-    )
-    link_google_benchmark(core_hot_path_benchmark)
-
-    add_executable(core_hot_path_latency_benchmark
-        benchmarks/core_hot_path/batch_latency_benchmark.cpp
-    )
-    target_include_directories(core_hot_path_latency_benchmark
+function(link_google_benchmark target_name)
+    target_link_libraries(${target_name}
         PRIVATE
-            ${PROJECT_SOURCE_DIR}/benchmarks/realistic_flow
+            engine
+            benchmark::benchmark_main
     )
-    target_link_libraries(core_hot_path_latency_benchmark PRIVATE engine)
+endfunction()
 
-    add_executable(realistic_flow_benchmark
-        benchmarks/realistic_flow/true_mixed_benchmark.cpp
-        benchmarks/realistic_flow/end_to_end_true_mixed_benchmark.cpp
-    )
-    target_include_directories(realistic_flow_benchmark
-        PRIVATE
-            ${PROJECT_SOURCE_DIR}/benchmarks/realistic_flow
-    )
-    link_google_benchmark(realistic_flow_benchmark)
+add_executable(core_hot_path_benchmark
+    benchmarks/core_hot_path/passive_insert_benchmark.cpp
+    benchmarks/core_hot_path/one_level_crossing_benchmark.cpp
+    benchmarks/core_hot_path/cancel_lookup_benchmark.cpp
+)
+link_google_benchmark(core_hot_path_benchmark)
 
-    add_executable(stress_benchmark
-        benchmarks/stress/best_level_churn_benchmark.cpp
-        benchmarks/stress/level_create_delete_churn_benchmark.cpp
-        benchmarks/stress/shallow_gtc_mixed_benchmark.cpp
-        benchmarks/stress/deep_sparse_gtc_mixed_benchmark.cpp
-    )
-    link_google_benchmark(stress_benchmark)
+add_executable(core_hot_path_latency_benchmark
+    benchmarks/core_hot_path/batch_latency_benchmark.cpp
+)
+target_include_directories(core_hot_path_latency_benchmark
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/benchmarks/realistic_flow
+)
+target_link_libraries(core_hot_path_latency_benchmark PRIVATE engine)
 
-    add_executable(determinism_replay_benchmark
-        benchmarks/determinism_replay/replay_benchmark.cpp
-    )
-    target_compile_definitions(determinism_replay_benchmark
-        PRIVATE
-            REPLAY_FIXTURE_DIR="${PROJECT_SOURCE_DIR}/tests/replay"
-    )
-    link_google_benchmark(determinism_replay_benchmark)
+add_executable(realistic_flow_benchmark
+    benchmarks/realistic_flow/true_mixed_benchmark.cpp
+    benchmarks/realistic_flow/end_to_end_true_mixed_benchmark.cpp
+)
+target_include_directories(realistic_flow_benchmark
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/benchmarks/realistic_flow
+)
+link_google_benchmark(realistic_flow_benchmark)
 
-    add_executable(experimental_reserve_sweep_benchmark
-        benchmarks/core_hot_path/cancel_lookup_benchmark.cpp
-    )
-    target_compile_definitions(experimental_reserve_sweep_benchmark
-        PRIVATE
-            MATCHING_ENGINE_ENABLE_RESERVE_SWEEP
-    )
-    link_google_benchmark(experimental_reserve_sweep_benchmark)
-endif()
+add_executable(stress_benchmark
+    benchmarks/stress/best_level_churn_benchmark.cpp
+    benchmarks/stress/level_create_delete_churn_benchmark.cpp
+    benchmarks/stress/shallow_gtc_mixed_benchmark.cpp
+    benchmarks/stress/deep_sparse_gtc_mixed_benchmark.cpp
+)
+link_google_benchmark(stress_benchmark)
+
+add_executable(determinism_replay_benchmark
+    benchmarks/determinism_replay/replay_benchmark.cpp
+)
+target_compile_definitions(determinism_replay_benchmark
+    PRIVATE
+        REPLAY_FIXTURE_DIR="${PROJECT_SOURCE_DIR}/tests/replay"
+)
+link_google_benchmark(determinism_replay_benchmark)
+
+add_executable(experimental_reserve_sweep_benchmark
+    benchmarks/core_hot_path/cancel_lookup_benchmark.cpp
+)
+target_compile_definitions(experimental_reserve_sweep_benchmark
+    PRIVATE
+        MATCHING_ENGINE_ENABLE_RESERVE_SWEEP
+)
+link_google_benchmark(experimental_reserve_sweep_benchmark)

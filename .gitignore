@@ -3,6 +3,7 @@ build-linux/
 build-release/
 cmake-build-*/
 compile_commands.json
+local-benchmark-results/
 
 *.o
 *.obj

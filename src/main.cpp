@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 
     (void)model;
 
-    // Launch the presentation shell; manual mode preserves the old command workflow.
-    matching_engine::run_cli_presentation(std::cin, std::cout);
+    // Launch the presentation shell and pass argv[0] so benchmark binaries can be found.
+    matching_engine::run_cli_presentation(std::cin, std::cout, argv[0]);
     return 0;
 }

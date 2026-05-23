@@ -8,7 +8,9 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
 #include <cctype>
+#include <filesystem>
 #include <iomanip>
 #include <istream>
 #include <ostream>
@@ -53,6 +55,16 @@ struct BookTraceCounts {
     std::size_t resting_orders{};
     std::size_t bid_levels{};
     std::size_t ask_levels{};
+};
+
+/**
+ * @brief Local benchmark executable and arguments shown in the CLI runner.
+ */
+struct LocalBenchmarkSuite {
+    std::string_view title;
+    std::string_view executable_name;
+    std::vector<std::string_view> arguments;
+    std::string_view description;
 };
 
 /**
@@ -138,7 +150,7 @@ void print_main_menu(std::ostream& output) {
            << "============================================================\n\n"
            << "1) Interactive guided demo\n"
            << "2) Benchmark comparison: optimized engine vs std baseline\n"
-           << "3) Advanced benchmarks\n"
+           << "3) Run full local benchmark suite\n"
            << "4) Manual command mode\n"
            << "5) Replay commands from file\n"
            << "6) Help\n"
@@ -171,6 +183,351 @@ void print_help(std::ostream& output) {
            << "EXIT\n"
            << "  In manual command mode, return to the main menu.\n"
            << "  From the main menu, use option 7 to exit the program.\n";
+}
+
+/**
+ * @brief Returns all benchmark suites that can be launched from the CLI.
+ */
+[[nodiscard]] std::vector<LocalBenchmarkSuite> local_benchmark_suites() {
+    return {
+        LocalBenchmarkSuite{
+            .title = "Core hot-path throughput",
+            .executable_name = "core_hot_path_benchmark",
+            .arguments = {"--benchmark_repetitions=1"},
+            .description = "Passive insert, crossing match, and cancel lookup Google Benchmarks.",
+        },
+        LocalBenchmarkSuite{
+            .title = "Core hot-path batch latency",
+            .executable_name = "core_hot_path_latency_benchmark",
+            .arguments = {"--output-dir=local-benchmark-results",
+                          "--samples=128",
+                          "--warmup=32",
+                          "--trials=1"},
+            .description = "Local fixed-batch latency runner for optimized OrderBook paths.",
+        },
+        LocalBenchmarkSuite{
+            .title = "Realistic flow throughput",
+            .executable_name = "realistic_flow_benchmark",
+            .arguments = {"--benchmark_repetitions=1"},
+            .description = "True mixed flow and end-to-end parse/process/format benchmarks.",
+        },
+        LocalBenchmarkSuite{
+            .title = "Stress throughput",
+            .executable_name = "stress_benchmark",
+            .arguments = {"--benchmark_repetitions=1"},
+            .description = "Best-level churn, price-level churn, and mixed GTC stress workloads.",
+        },
+        LocalBenchmarkSuite{
+            .title = "Determinism replay throughput",
+            .executable_name = "determinism_replay_benchmark",
+            .arguments = {"--benchmark_repetitions=1"},
+            .description = "Golden replay command tapes through the public parser/exchange path.",
+        },
+        LocalBenchmarkSuite{
+            .title = "Experimental reserve sweep",
+            .executable_name = "experimental_reserve_sweep_benchmark",
+            .arguments = {"--benchmark_repetitions=1"},
+            .description = "Reserve-capacity sweep for cancel lookup behavior.",
+        },
+    };
+}
+
+/**
+ * @brief Appends a directory once while preserving search order.
+ */
+void append_unique_directory(std::vector<std::filesystem::path>& directories,
+                             const std::filesystem::path& directory) {
+    if (directory.empty()) {
+        return;
+    }
+
+    const auto normalized = std::filesystem::absolute(directory).lexically_normal();
+    const auto already_present =
+        std::find(directories.begin(), directories.end(), normalized) != directories.end();
+    if (!already_present) {
+        // Preserve the first useful location so Release outputs stay preferred.
+        directories.push_back(normalized);
+    }
+}
+
+/**
+ * @brief Returns the directory implied by argv[0].
+ */
+[[nodiscard]] std::filesystem::path executable_directory(std::string_view executable_path) {
+    if (executable_path.empty()) {
+        return {};
+    }
+
+    const std::filesystem::path path{std::string{executable_path}};
+    if (path.has_parent_path()) {
+        // Relative argv[0] values like build/matching_engine should resolve from the cwd.
+        return path.is_absolute() ? path.parent_path()
+                                  : std::filesystem::current_path() / path.parent_path();
+    }
+
+    return std::filesystem::current_path();
+}
+
+/**
+ * @brief Builds likely locations for benchmark executables.
+ */
+[[nodiscard]] std::vector<std::filesystem::path> benchmark_search_directories(
+    std::string_view executable_path) {
+    std::vector<std::filesystem::path> directories;
+    const auto current = std::filesystem::current_path();
+
+    append_unique_directory(directories, current / "build-release");
+    append_unique_directory(directories, current / "build-linux");
+
+#ifdef NDEBUG
+    // Release launchers may be packaged beside benchmarks or built in a custom directory.
+    append_unique_directory(directories, executable_directory(executable_path));
+    append_unique_directory(directories, current);
+    append_unique_directory(directories, current / "build");
+#else
+    // Debug launchers should not silently run Debug benchmark binaries when Release is absent.
+    (void)executable_path;
+#endif
+
+    return directories;
+}
+
+/**
+ * @brief Checks whether one directory contains every local benchmark executable.
+ */
+[[nodiscard]] bool has_complete_benchmark_suite(
+    const std::filesystem::path& directory,
+    const std::vector<LocalBenchmarkSuite>& suites) {
+    if (directory.empty()) {
+        return false;
+    }
+
+    for (const auto& suite : suites) {
+        if (!std::filesystem::exists(directory / suite.executable_name)) {
+            // A complete directory avoids mixing Debug and Release benchmark binaries.
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @brief Finds the preferred directory containing the full local benchmark suite.
+ */
+[[nodiscard]] std::filesystem::path find_benchmark_suite_directory(
+    const std::vector<LocalBenchmarkSuite>& suites,
+    std::string_view executable_path) {
+    for (const auto& directory : benchmark_search_directories(executable_path)) {
+        if (has_complete_benchmark_suite(directory, suites)) {
+            // The first complete directory wins so local Release builds beat Debug builds.
+            return directory;
+        }
+    }
+
+    return {};
+}
+
+/**
+ * @brief Returns the benchmark suites whose executables are not available.
+ */
+[[nodiscard]] std::vector<LocalBenchmarkSuite> missing_benchmark_suites(
+    const std::vector<LocalBenchmarkSuite>& suites,
+    std::string_view executable_path) {
+    std::vector<LocalBenchmarkSuite> missing;
+
+    for (const auto& suite : suites) {
+        bool found = false;
+        for (const auto& directory : benchmark_search_directories(executable_path)) {
+            if (std::filesystem::exists(directory / suite.executable_name)) {
+                // Report only executables that are absent from every searched location.
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            // Missing suite names are printed together so the user sees the exact build gap.
+            missing.push_back(suite);
+        }
+    }
+
+    return missing;
+}
+
+/**
+ * @brief Escapes one shell word for std::system.
+ */
+[[nodiscard]] std::string shell_quote(std::string_view value) {
+    std::string quoted{"'"};
+    for (const char character : value) {
+        if (character == '\'') {
+            // Close, escape the quote, and reopen so paths with quotes stay literal.
+            quoted += "'\\''";
+        } else {
+            quoted += character;
+        }
+    }
+    quoted += '\'';
+    return quoted;
+}
+
+/**
+ * @brief Builds the shell command used to launch one local benchmark suite.
+ */
+[[nodiscard]] std::string benchmark_command(const std::filesystem::path& executable,
+                                            const LocalBenchmarkSuite& suite) {
+    std::string command = shell_quote(executable.string());
+    for (const auto argument : suite.arguments) {
+        // Arguments are fixed by the program, but quoting keeps the command builder uniform.
+        command += ' ';
+        command += shell_quote(argument);
+    }
+
+    return command;
+}
+
+/**
+ * @brief Prints guidance when the full local benchmark suite is not built.
+ */
+void print_missing_benchmark_guidance(std::ostream& output,
+                                      const std::vector<LocalBenchmarkSuite>& missing,
+                                      std::string_view executable_path) {
+    output << "The full local Release benchmark suite is not built yet.\n\n"
+           << "Missing executables:\n";
+
+    for (const auto& suite : missing) {
+        output << "  " << suite.executable_name << '\n';
+    }
+
+    output << "\nBuild the Release benchmark targets, then run this menu again:\n"
+           << "  cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release\n"
+           << "  cmake --build build-release\n\n"
+           << "Searched:\n";
+
+    for (const auto& directory : benchmark_search_directories(executable_path)) {
+        // Printing search paths makes packaging mistakes quick to spot.
+        output << "  " << directory << '\n';
+    }
+}
+
+/**
+ * @brief Prints the local benchmark runner preflight warning.
+ */
+void print_local_benchmark_runner_warning(std::ostream& output,
+                                          const std::filesystem::path& suite_directory) {
+    output << "FULL LOCAL BENCHMARK SUITE -- results are from this machine only.\n"
+           << "Use this for quick checks, not release benchmark claims.\n\n"
+           << "Benchmark binaries: " << suite_directory << "\n";
+
+#ifndef NDEBUG
+    output << "NOTE: this launcher is a Debug build, but Release benchmark binaries are preferred.\n";
+#endif
+
+    output << "\nBatch-latency artifacts are written to local-benchmark-results/.\n\n";
+}
+
+/**
+ * @brief Confirms the full local benchmark suite before launching external processes.
+ */
+[[nodiscard]] bool confirm_full_local_benchmark_suite(std::istream& input, std::ostream& output) {
+    output << "This runs every local benchmark executable in sequence.\n"
+           << "It can take several minutes on a laptop.\n\n"
+           << "Press Enter to start the full local suite, or type q to return to the main menu: ";
+    output.flush();
+
+    std::string response;
+    if (!std::getline(input, response)) {
+        return false;
+    }
+
+    const std::string command = uppercase_copy(trim(response));
+    if (command == "Q" || command == "QUIT" || command == "EXIT" || command == "BACK") {
+        output << "\nReturning to main menu.\n";
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Runs one benchmark process and reports whether it exited cleanly.
+ */
+bool run_local_benchmark_process(const LocalBenchmarkSuite& suite,
+                                 const std::filesystem::path& suite_directory,
+                                 std::ostream& output) {
+    const auto executable = suite_directory / suite.executable_name;
+    if (!std::filesystem::exists(executable)) {
+        // A stale or partial build directory should fail the suite clearly.
+        output << "\nCould not find " << executable << ".\n";
+        return false;
+    }
+
+    const std::string command = benchmark_command(executable, suite);
+    output << "\nRunning: " << command << "\n\n";
+    output.flush();
+
+    const int status = std::system(command.c_str());
+    output << '\n';
+    if (status == 0) {
+        output << suite.title << " completed.\n";
+        return true;
+    }
+
+    output << suite.title << " failed with process status " << status << ".\n";
+    return false;
+}
+
+/**
+ * @brief Pauses after the full local benchmark suite completes.
+ */
+void pause_after_full_local_benchmark_suite(std::istream& input, std::ostream& output) {
+    wait_for_enter(input, output, "\nPress Enter to return to the main menu...");
+    output << '\n';
+}
+
+/**
+ * @brief Runs every standalone local benchmark suite in menu order.
+ */
+void run_all_local_benchmark_suites(const std::vector<LocalBenchmarkSuite>& suites,
+                                    const std::filesystem::path& suite_directory,
+                                    std::ostream& output) {
+    bool all_passed = true;
+
+    for (const auto& suite : suites) {
+        all_passed = run_local_benchmark_process(suite, suite_directory, output) && all_passed;
+    }
+
+    output << "\nFull local benchmark suite "
+           << (all_passed ? "completed." : "finished with at least one failed benchmark process.")
+           << '\n';
+}
+
+/**
+ * @brief Runs the full local benchmark executable suite.
+ */
+void run_local_benchmark_runner(std::istream& input,
+                                std::ostream& output,
+                                std::string_view executable_path) {
+    const auto suites = local_benchmark_suites();
+    const auto suite_directory = find_benchmark_suite_directory(suites, executable_path);
+    const auto missing = suite_directory.empty() ? missing_benchmark_suites(suites, executable_path)
+                                                : std::vector<LocalBenchmarkSuite>{};
+
+    if (suite_directory.empty()) {
+        print_missing_benchmark_guidance(output, missing, executable_path);
+        wait_for_enter(input, output, "\nPress Enter to return to the main menu...");
+        output << '\n';
+        return;
+    }
+
+    print_local_benchmark_runner_warning(output, suite_directory);
+    if (!confirm_full_local_benchmark_suite(input, output)) {
+        return;
+    }
+
+    run_all_local_benchmark_suites(suites, suite_directory, output);
+    pause_after_full_local_benchmark_suite(input, output);
 }
 
 /**
@@ -1281,7 +1638,9 @@ void print_placeholder(std::istream& input, std::ostream& output, std::string_vi
 /**
  * @brief Runs the main interactive CLI presentation loop.
  */
-void run_cli_presentation(std::istream& input, std::ostream& output) {
+void run_cli_presentation(std::istream& input,
+                          std::ostream& output,
+                          std::string_view executable_path) {
     while (true) {
         print_main_menu(output);
 
@@ -1299,11 +1658,7 @@ void run_cli_presentation(std::istream& input, std::ostream& output) {
         } else if (choice == "2") {
             run_local_benchmark_comparison(input, output);
         } else if (choice == "3") {
-            print_placeholder(
-                input,
-                output,
-                "Advanced benchmarks are not wired yet. This will run deeper latency, throughput, "
-                "and workload-mix benchmarks.");
+            run_local_benchmark_runner(input, output, executable_path);
         } else if (choice == "4") {
             run_manual_command_mode(input, output);
         } else if (choice == "5") {
