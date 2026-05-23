@@ -73,6 +73,10 @@ add_executable(parser_tests tests/parser_tests.cpp)
 target_link_libraries(parser_tests PRIVATE engine GTest::gtest_main)
 gtest_discover_tests(parser_tests)
 
+add_executable(cli_presentation_tests tests/cli_presentation_tests.cpp)
+target_link_libraries(cli_presentation_tests PRIVATE engine GTest::gtest_main)
+gtest_discover_tests(cli_presentation_tests)
+
 add_executable(golden_replay_tests tests/golden_replay_tests.cpp)
 target_link_libraries(golden_replay_tests PRIVATE engine GTest::gtest_main)
 target_compile_definitions(golden_replay_tests

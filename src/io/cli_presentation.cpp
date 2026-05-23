@@ -7,7 +7,6 @@
 #include "io/parser.hpp"
 
 #include <algorithm>
-#include <chrono>
 #include <cstdlib>
 #include <cctype>
 #include <filesystem>
@@ -17,14 +16,11 @@
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <thread>
 #include <variant>
 #include <vector>
 
 namespace matching_engine {
 namespace {
-
-constexpr auto trace_line_delay = std::chrono::milliseconds{20};
 
 /**
  * @brief One guided presentation step in the demo.
@@ -1012,12 +1008,8 @@ void print_trace_lines(const std::vector<std::string>& lines,
                        std::ostream& output,
                        std::string_view indent) {
     for (const auto& line : lines) {
-        // Indentation keeps traces readable inside both manual and guided output.
+        // Indentation keeps derived guided-demo trace lines visually grouped.
         output << indent << line << '\n';
-        output.flush();
-
-        // A short pause makes each derived pipeline step visible without feeling sluggish.
-        std::this_thread::sleep_for(trace_line_delay);
     }
 }
 
@@ -1307,12 +1299,16 @@ bool execute_command_line(const std::string& line,
                           Parser& parser,
                           Exchange& exchange,
                           std::ostream& output,
-                          bool print_book_for_print_action) {
+                          bool print_book_for_print_action,
+                          bool print_trace) {
     const auto action = parser.parse_line(line);
     if (!action) {
         output << "REJECTED invalid command\n";
-        output << "Live execution trace:\n"
-               << "  parse: ERROR -> invalid command\n";
+        if (print_trace) {
+            // Guided output names parse failures so demo readers see where rejection occurred.
+            output << "Live execution trace:\n"
+                   << "  parse: ERROR -> invalid command\n";
+        }
         return false;
     }
 
@@ -1332,10 +1328,13 @@ bool execute_command_line(const std::string& line,
         output << line_text << '\n';
     }
 
-    output << "Live execution trace:\n";
-    print_trace_lines(format_execution_trace(*action, events, before_orders, exchange),
-                      output,
-                      "  ");
+    if (print_trace) {
+        // Trace output is optional because manual command mode favors compact feedback.
+        output << "Live execution trace:\n";
+        print_trace_lines(format_execution_trace(*action, events, before_orders, exchange),
+                          output,
+                          "  ");
+    }
 
     return true;
 }
@@ -1620,7 +1619,7 @@ void run_manual_command_mode(std::istream& input, std::ostream& output) {
             continue;
         }
 
-        execute_command_line(command, parser, exchange, output, true);
+        execute_command_line(command, parser, exchange, output, true, false);
         output << '\n';
     }
 }

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.9.2 -> Full Local Benchmark Suite Runner
+
+- Wired CLI option 3 into a full local benchmark-suite runner that launches the core hot-path, batch-latency, realistic-flow, stress, determinism-replay, and experimental reserve-sweep executables in sequence.
+- Added Release-biased benchmark discovery through `argv[0]`, `build-release/`, and `build-linux/`, with a complete-suite check so Debug and Release benchmark binaries are not mixed accidentally.
+- Added missing-executable guidance that prints the exact benchmark targets and searched directories when the local suite has not been built yet.
+- Added a confirmation prompt and `q`/`quit`/`exit`/`back` escape path before running the long local benchmark sequence.
+- Changed CMake so benchmark targets are available to local builds consistently instead of only appearing for Release configure types.
+- Added `local-benchmark-results/` to `.gitignore` for local batch-latency artifacts.
+- Kept local benchmark output explicitly labeled as machine-local quick-check data, with official benchmark claims still tied to the Linux/EC2 validation workflow.
+
 ## v0.9.1 -> Local Benchmark Comparison Mode
 
 - Wired CLI option 2 into a local-only benchmark comparison mode for the optimized engine versus the std baseline.
