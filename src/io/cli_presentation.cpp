@@ -3,6 +3,7 @@
 #include "core/action.hpp"
 #include "core/event.hpp"
 #include "exchange.hpp"
+#include "io/local_benchmark_comparison.hpp"
 #include "io/parser.hpp"
 
 #include <algorithm>
@@ -1296,11 +1297,7 @@ void run_cli_presentation(std::istream& input, std::ostream& output) {
         if (choice == "1") {
             run_guided_demo(input, output);
         } else if (choice == "2") {
-            print_placeholder(
-                input,
-                output,
-                "Benchmark comparison is not wired yet. This will compare the optimized engine "
-                "against the std baseline.");
+            run_local_benchmark_comparison(input, output);
         } else if (choice == "3") {
             print_placeholder(
                 input,
@@ -1315,7 +1312,7 @@ void run_cli_presentation(std::istream& input, std::ostream& output) {
             print_help(output);
             output << '\n';
             wait_for_enter(input, output, "Press Enter to return to the main menu...");
-        } else if (choice == "7" || choice == "EXIT") {
+        } else if (choice == "7" || choice == "EXIT" || choice == "QUIT" || choice == "Q") {
             output << "Bye bye!\n";
             return;
         } else {

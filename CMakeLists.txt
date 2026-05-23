@@ -19,6 +19,7 @@ FetchContent_MakeAvailable(unordered_dense)
 
 add_library(engine
     src/io/cli_presentation.cpp
+    src/io/local_benchmark_comparison.cpp
     src/io/parser.cpp
     src/io/script_runner.cpp
     src/book/order_book.cpp

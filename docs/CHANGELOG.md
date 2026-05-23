@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.9.1 -> Local Benchmark Comparison Mode
+
+- Wired CLI option 2 into a local-only benchmark comparison mode for the optimized engine versus the std baseline.
+- Added clear local benchmark warnings, Release-build guidance, Debug-build detection, per-workload confirmation prompts, and `q`/`quit`/`exit` escape paths.
+- Added side-by-side throughput and amortized 256-operation batch latency output for Passive Insert, One-Level Crossing Match, Random Cancel, Unknown Cancel, Modify If Present, and OrderBook True Mixed.
+- Reported optimized versus baseline throughput as `Improvement` in the CLI table, while keeping official benchmark claims tied to the pinned Linux/EC2 workflow.
+- Changed the toy std book back to an intentionally naive reference shape with `std::map` price levels, `std::deque` FIFO queues, and book-local scans for duplicate checks, cancels, modifies, and unknown-id misses.
+- Reused deterministic workload generation, fixed seeds, pre-generated inputs, and caller-owned event buffers so local comparison mode stays educational without changing matching semantics.
+- Verified the local build, option 2 smoke tests, and full CTest suite after the CLI and toy-baseline changes: 127/127 tests passed.
+
 ## v0.9.0 -> CLI Presentation Mode
 
 - Added a polished interactive CLI shell that opens with a product-style main menu instead of dropping directly into raw stdin parsing.

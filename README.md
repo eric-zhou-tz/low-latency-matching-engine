@@ -63,8 +63,9 @@ baseline:
 ```
 
 `toy-std` lives under `toy/` and exists only as a reference baseline. It uses
-plain `std::map`, `std::deque`, and `std::unordered_map` internals and should
-not be treated as a performance implementation.
+plain `std::map` and `std::deque` book internals with book-local scans for
+duplicate checks, cancels, modifies, and unknown-id misses. It should not be
+treated as a performance implementation.
 
 `Exchange` handles multi-symbol simulation and routing, while `OrderBook` is the
 latency-sensitive matching core. Production systems often route using integer

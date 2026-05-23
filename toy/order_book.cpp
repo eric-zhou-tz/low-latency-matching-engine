@@ -14,7 +14,7 @@ void OrderBook::submit(Order order, std::vector<Event>& out) {
         return;
     }
 
-    // FOK preflight keeps the toy baseline from emitting partial fills on reject.
+    // FOK preflight scans visible liquidity so partial fills cannot leak on reject.
     if (order.time_in_force == TimeInForce::FillOrKill && !can_fully_fill(order)) {
         out.push_back(
             RejectedEvent{.reason = RejectReason::InsufficientLiquidity, .order_id = order.id});
@@ -51,15 +51,16 @@ void OrderBook::submit_market(Order order, std::vector<Event>& out) {
 }
 
 /**
- * @brief Cancels a resting order with straightforward queue removal.
+ * @brief Cancels a resting order by scanning the naive std-container book.
  */
 CancelResult OrderBook::cancel(OrderId order_id) {
-    if (!contains_order(order_id)) {
+    auto found = find_resting_order(order_id);
+    if (!found) {
         return RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = order_id};
     }
 
-    // The returned order is not needed for public cancel output.
-    static_cast<void>(remove_resting_order(order_id));
+    // Removal is intentionally scan/cursor based to model the old simple baseline.
+    static_cast<void>(remove_resting_order(*found));
     return CanceledEvent{.order_id = order_id};
 }
 
@@ -72,8 +73,8 @@ void OrderBook::modify(OrderId order_id,
                        std::vector<Event>& out) {
     out.clear();
 
-    Order* existing = find_resting_order(order_id);
-    if (existing == nullptr) {
+    auto found = find_resting_order(order_id);
+    if (!found) {
         out.push_back(RejectedEvent{.reason = RejectReason::UnknownOrderId, .order_id = order_id});
         return;
     }
@@ -83,16 +84,13 @@ void OrderBook::modify(OrderId order_id,
         return;
     }
 
-    const Price old_price = existing->price;
-    const Quantity old_quantity = existing->quantity;
-    const Side side = existing->side;
+    const Price old_price = found->order->price;
+    const Quantity old_quantity = found->order->quantity;
+    const Side side = found->order->side;
 
     if (new_price == old_price && new_quantity < old_quantity) {
-        // Reducing size in place preserves FIFO priority and only updates aggregate volume.
-        const Quantity reduced_by = old_quantity - new_quantity;
-        auto& level = side == Side::Buy ? bids_.find(old_price)->second : asks_.find(old_price)->second;
-        level.total_volume -= reduced_by;
-        existing->quantity = new_quantity;
+        // Same-price quantity reductions preserve FIFO position in the old baseline too.
+        found->order->quantity = new_quantity;
         out.push_back(ModifiedEvent{.order_id = order_id,
                                     .old_price = old_price,
                                     .new_price = new_price,
@@ -101,9 +99,8 @@ void OrderBook::modify(OrderId order_id,
         return;
     }
 
-    // Price changes and size increases lose FIFO priority through cancel-replace semantics.
-    // Capture old fields before removal; the removed value is not otherwise needed.
-    static_cast<void>(remove_resting_order(order_id));
+    // Price changes and size increases are cancel-replace operations that lose FIFO priority.
+    static_cast<void>(remove_resting_order(*found));
     out.push_back(ReplacedEvent{.old_order_id = order_id,
                                 .new_order_id = order_id,
                                 .old_price = old_price,
@@ -120,10 +117,10 @@ void OrderBook::modify(OrderId order_id,
 }
 
 /**
- * @brief Checks whether the toy id index contains a live order.
+ * @brief Checks whether a live order exists by scanning every resting queue.
  */
 bool OrderBook::contains_order(OrderId order_id) const {
-    return orders_by_id_.contains(order_id);
+    return find_resting_order(order_id).has_value();
 }
 
 /**
@@ -131,7 +128,17 @@ bool OrderBook::contains_order(OrderId order_id) const {
  */
 std::string OrderBook::snapshot() const {
     std::ostringstream output;
-    output << "orders=" << orders_by_id_.size();
+    std::size_t live_orders = 0;
+
+    for (const auto& [_, level] : bids_) {
+        live_orders += level.orders.size();
+    }
+    for (const auto& [_, level] : asks_) {
+        live_orders += level.orders.size();
+    }
+
+    // The count is derived from queues because this baseline has no book-local id index.
+    output << "orders=" << live_orders;
 
     for (const auto& [_, level] : bids_) {
         for (const Order& order : level.orders) {
@@ -151,45 +158,53 @@ std::string OrderBook::snapshot() const {
 }
 
 /**
- * @brief Finds a mutable order by scanning the recorded price level.
+ * @brief Finds a mutable order by scanning bid queues and then ask queues.
  */
-Order* OrderBook::find_resting_order(OrderId order_id) {
-    const auto found = orders_by_id_.find(order_id);
-    if (found == orders_by_id_.end()) {
-        return nullptr;
-    }
-
-    auto& level = found->second.side == Side::Buy ? bids_.find(found->second.price)->second
-                                                  : asks_.find(found->second.price)->second;
-    for (Order& order : level.orders) {
-        // The toy baseline uses a simple queue scan instead of direct node pointers.
-        if (order.id == order_id) {
-            return &order;
+std::optional<OrderBook::OrderCursor> OrderBook::find_resting_order(OrderId order_id) {
+    for (auto& [price, level] : bids_) {
+        for (auto order = level.orders.begin(); order != level.orders.end(); ++order) {
+            // The old std baseline intentionally pays a queue scan for id lookup.
+            if (order->id == order_id) {
+                return OrderCursor{.side = Side::Buy, .price = price, .order = order};
+            }
         }
     }
 
-    return nullptr;
+    for (auto& [price, level] : asks_) {
+        for (auto order = level.orders.begin(); order != level.orders.end(); ++order) {
+            // Ask queues use the same scan path as bid queues.
+            if (order->id == order_id) {
+                return OrderCursor{.side = Side::Sell, .price = price, .order = order};
+            }
+        }
+    }
+
+    return std::nullopt;
 }
 
 /**
- * @brief Finds an immutable order by scanning the recorded price level.
+ * @brief Finds an immutable order by scanning bid queues and then ask queues.
  */
-const Order* OrderBook::find_resting_order(OrderId order_id) const {
-    const auto found = orders_by_id_.find(order_id);
-    if (found == orders_by_id_.end()) {
-        return nullptr;
-    }
-
-    const auto& level = found->second.side == Side::Buy ? bids_.find(found->second.price)->second
-                                                        : asks_.find(found->second.price)->second;
-    for (const Order& order : level.orders) {
-        // The toy baseline intentionally pays linear lookup cost inside the level.
-        if (order.id == order_id) {
-            return &order;
+std::optional<OrderBook::ConstOrderCursor> OrderBook::find_resting_order(OrderId order_id) const {
+    for (const auto& [price, level] : bids_) {
+        for (auto order = level.orders.begin(); order != level.orders.end(); ++order) {
+            // Const scans keep contains_order simple and intentionally linear.
+            if (order->id == order_id) {
+                return ConstOrderCursor{.side = Side::Buy, .price = price, .order = order};
+            }
         }
     }
 
-    return nullptr;
+    for (const auto& [price, level] : asks_) {
+        for (auto order = level.orders.begin(); order != level.orders.end(); ++order) {
+            // Missing ids scan all visible ask orders before rejecting.
+            if (order->id == order_id) {
+                return ConstOrderCursor{.side = Side::Sell, .price = price, .order = order};
+            }
+        }
+    }
+
+    return std::nullopt;
 }
 
 /**
@@ -197,66 +212,51 @@ const Order* OrderBook::find_resting_order(OrderId order_id) const {
  */
 void OrderBook::add_resting_order(const Order& order) {
     auto& level = order.side == Side::Buy ? bids_[order.price] : asks_[order.price];
+
+    // Appending to the deque tail preserves FIFO priority within the price level.
     level.orders.push_back(order);
-    level.total_volume += order.quantity;
-    orders_by_id_.emplace(order.id, OrderLocation{.side = order.side, .price = order.price});
 }
 
 /**
- * @brief Removes an order by scanning its recorded price queue.
+ * @brief Removes an order at a previously discovered cursor.
  */
-Order OrderBook::remove_resting_order(OrderId order_id) {
-    const auto location = orders_by_id_.at(order_id);
-    if (location.side == Side::Buy) {
-        auto level = bids_.find(location.price);
-        for (auto order = level->second.orders.begin(); order != level->second.orders.end(); ++order) {
-            if (order->id != order_id) {
-                continue;
-            }
-
-            // Keep aggregate volume in sync with the erased queue entry.
-            Order removed = *order;
-            level->second.total_volume -= order->quantity;
-            level->second.orders.erase(order);
-            orders_by_id_.erase(order_id);
-
-            if (level->second.orders.empty()) {
-                bids_.erase(level);
-            }
-
-            return removed;
+Order OrderBook::remove_resting_order(const OrderCursor& cursor) {
+    if (cursor.side == Side::Buy) {
+        auto level = bids_.find(cursor.price);
+        if (level == bids_.end()) {
+            return {};
         }
-    } else {
-        auto level = asks_.find(location.price);
-        for (auto order = level->second.orders.begin(); order != level->second.orders.end(); ++order) {
-            if (order->id != order_id) {
-                continue;
-            }
 
-            // Keep aggregate volume in sync with the erased queue entry.
-            Order removed = *order;
-            level->second.total_volume -= order->quantity;
-            level->second.orders.erase(order);
-            orders_by_id_.erase(order_id);
-
-            if (level->second.orders.empty()) {
-                asks_.erase(level);
-            }
-
-            return removed;
+        // Copy before erase so callers can inspect the removed logical fields if needed.
+        Order removed = *cursor.order;
+        level->second.orders.erase(cursor.order);
+        if (level->second.orders.empty()) {
+            bids_.erase(level);
         }
+        return removed;
     }
 
-    return {};
+    auto level = asks_.find(cursor.price);
+    if (level == asks_.end()) {
+        return {};
+    }
+
+    // Ask-side removal mirrors bid-side queue erasure.
+    Order removed = *cursor.order;
+    level->second.orders.erase(cursor.order);
+    if (level->second.orders.empty()) {
+        asks_.erase(level);
+    }
+    return removed;
 }
 
 /**
- * @brief Clears output and rejects duplicate resting ids.
+ * @brief Clears output and rejects duplicate resting ids through a full scan.
  */
 bool OrderBook::prepare_incoming_order(const Order& order, std::vector<Event>& out) const {
     out.clear();
 
-    if (orders_by_id_.contains(order.id)) {
+    if (contains_order(order.id)) {
         out.push_back(RejectedEvent{.reason = RejectReason::DuplicateOrderId, .order_id = order.id});
         return false;
     }
@@ -265,7 +265,7 @@ bool OrderBook::prepare_incoming_order(const Order& order, std::vector<Event>& o
 }
 
 /**
- * @brief Checks crossing aggregate volume before a FOK order is accepted.
+ * @brief Checks crossing visible quantity before a FOK order is accepted.
  */
 bool OrderBook::can_fully_fill(const Order& order) const {
     Quantity remaining = order.quantity;
@@ -276,11 +276,13 @@ bool OrderBook::can_fully_fill(const Order& order) const {
                 break;
             }
 
-            // Aggregate level volume is enough for correctness even in the toy baseline.
-            if (level.total_volume >= remaining) {
-                return true;
+            // Sum the queue directly because this baseline keeps no aggregate level volume.
+            for (const Order& resting : level.orders) {
+                if (resting.quantity >= remaining) {
+                    return true;
+                }
+                remaining -= resting.quantity;
             }
-            remaining -= level.total_volume;
         }
     } else {
         for (const auto& [price, level] : bids_) {
@@ -288,11 +290,13 @@ bool OrderBook::can_fully_fill(const Order& order) const {
                 break;
             }
 
-            // Walk price levels in priority order until enough quantity is visible.
-            if (level.total_volume >= remaining) {
-                return true;
+            // Walk bid queues in priority order until enough quantity is visible.
+            for (const Order& resting : level.orders) {
+                if (resting.quantity >= remaining) {
+                    return true;
+                }
+                remaining -= resting.quantity;
             }
-            remaining -= level.total_volume;
         }
     }
 
@@ -335,11 +339,9 @@ void OrderBook::match_buy_order(Order& incoming, std::vector<Event>& out) {
 
         incoming.quantity -= trade_quantity;
         resting.quantity -= trade_quantity;
-        best_ask->second.total_volume -= trade_quantity;
 
         if (resting.quantity == 0) {
-            // Filled resting orders leave both the queue and the toy id index.
-            orders_by_id_.erase(resting.id);
+            // Filled resting orders leave the front of the naive FIFO queue.
             best_ask->second.orders.pop_front();
         }
 
@@ -370,11 +372,9 @@ void OrderBook::match_sell_order(Order& incoming, std::vector<Event>& out) {
 
         incoming.quantity -= trade_quantity;
         resting.quantity -= trade_quantity;
-        best_bid->second.total_volume -= trade_quantity;
 
         if (resting.quantity == 0) {
-            // Filled resting orders leave both the queue and the toy id index.
-            orders_by_id_.erase(resting.id);
+            // Filled resting orders leave the front of the naive FIFO queue.
             best_bid->second.orders.pop_front();
         }
 

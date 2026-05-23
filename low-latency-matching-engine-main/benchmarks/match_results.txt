@@ -1,0 +1,15 @@
+---------------------------------------------------------------------------------------------------
+Benchmark                                         Time             CPU   Iterations UserCounters...
+---------------------------------------------------------------------------------------------------
+BM_CrossingLimitOrderMatch/1000_mean         118452 ns       118468 ns            5 items_per_second=8.45705M/s
+BM_CrossingLimitOrderMatch/1000_median       115638 ns       115640 ns            5 items_per_second=8.64749M/s
+BM_CrossingLimitOrderMatch/1000_stddev         5910 ns         5943 ns            5 items_per_second=398.236k/s
+BM_CrossingLimitOrderMatch/1000_cv             4.99 %          5.02 %             5 items_per_second=4.71%
+BM_CrossingLimitOrderMatch/10000_mean       1169774 ns      1169432 ns            5 items_per_second=8.55897M/s
+BM_CrossingLimitOrderMatch/10000_median     1150554 ns      1150187 ns            5 items_per_second=8.69424M/s
+BM_CrossingLimitOrderMatch/10000_stddev       40338 ns        40362 ns            5 items_per_second=283.048k/s
+BM_CrossingLimitOrderMatch/10000_cv            3.45 %          3.45 %             5 items_per_second=3.31%
+BM_CrossingLimitOrderMatch/100000_mean     17588158 ns     17586539 ns            5 items_per_second=5.68622M/s
+BM_CrossingLimitOrderMatch/100000_median   17600095 ns     17598337 ns            5 items_per_second=5.68236M/s
+BM_CrossingLimitOrderMatch/100000_stddev      59645 ns        59612 ns            5 items_per_second=19.2604k/s
+BM_CrossingLimitOrderMatch/100000_cv           0.34 %          0.34 %             5 items_per_second=0.34%

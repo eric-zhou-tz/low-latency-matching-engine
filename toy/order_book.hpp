@@ -7,8 +7,8 @@
 #include <deque>
 #include <functional>
 #include <map>
+#include <optional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace matching_engine::toy {
@@ -72,36 +72,45 @@ public:
 
 private:
     /**
-     * @brief Naive per-price FIFO queue and aggregate volume.
+     * @brief Naive per-price FIFO queue.
      */
     struct PriceLevel {
         std::deque<Order> orders;
-        Quantity total_volume{};
     };
 
     /**
-     * @brief Minimal lookup metadata for a resting order.
+     * @brief Mutable location for a resting order found by scanning.
      */
-    struct OrderLocation {
-        Side side{Side::Buy};
+    struct OrderCursor {
+        Side side{};
         Price price{};
+        std::deque<Order>::iterator order;
     };
 
     /**
-     * @brief Finds a resting order by scanning its recorded price queue.
-     *
-     * @param order_id Identifier to find.
-     * @return Pointer to the live order or nullptr when missing.
+     * @brief Immutable location for a resting order found by scanning.
      */
-    [[nodiscard]] Order* find_resting_order(OrderId order_id);
+    struct ConstOrderCursor {
+        Side side{};
+        Price price{};
+        std::deque<Order>::const_iterator order;
+    };
 
     /**
-     * @brief Finds a resting order by scanning its recorded price queue.
+     * @brief Finds a resting order by scanning all price levels.
      *
      * @param order_id Identifier to find.
-     * @return Pointer to the live order or nullptr when missing.
+     * @return Cursor to the live order or an empty cursor when missing.
      */
-    [[nodiscard]] const Order* find_resting_order(OrderId order_id) const;
+    [[nodiscard]] std::optional<OrderCursor> find_resting_order(OrderId order_id);
+
+    /**
+     * @brief Finds a resting order by scanning all price levels.
+     *
+     * @param order_id Identifier to find.
+     * @return Cursor to the live order or an empty cursor when missing.
+     */
+    [[nodiscard]] std::optional<ConstOrderCursor> find_resting_order(OrderId order_id) const;
 
     /**
      * @brief Adds an unmatched order to the correct std::deque price level.
@@ -111,12 +120,12 @@ private:
     void add_resting_order(const Order& order);
 
     /**
-     * @brief Removes a resting order by scanning its queue.
+     * @brief Removes a resting order at a previously scanned cursor.
      *
-     * @param order_id Identifier to remove.
+     * @param cursor Cursor identifying the order to remove.
      * @return Removed order when found.
      */
-    [[nodiscard]] Order remove_resting_order(OrderId order_id);
+    [[nodiscard]] Order remove_resting_order(const OrderCursor& cursor);
 
     /**
      * @brief Resets per-action output and rejects duplicate live ids.
@@ -161,7 +170,6 @@ private:
 
     std::map<Price, PriceLevel, std::greater<Price>> bids_;
     std::map<Price, PriceLevel> asks_;
-    std::unordered_map<OrderId, OrderLocation> orders_by_id_;
 };
 
 } // namespace matching_engine::toy
