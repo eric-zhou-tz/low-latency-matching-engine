@@ -51,7 +51,7 @@ All notable changes to this project will be documented in this file.
 - Added deterministic exchange debug snapshots for presentation rendering while preserving the existing matching logic and script-runner behavior.
 - Verified the local build and full CTest suite after the CLI changes: 127/127 tests passed.
 
-## v0.8.2 -> v1 Hot and Critical Path Analysis + Graphs
+## v0.8.2 -> Hot and Critical Path Analysis + Graphs
 
 - Reran the hot/critical path benchmark workflow on the Ubuntu EC2 `t3.small`
   host with a pinned Release build using `-O3 -DNDEBUG -march=native`.

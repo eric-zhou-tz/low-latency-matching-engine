@@ -16,8 +16,8 @@ flamegraph artifacts from the Linux run.
   made the worktree dirty after the run began
 - Validation: `130/130` CTest cases passed before benchmark execution
 
-Historical benchmark development through earlier v0.x releases was performed on
-EC2 `t3.small`. This refreshed v1 benchmark and profiling pass was rerun on EC2
+Historical benchmark development before the `v0.9.4` refresh was performed on
+EC2 `t3.small`. This `v0.9.4` benchmark and profiling pass was rerun on EC2
 `c7i-flex.large` for more stable sustained CPU performance and profiling
 consistency.
 

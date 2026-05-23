@@ -7,10 +7,10 @@ dump at `../benchmarks/benchmark_history.sql`.
 
 ## Current Official Refresh
 
-Historical benchmark development through earlier v0.x releases was performed on
-EC2 `t3.small`. The refreshed v1 benchmark suite was rerun on EC2
-`c7i-flex.large` for more stable sustained CPU performance and profiling
-consistency. The historical table below preserves older t3 rows as historical
+Historical benchmark development before the `v0.9.4` refresh was performed on
+EC2 `t3.small`. The `v0.9.4` benchmark suite was rerun on EC2 `c7i-flex.large`
+for more stable sustained CPU performance and profiling consistency. The
+historical table below preserves older t3 rows as historical
 context; the authoritative row-level c7i refresh data now lives in SQLite.
 
 | Date | Commit | Environment | Validation | Notes |

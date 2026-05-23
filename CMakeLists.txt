@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
     matching_engine
-    VERSION 0.7.2
-    DESCRIPTION "Modern C++20 matching engine scaffold"
+    VERSION 0.9.4
+    DESCRIPTION "Low-latency C++20 matching engine"
     LANGUAGES CXX
 )
 

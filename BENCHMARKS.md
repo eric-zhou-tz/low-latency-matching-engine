@@ -29,7 +29,7 @@ The suite separates direct matching-core performance from public-boundary cost. 
 
 ![Hot/critical path throughput comparison](docs/hotpath-throughput.svg)
 
-Historical benchmark development through earlier v0.x releases was performed on EC2 `t3.small`. The refreshed v1 benchmark suite was rerun on EC2 `c7i-flex.large` for more stable sustained CPU performance and profiling consistency. Historical rows remain labeled with their original hardware and should not be read as c7i results.
+Historical benchmark development before the `v0.9.4` refresh was performed on EC2 `t3.small`. The `v0.9.4` benchmark suite was rerun on EC2 `c7i-flex.large` for more stable sustained CPU performance and profiling consistency. Historical rows remain labeled with their original hardware and should not be read as c7i results.
 
 ## Benchmark Methodology
 
@@ -249,7 +249,7 @@ Profile flamegraphs:
 | v0.8.1 | Added SQLite benchmark history. | Moved row-level history into a queryable database while keeping Markdown focused on current summaries and context. |
 | v0.8.2 | Added hot-path charts and Linux `cpu-clock` flamegraphs. | Connected throughput, latency, and sampled profile artifacts to the same EC2 benchmark methodology. |
 | v0.9.1-v0.9.2 | Added local comparison and full local benchmark-suite runners. | Improved development ergonomics while keeping official performance claims tied to native EC2 validation. |
-| v1 refresh | Reran the official suite on EC2 `c7i-flex.large`. | Updated current benchmark claims on newer hardware while preserving earlier `t3.small` rows as historical context. |
+| v0.9.4 | Reran the official suite on EC2 `c7i-flex.large`. | Updated current benchmark claims on newer hardware while preserving earlier `t3.small` rows as historical context. |
 
 Queryable history for technical review is available in `benchmarks/benchmark_history.db`, with the regenerating SQL dump in `benchmarks/benchmark_history.sql`.
 

@@ -6,13 +6,13 @@ This repository implements a low-latency C++ matching engine for exchange-style 
 
 Orders are processed synchronously through an event-driven command flow. A parsed action is applied to the exchange, routed to an order book, and converted into domain events that describe the observable result of the operation.
 
-The current implementation is intentionally focused on correctness, deterministic behavior, and clean systems design with targeted hot-path optimizations where they make the matching rules clearer. It uses ordered standard-library maps for price levels, intrusive FIFO queues for per-price order priority, and pooled order storage so cancellation and matching remain easy to inspect while avoiding avoidable node allocation.
+The current implementation is intentionally focused on correctness, deterministic behavior, and clean systems design with targeted hot-path optimizations where they make the matching rules clearer. It uses ordered standard-library maps for price levels, intrusive FIFO queues for per-price order priority, and pooled order storage with a free-list reuse path so cancellation and matching remain easy to inspect while avoiding avoidable node allocation.
 
 ## Core Components
 
 ### Exchange
 
-`Exchange` is the command-processing boundary. It receives typed `Action` values, owns order books by symbol, routes submissions to the correct book, and writes emitted `Event` values into a caller-owned buffer.
+`Exchange` is the command-processing boundary. It receives typed `Action` values, owns order books by symbol, routes symbol-scoped actions to the correct book, and writes emitted `Event` values into a caller-owned buffer.
 
 The exchange also maintains a live order index:
 
@@ -27,9 +27,9 @@ The index maps each live order ID to the single-symbol `OrderBook` that owns the
 `OrderBook` owns the resting liquidity for a single symbol. It stores bid and
 ask price levels, performs crossing checks, executes matching, rests unfilled
 quantity, cancels live orders, and writes the events produced by those state
-transitions. Submissions can produce an event stream because one incoming order
-can accept and then trade against several resting orders. Cancellation produces
-exactly one `CancelResult`.
+transitions. Submit, market, and modify paths can produce event streams because
+one incoming order can accept and then trade against several resting orders.
+Cancellation produces exactly one `CancelResult`.
 
 ### Parser
 
@@ -38,20 +38,50 @@ exactly one `CancelResult`.
 Supported commands currently include:
 
 ```text
-SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity>
+SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity> [GTC|IOC|FOK]
+MARKET <id> <symbol> <BUY|SELL> <quantity>
 CANCEL <id>
+MODIFY <id> <new_price> <new_quantity>
 PRINT
 ```
+
+`SUBMIT` defaults to `GTC` when no time-in-force token is provided. `MARKET`
+orders omit price because they use available opposite-side liquidity
+immediately and never rest. `MODIFY` is routed by order ID because the exchange
+live-order index already knows which symbol book owns the resting order.
 
 ### Actions
 
 Actions represent validated command intent before it mutates exchange state. The current action set is implemented as a `std::variant`:
 
 ```cpp
-using Action = std::variant<SubmitOrderAction, CancelOrderAction, PrintBookAction>;
+using Action =
+    std::variant<SubmitOrderAction,
+                 MarketOrderAction,
+                 CancelOrderAction,
+                 ModifyOrderAction,
+                 PrintBookAction>;
 ```
 
 This keeps command dispatch explicit and makes replay-style processing straightforward.
+
+### Command Routing Paths
+
+Every parsed action enters `Exchange::process`, which clears the caller-owned
+event buffer and uses `std::visit` to dispatch the typed command.
+
+| Command | Routing path | State mutation |
+| --- | --- | --- |
+| `SUBMIT` | Exchange duplicate check -> symbol book lookup/create -> `OrderBook::submit` | May trade, rest `GTC` remainder, update book and exchange live indexes. |
+| `MARKET` | Exchange duplicate check -> symbol book lookup/create -> `OrderBook::submit_market` | May trade immediately, never rests incoming remainder. |
+| `CANCEL` | Exchange order-id route lookup -> owning `OrderBook::cancel` | Removes one resting order from queue, book index, pool, and exchange index. |
+| `MODIFY` | Exchange order-id route lookup -> owning `OrderBook::modify` | Either updates quantity in place or cancel-replaces through normal matching. |
+| `PRINT` | Exchange iterates known symbol books -> `OrderBook::snapshot` | Does not mutate matching state. |
+
+After submit, market, and modify operations, the exchange scans emitted
+`TradeEvent` values and removes fully filled resting orders from
+`order_to_book_`. That keeps the exchange-level route index aligned with each
+book's internal live-order index.
 
 ### Events
 
@@ -69,6 +99,18 @@ Cancellation stays on a direct single-result API:
 ```cpp
 CancelResult cancel(OrderId order_id);
 ```
+
+Modification can emit one or more events because cancel-replace behavior may
+turn the replacement into an aggressive order that immediately trades:
+
+```cpp
+void modify(OrderId order_id, Price new_price, Quantity new_quantity, std::vector<Event>& out);
+```
+
+The design decision is to keep `Action` as a closed set of typed commands rather
+than route string tokens through the exchange. That makes unsupported commands a
+parser concern, keeps exchange dispatch exhaustive at compile time, and gives
+tests a direct way to exercise matching behavior without text parsing.
 
 ## Order Book Data Structures
 
@@ -113,13 +155,69 @@ main tradeoff is weaker iterator and reference stability around insert/erase and
 rehash operations; this book only stores `Order*` values in the map, so order
 object lifetime remains owned by `OrderPool`.
 
+### Design Decisions and Tradeoffs
+
+The book intentionally uses `std::map` for price levels instead of a flat sorted
+vector, heap, or fixed tick array. A tree costs pointer chasing and has weaker
+cache locality than contiguous storage, but it gives deterministic ordering,
+stable logarithmic insert/erase, and direct best-price access without assuming a
+bounded price domain. That is a good fit for an inspectable matching engine
+where correctness and replayability are more important than squeezing every
+cycle from a specialized price ladder.
+
+The same design uses intrusive FIFO queues instead of `std::deque` or
+`std::list` per price level. The tradeoff is that `Order` carries `prev` and
+`next` fields and queue ownership must be disciplined, but the benefit is direct
+unlink on cancel, no extra list node allocation, and a queue shape that mirrors
+price-time priority: append at the tail, match from the head.
+
+Order objects live in `OrderPool` blocks instead of individually allocated
+nodes. This custom pool allocator is one of the highest-impact performance
+choices in the engine: it keeps recently created orders close together in
+memory, preserves stable `Order*` values for intrusive queues and hash indexes,
+and lets filled or canceled slots be reused from a local free list.
+
+The free list matters because the hottest destructive paths are cancel and full
+fill. When either path removes an order, the book unlinks the intrusive node,
+erases the id index entry, and returns the slot to `OrderPool::release()` rather
+than calling the general-purpose allocator. A later insert can take that slot
+directly from `OrderPool::create()`. This turns repeated order churn into local
+pointer rewiring and slot reuse instead of repeated heap allocate/free traffic.
+
+The tradeoff is manual lifetime management inside the pool and block-level
+capacity tuning. The benefit is large: the EC2 optimized-vs-std-toy comparison
+shows the optimized book ahead by `122.13x` on passive insert, `320.71x` on
+random cancel, and `1,642.78x` on unknown cancel at 10,000 operations. Those
+gains come from the combination of dense id lookup, intrusive FIFO links, and
+pooled free-list storage removing scans and allocator pressure from the hot
+paths.
+
+The exchange keeps a second live-order index from order ID to owning book. This
+duplicates a small amount of metadata already present inside each book, but it
+turns cross-symbol cancel and modify routing into an average `O(1)` lookup
+instead of a scan over symbol books. Heap-owning the books with
+`std::unique_ptr<OrderBook>` keeps those stored book pointers stable when the
+symbol map grows.
+
 Live orders are owned by `OrderPool`:
 
 ```cpp
 OrderPool order_pool_;
 ```
 
-`OrderPool` allocates contiguous blocks of order slots and reuses canceled or filled slots through an internal free list. `OrderBook` owns the pool, while `OrderQueue` and `orders_by_id_` only hold raw non-owning pointers into that pool.
+`OrderPool` allocates contiguous blocks of order slots and reuses canceled or
+filled slots through an internal free list:
+
+```text
+new resting order -> OrderPool::create()
+cancel/full fill  -> OrderPool::release()
+next insert       -> reuse free-list slot before growing blocks
+```
+
+`OrderBook` owns the pool, while `OrderQueue` and `orders_by_id_` only hold raw
+non-owning pointers into that pool. That ownership model keeps pointer lifetime
+simple at the book boundary while letting hot queue/index operations work with
+plain `Order*` values.
 
 ### Reserve Capacity Tuning
 
@@ -165,11 +263,13 @@ Together, these structures implement price-time priority:
 An incoming order follows a synchronous lifecycle:
 
 1. Validate order identity against the live order lookup.
-2. Check whether the incoming limit crosses the best opposite-side price.
-3. Match against the opposite side while price and quantity allow execution.
-4. Generate `TradeEvent` values for each fill.
-5. Reduce incoming and resting quantities for partial fills.
-6. Rest any remaining incoming quantity on its own side of the book.
+2. Reject duplicate live order IDs before emitting acceptance.
+3. For `FOK`, preflight aggregate opposite-side liquidity before mutating state.
+4. Emit `AcceptedEvent` when the order is allowed to execute.
+5. Match against the opposite side while price and quantity allow execution.
+6. Generate `TradeEvent` values for each fill.
+7. Reduce incoming and resting quantities for partial fills.
+8. Rest any remaining incoming `GTC` quantity on its own side of the book.
 
 ### Aggressive Orders
 
@@ -186,6 +286,42 @@ A passive order does not cross the opposite side. A buy order is passive when th
 Passive orders are inserted into the price tree for their side and appended to the tail of the intrusive queue at their price level. The stored `Order*` is added to `orders_by_id_`, which gives older resting orders at the same price priority over newer orders while preserving direct cancel access.
 
 `OrderPool` creates the resting order slot before queue insertion. The order book then links that pointer into the price-level queue and records the same pointer in `orders_by_id_`.
+
+### Time-in-Force and Market Orders
+
+`GTC` limit orders rest any unfilled remainder. `IOC` limit orders can trade
+immediately, but any unfilled remainder expires without entering the book. `FOK`
+limit orders first walk crossing price levels and use each level's
+`total_volume` aggregate to prove the full quantity can execute; if there is not
+enough eligible liquidity, the book emits `RejectedEvent{InsufficientLiquidity}`
+and leaves state unchanged.
+
+Market orders reuse the same best-price matching loops with sentinel prices:
+market buys behave like buys priced at the maximum `Price`, and market sells
+behave like sells priced at the minimum `Price`. This avoids maintaining a
+second execution algorithm. The tradeoff is that market-order intent is visible
+only at the action/exchange boundary; inside the book it becomes an unbounded
+crossing order that never rests. If visible liquidity is insufficient, the book
+emits a rejection for the unfilled remainder after any immediate trades.
+
+### Modify Flow
+
+Modification is routed through the exchange-level `order_to_book_` index, then
+applied inside the owning `OrderBook`.
+
+The book uses two modify paths:
+
+1. Same price with lower quantity: update the order in place, reduce the price
+   level's aggregate `total_volume`, preserve FIFO priority, and emit
+   `ModifiedEvent`.
+2. Price change or size increase: remove the old resting order, emit
+   `ReplacedEvent`, and process the replacement through normal matching/resting
+   logic.
+
+The cancel-replace path intentionally loses FIFO priority because the modified
+order is economically equivalent to a new order at that price/size. This costs
+an extra remove plus insert/match path, but it keeps priority rules explicit and
+prevents size increases from jumping ahead of older resting liquidity.
 
 ## Cancel Flow
 
@@ -223,6 +359,8 @@ using Event = std::variant<
     TradeEvent,
     AcceptedEvent,
     CanceledEvent,
+    ModifiedEvent,
+    ReplacedEvent,
     RejectedEvent,
     BookSnapshotEvent>;
 ```
@@ -235,6 +373,8 @@ Current events include:
 | `RejectedEvent` | Reports invalid operations using a structured `RejectReason` plus order id. |
 | `TradeEvent` | Reports an execution between an incoming order and a resting order. |
 | `CanceledEvent` | Reports successful removal of a resting order. |
+| `ModifiedEvent` | Reports a same-price quantity reduction that preserved FIFO priority. |
+| `ReplacedEvent` | Reports a modify that used cancel-replace semantics and lost FIFO priority. |
 | `BookSnapshotEvent` | Carries snapshot display text for the non-hot-path print command. |
 
 Event-driven design is useful because it keeps mutation and observation separate. The matching engine can update internal state and write a precise event stream without depending on terminal output, logging, networking, or persistence code.
@@ -248,20 +388,39 @@ one result.
 
 ## Complexity Analysis
 
-| Operation            | Complexity                      | Notes                           |
-| -------------------- | ------------------------------- | ------------------------------- |
-| Insert resting order | O(log P) amortized              | Pool slot creation, tree insertion, intrusive tail append |
-| Best bid/ask lookup  | O(1)                            | Front tree access via `begin()` |
-| Match execution      | O(K)                            | K = fills generated             |
-| Cancel by ID         | O(1) average + O(log P) + O(1)  | Hash lookup, price-level lookup, intrusive unlink, pool release |
+| Operation | Complexity | Notes |
+| --- | --- | --- |
+| Exchange submit route | O(1) average + book work | Duplicate check and symbol lookup use flat hash maps. |
+| Exchange cancel/modify route | O(1) average + book work | `order_to_book_` avoids scanning symbol books. |
+| Best bid/ask lookup | O(1) | `begin()` on the ordered price tree. |
+| Insert resting order | O(log P) + O(1) average | Price-level tree insertion/find, pool create, FIFO tail append, order-id index insert. |
+| Match execution | O(K + E) amortized | `K` fills; `E` exhausted price levels erased by iterator. |
+| `FOK` preflight | O(L) | Walks crossing price levels and uses aggregate `total_volume`, not per-order scans. |
+| Cancel by ID | O(1) average + O(log P) + O(1) | Hash lookup, price-level lookup, intrusive unlink, pool release. |
+| Same-price size-reduction modify | O(1) average + O(log P) | Route lookup, order lookup, price-level aggregate update. |
+| Cancel-replace modify | O(1) average + cancel + match/rest | Removes old priority, then executes the replacement through normal matching. |
+| Print snapshot | O(N) | Walks every resting order for presentation text. |
 
 Definitions:
 
 - `P` = number of price levels on a side of the book.
 - `K` = number of matched resting orders that generate fills.
 - `Q` = number of resting orders at one price level.
+- `L` = number of crossing price levels inspected by an `FOK` preflight.
+- `E` = number of price levels exhausted during matching.
+- `N` = number of resting orders in a snapshot.
 
-The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. The exchange-level `order_to_book_` index also removes the previous cross-symbol scan before entering the book. Pool allocation is amortized by fixed-size blocks, cancel/match release paths do not call the general-purpose allocator, and cancel returns a single result instead of using an event vector.
+The old deque-based cancel path had an additional O(Q) queue scan. The current intrusive index stores raw `Order*` values, so cancellation no longer depends on same-price queue depth inside the `OrderBook`. The exchange-level `order_to_book_` index also removes the previous cross-symbol scan before entering the book. Pool allocation is amortized by fixed-size blocks, cancel/match release paths return slots to the free list instead of calling the general-purpose allocator, and cancel returns a single result instead of using an event vector.
+
+Big O does not fully describe the hot path. The current design pays
+`std::map`'s pointer-chasing cost to keep price ordering simple and
+deterministic, then offsets some of that cost with cache-friendlier choices in
+the order-id indexes and order storage. Flat hash maps keep lookup metadata
+contiguous, intrusive queues avoid separate list-node allocations, and pooled
+order blocks make live orders less scattered than per-order heap allocation.
+Reserve sizing is therefore a locality decision as much as a growth decision:
+too little reserve can trigger rehashing or block growth, while too much reserve
+can inflate the working set and hurt cache/TLB behavior.
 
 ## Determinism
 
@@ -283,12 +442,14 @@ Future work should remain separate from the current correctness-focused implemen
 - Further tuning of the order pool block size after broader Linux benchmark validation.
 - Further exchange-level cancel metadata tuning after measuring multi-symbol workloads.
 - Consider an event sink/callback API for submission if future profiling shows caller-owned event buffers are still material on multi-fill workloads.
+- Evaluate alternative price-level containers for bounded tick domains if benchmarks show `std::map` locality is the dominant cost.
+- Add explicit market-data snapshot/delta events instead of using presentation-oriented snapshot strings.
+- Add richer reject metadata if integrations need to distinguish parse, validation, and matching failures more precisely.
 - Lock-free or concurrent designs for higher-throughput deployments.
 - Network ingress and session management.
 - Binary protocols for lower parsing overhead.
 - Persistence and replay logging.
-- Release-mode latency benchmarking on Linux.
-- Multi-symbol scaling with explicit ownership and routing.
+- Multi-symbol sharding with explicit ownership and routing.
 
 ## Design Philosophy
 

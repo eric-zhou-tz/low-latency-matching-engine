@@ -2,125 +2,121 @@
 
 [![CI](https://github.com/eric-zhou-tz/low-latency-matching-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/eric-zhou-tz/low-latency-matching-engine/actions/workflows/ci.yml)
 
-A low-latency exchange-style matching engine written in modern C++20.
+A C++20 exchange-style matching engine built around deterministic price-time
+priority, low-latency data structures, and reproducible Linux benchmarking.
 
-This project focuses on deterministic order matching, price-time priority, and
-performance-oriented systems design. The engine routes parsed exchange commands
-through symbol-level order books and executes trades against resting liquidity
-using FIFO matching semantics.
+The engine routes parsed order commands through an exchange layer, dispatches to
+symbol-level order books, matches against resting liquidity with FIFO semantics,
+and emits structured events for accepted orders, trades, cancels, modifies, and
+rejects.
 
-Designed as a systems engineering project for learning exchange architecture,
-order-book design, and low-latency infrastructure patterns used in modern
-electronic trading systems.
+## Performance Highlights
+
+Latest EC2 Release run: AWS `c7i-flex.large`, Ubuntu Linux, pinned core,
+GCC/G++ 15.2.0, `-O3 -DNDEBUG -march=native`.
+
+| Workload | Throughput |
+| --- | ---: |
+| Random cancel, 100,000 orders | `25.85M ops/sec` |
+| One-level crossing match, 100,000 orders | `32.40M ops/sec` |
+| True mixed OrderBook flow, 100,000 operations | `23.12M ops/sec` |
+| End-to-end true mixed CLI-style flow, 100,000 commands | `2.21M commands/sec` |
+
+Hot-path rows measure typed `OrderBook` work directly. End-to-end rows include
+parsing, exchange routing, matching, and event formatting, so they are expected
+to be lower.
+
+See [BENCHMARKS.md](BENCHMARKS.md) for methodology, hardware, commit
+provenance, and historical results.
+
+## Architecture
+
+```text
+[architecture diagram placeholder]
+```
+
+Core flow:
+
+```text
+Command text -> Parser -> Exchange -> Symbol OrderBook -> Events/Formatting
+```
+
+`Exchange` owns symbol books and routes commands. `OrderBook` owns the
+latency-sensitive matching state. The parser and output formatter sit outside
+the hot path so the matching core can be benchmarked and tested directly.
+
+Additional docs:
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Hot Path Analysis](docs/HOTPATH.md)
+- [Benchmarks](BENCHMARKS.md)
+- [Benchmark History](docs/benchmark_history.md)
+- [Changelog](docs/CHANGELOG.md)
 
 ## Features
 
 - Price-time priority matching
-- Immediate-or-cancel (IOC) and fill-or-kill (FOK) limit orders
-- Market order support
-- FIFO queues at each price level
-- Deterministic integer-based pricing and quantities
-- Cancel order support
-- Exchange-level symbol routing
-- Structured hot-path events with presentation formatting at the boundary
-- GoogleTest unit testing
-- Google Benchmark performance benchmarking
-- End-to-end CLI-style benchmark coverage
-- Linux benchmark validation on EC2
-- Dockerized Linux development workflow
-- Modern CMake-based build system
+- GTC, IOC, and FOK limit orders
+- Market orders
+- Cancel and modify support
+- Multi-symbol exchange routing
+- Integer price and quantity types
+- Deterministic replay fixtures
+- Structured hot-path events
+- GoogleTest and Google Benchmark coverage
+- Docker validation and EC2 benchmark workflow
 
-## Architecture
+## Why Matching Engines Are Hard
 
-The engine follows a simplified exchange-style event flow:
+- Fairness semantics must be explicit: better price first, FIFO within a price.
+- Cancels and modifies can target any live resting order, not just the top.
+- Mixed flow combines passive orders, taker orders, cancels, modifies, and rejects.
+- Allocator churn and cache misses can dominate simple-looking operations.
+- Replay output must stay deterministic while internals evolve.
+- Parser, routing, matching, and formatting costs must be measured separately.
 
-```text
-stdin/orders
-    |
-Parser
-    |
-Exchange
-    |
-Symbol OrderBook
-    |
-Matching Engine
-    |
-Trade / Accept / Reject Events
-```
+## Design Tradeoffs
 
-Text parsing is used for CLI/testing convenience and is intentionally separated
-from the matching core. Most hot-path benchmarks measure the typed matching core
-directly; the dedicated end-to-end benchmarks intentionally include parser,
-exchange, order-book, and event-formatting overhead.
+| Choice | Tradeoff |
+| --- | --- |
+| `std::map` price levels | Deterministic ordered prices and direct best-level access, with `O(log n)` tree costs. |
+| Intrusive FIFO price queues | Preserves time priority and enables O(1) unlink after lookup, at the cost of manual links. |
+| Pooled order storage | Stable `Order*` handles and slot reuse reduce allocator pressure during churn. |
+| Dense order-id maps | Cache-friendlier cancel/modify lookup than node-based maps, while order lifetime stays in the pool. |
+| Structured events | Matching logic avoids string formatting; presentation work happens at the boundary. |
 
-The CLI defaults to the optimized engine. For comparison and regression checks,
-it can also route the same parsed commands through a deliberately simple STL
-baseline:
+## Hot Path Optimizations
 
-```bash
-./build/matching_engine --model=fast < examples/demo.orders
-./build/matching_engine --model=toy-std < examples/demo.orders
-```
+- Intrusive queues avoid same-price scans during cancels and fills.
+- `OrderPool` reuses canceled or filled order slots.
+- Dense hash maps make order-id lookup cache-conscious.
+- Cancel routing maps live order ids directly to owning symbol books.
+- Parser and formatter work are separated from direct `OrderBook` benchmarks.
+- Caller-owned event buffers avoid fresh vectors for multi-fill submissions.
 
-`toy-std` lives under `toy/` and exists only as a reference baseline. It uses
-plain `std::map` and `std::deque` book internals with book-local scans for
-duplicate checks, cancels, modifies, and unknown-id misses. It should not be
-treated as a performance implementation.
+## Benchmark Interpretation
 
-`Exchange` handles multi-symbol simulation and routing, while `OrderBook` is the
-latency-sensitive matching core. Production systems often route using integer
-symbol IDs, symbol partitioning, or both.
-
-Internally, the matching core emits structured domain events rather than
-preformatted strings. Submissions write into caller-owned `std::vector<Event>`
-buffers because one order can produce multiple fills, while cancellation returns
-a single `CancelResult` and does not need an event buffer.
-
-Additional documentation:
-
-- [Architecture](docs/ARCHITECTURE.md)
-- [Benchmarks](BENCHMARKS.md)
-- [Benchmark History](docs/benchmark_history.md)
-- [Hot Path Analysis](docs/HOTPATH.md)
-- [Changelog](docs/CHANGELOG.md)
-
-## Repository Structure
-
-```text
-include/   Public headers
-  core/    Action, event, and order value types
-  book/    Order book, order pool, and price-level queue types
-  io/      Text command parser interface
-src/       Engine implementation
-  book/    Order book matching and cancel logic
-  io/      Parser implementation
-tests/     GoogleTest unit tests
-toy/       Simple std-container baseline engine for comparison/regression
-benchmarks/ Benchmark sources, EC2 runners, and historical result artifacts
-examples/  Example order streams
-docs/      Architecture, changelog, benchmark history, and hot-path notes
-```
+- Hot-path benchmarks isolate the typed matching core.
+- End-to-end benchmarks include parser, exchange, book, and formatting overhead.
+- Microbenchmarks explain data-structure costs; mixed-flow benchmarks exercise
+  more realistic command sequences.
+- Batch latency rows are amortized per operation, not true single-order tail
+  latency.
+- Release benchmark numbers come from Linux/EC2, not local macOS runs.
 
 ## Quick Start
-
-Clone the repository:
 
 ```bash
 git clone https://github.com/eric-zhou-tz/low-latency-matching-engine.git
 cd low-latency-matching-engine
-```
-
-Build the project:
-
-```bash
 cmake -S . -B build
 cmake --build build
 ```
 
-Run the demo order stream:
+Run the demo:
 
 ```bash
-./build/matching_engine < examples/demo.orders
+./build/matching_engine --model=fast < examples/demo.orders
 ```
 
 Run the interactive CLI:
@@ -129,26 +125,22 @@ Run the interactive CLI:
 ./build/matching_engine
 ```
 
-To replay your own command file from the CLI, put one command per line in
-`tests/replay_cli.txt`, then choose option `5) Replay commands from file`.
-Option `2) Manual command mode` accepts commands directly; type `EXIT` there to
-return to the main menu.
+## CLI Flags
 
-Run the demo through each engine model:
+| Flag | Description |
+| --- | --- |
+| `--model=fast` | Optimized matching engine. This is the default. |
+| `--model=toy-std` | Simple std-container baseline for comparison and regression checks. |
+
+Example:
 
 ```bash
-# Fast optimized engine; this is also the default when --model is omitted.
-./build/matching_engine --model=fast < examples/demo.orders
-
-# Toy std baseline for comparison/regression/reference only.
 ./build/matching_engine --model=toy-std < examples/demo.orders
 ```
 
-## Supported Commands
+## Command Protocol
 
-The public CLI/replay protocol accepts one command per line. Commands and enum
-tokens are uppercase, numeric fields are integer values, and malformed lines are
-reported as `REJECTED invalid command`.
+One command is accepted per line:
 
 ```text
 SUBMIT <id> <symbol> <BUY|SELL> <price> <quantity> [GTC|IOC|FOK]
@@ -158,28 +150,16 @@ MODIFY <id> <new_price> <new_quantity>
 PRINT
 ```
 
-Canonical command behavior:
+Behavior summary:
 
-- `SUBMIT` adds a limit order for `symbol`. `GTC` is the default time-in-force
-  when omitted; resting remainders stay on the book only for GTC orders.
-- `SUBMIT ... IOC` executes immediately against crossing liquidity and cancels
-  any unfilled remainder.
-- `SUBMIT ... FOK` executes only if the full quantity is available immediately;
-  otherwise it rejects without mutating the book.
-- `MARKET` consumes opposite-side liquidity immediately without a limit price
-  and never rests on the book.
-- `CANCEL` removes an existing resting order by order id.
-- `MODIFY` changes the price and quantity of an existing resting order by order
-  id. Unknown order ids are rejected.
-- `PRINT` emits a human-readable snapshot for every known symbol book, or
-  `book: empty` before any symbol book exists.
-
-Symbols must be non-empty, quantities must be greater than zero, and commands do
-not accept trailing extra tokens.
+- `SUBMIT` defaults to `GTC`; IOC cancels unfilled remainder; FOK rejects unless
+  the full quantity is immediately available.
+- `MARKET` consumes available opposite-side liquidity and never rests.
+- `CANCEL` removes an existing resting order by id.
+- `MODIFY` updates an existing resting order by id.
+- `PRINT` emits a readable snapshot of known books.
 
 ## Testing
-
-Run unit tests:
 
 ```bash
 ctest --test-dir build --output-on-failure
@@ -187,44 +167,7 @@ ctest --test-dir build --output-on-failure
 
 ## Benchmarking
 
-Benchmarks are implemented using Google Benchmark and executed on a dedicated
-Ubuntu EC2 benchmark host using Release-mode builds.
-
-Current focused core/realistic/std-toy comparison results are from EC2
-`c7i-flex.large` on local source commit `7a5980e1` plus uncommitted benchmark
-runner changes. The latest full suite including stress and replay is from commit
-`53240e0`. Historical benchmark development through earlier v0.x releases was
-performed on EC2 `t3.small`, and those historical rows remain labeled with their
-original hardware.
-
-Current benchmark coverage includes:
-
-- Resting limit-order insertion
-- Aggressive crossing-order matching
-- Random and rejected cancel-order performance
-- True mixed OrderBook workloads with GTC, cancel, modify, IOC, market, and FOK flow
-- Amortized batch latency for matching-engine hot paths
-- End-to-end CLI-style parse/process/format throughput
-- Optimized `OrderBook` versus std-toy direct-book comparison
-
-Latest EC2 Release hot-path highlights:
-
-- 100,000-order insert: `33.64M items/s`
-- 100,000-order crossing match: `32.40M items/s`
-- 100,000 random cancel: `25.85M items/s`
-- 100,000 unknown cancel: `332.12M items/s`
-- 100,000 true mixed OrderBook flow: `23.12M items/s`
-
-Latest EC2 Release end-to-end CLI-style highlights:
-
-- 100,000 command passive insert flow: `2.03M commands/s`
-- 100,000 command true mixed flow: `2.21M commands/s`
-
-End-to-end results include parser, exchange, OrderBook, and event-formatting
-overhead. They should not be compared directly to OrderBook hot-path
-microbenchmarks.
-
-Example Release build:
+Release benchmark build:
 
 ```bash
 cmake -S . -B build -G Ninja \
@@ -234,74 +177,30 @@ cmake -S . -B build -G Ninja \
 cmake --build build
 ```
 
-Detailed benchmark results and methodology are available in
-[BENCHMARKS.md](BENCHMARKS.md).
+Final benchmark validation is run on Ubuntu Linux/EC2 with CPU pinning. Docker is
+used for Linux compatibility checks, not headline performance numbers.
 
 ## Docker Validation
 
-Docker provides a reproducible Ubuntu build and validation path. It is useful
-for checking Linux compatibility, tests, command-line flows, and benchmark
-executable startup. Published performance numbers still come from native
-Release builds on the Linux/EC2 benchmark host.
-
-Build the validation image:
-
 ```bash
 docker build --target validation -t matching-engine-test .
-```
-
-Run the container's default interactive CLI:
-
-```bash
-docker run --rm -it matching-engine-test
-```
-
-Run the demo order stream in Docker:
-
-```bash
 docker run --rm -i matching-engine-test /bin/bash -lc \
   './build/matching_engine --model=fast < examples/demo.orders'
-```
-
-Build and run the lean runtime image:
-
-```bash
-docker build --target runtime -t matching-engine-runtime .
-docker run --rm -i matching-engine-runtime --model=fast < examples/demo.orders
-```
-
-Run the full Docker validation workflow:
-
-```bash
 ./scripts/docker_validate.sh
 ```
 
-The validation script builds a Release image, runs the full CTest suite, checks
-parser/replay/CLI test binaries, exercises the advertised CLI menu flows, and
-launches short benchmark sanity checks. It intentionally does not run the full
-EC2 benchmark suite or record benchmark results.
+The validation script builds a Release image, runs CTest, checks parser/replay
+and CLI binaries, exercises advertised CLI flows, and launches short benchmark
+sanity checks.
 
-Build an interactive Linux development shell:
+## Repository Structure
 
-```bash
-docker build --target dev -t matching-engine-dev .
-docker run --rm -it -v "$PWD":/workspace -w /workspace matching-engine-dev
+```text
+include/    Public headers
+src/        Engine implementation
+tests/      Unit, replay, and CLI tests
+toy/        Simple std-container baseline
+benchmarks/ Benchmark sources, EC2 runners, and history artifacts
+examples/   Example order streams
+docs/       Architecture, benchmark, and hot-path notes
 ```
-
-## Engineering Goals
-
-This project emphasizes:
-
-- Deterministic systems behavior
-- Exchange-style order-book architecture
-- Low-latency engineering principles
-- Testability and reproducibility
-- Clean modern C++ design
-- Linux-based benchmarking workflows
-
-## Future Steps
-
-- Evaluate an event sink/callback API for submissions if event-vector allocation remains visible in future profiles.
-- Formalize the print book action and output contract for non-demo integrations.
-- Add richer trade-report output options at the public boundary.
-- Expand benchmark analysis across parser, symbol routing, formatting, and matching hot paths.
