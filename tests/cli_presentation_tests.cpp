@@ -39,15 +39,16 @@ void expect_not_contains(const std::string& output, const std::string& fragment)
 } // namespace
 
 TEST(CliPresentationTest, ManualModeAcceptsCommandsAndPrintsOrderBookState) {
-    const std::string output = run_cli_text(R"(4
+    const std::string output = run_cli_text(R"(2
 SUBMIT 1 AAPL BUY 100 10 GTC
 SUBMIT 2 AAPL SELL 105 3 GTC
-PRINT
 EXIT
 7
 )");
 
+    expect_contains(output, "2) Manual command mode");
     expect_contains(output, "Manual command mode.");
+    expect_contains(output, "EXIT is the command to return to the main menu.");
     expect_contains(output,
                     "ACCEPTED order_id=1 symbol=AAPL side=BUY price=100 quantity=10 tif=GTC "
                     "status=RESTING");
@@ -57,6 +58,7 @@ EXIT
     expect_contains(output, "Book: AAPL");
     expect_contains(output, "BIDS");
     expect_contains(output, "ASKS");
+    expect_contains(output, "Current book:");
     expect_contains(output, "price=100");
     expect_contains(output, "qty=10");
     expect_contains(output, "id=1");
@@ -67,10 +69,9 @@ EXIT
 }
 
 TEST(CliPresentationTest, ManualModeRejectsBadInputAndContinuesAcceptingCommands) {
-    const std::string output = run_cli_text(R"(4
+    const std::string output = run_cli_text(R"(2
 SUBMIT bad
 SUBMIT 10 MSFT BUY 200 4
-PRINT
 EXIT
 7
 )");

@@ -145,9 +145,9 @@ void print_main_menu(std::ostream& output) {
            << "        Low-Latency Matching Engine\n"
            << "============================================================\n\n"
            << "1) Interactive guided demo\n"
-           << "2) Benchmark comparison: optimized engine vs std baseline\n"
-           << "3) Run full local benchmark suite\n"
-           << "4) Manual command mode\n"
+           << "2) Manual command mode\n"
+           << "3) Benchmark comparison: optimized engine vs std baseline\n"
+           << "4) Run full local benchmark suite\n"
            << "5) Replay commands from file\n"
            << "6) Help\n"
            << "7) Exit\n\n"
@@ -1591,7 +1591,8 @@ void run_manual_command_mode(std::istream& input, std::ostream& output) {
     Exchange exchange;
 
     output << "Manual command mode.\n"
-           << "Type HELP for syntax, PRINT to show books, EXIT to return to menu.\n\n";
+           << "Type commands directly. Type HELP for syntax.\n"
+           << "EXIT is the command to return to the main menu.\n\n";
 
     std::string line;
     while (true) {
@@ -1619,7 +1620,13 @@ void run_manual_command_mode(std::istream& input, std::ostream& output) {
             continue;
         }
 
-        execute_command_line(command, parser, exchange, output, true, false);
+        const bool command_applied =
+            execute_command_line(command, parser, exchange, output, true, false);
+        if (command_applied && control != "PRINT") {
+            // Manual mode reuses the guided demo visualizer so book state is always visible.
+            output << "Current book:\n\n";
+            print_books(exchange, output);
+        }
         output << '\n';
     }
 }
@@ -1655,11 +1662,11 @@ void run_cli_presentation(std::istream& input,
         if (choice == "1") {
             run_guided_demo(input, output);
         } else if (choice == "2") {
-            run_local_benchmark_comparison(input, output);
-        } else if (choice == "3") {
-            run_local_benchmark_runner(input, output, executable_path);
-        } else if (choice == "4") {
             run_manual_command_mode(input, output);
+        } else if (choice == "3") {
+            run_local_benchmark_comparison(input, output);
+        } else if (choice == "4") {
+            run_local_benchmark_runner(input, output, executable_path);
         } else if (choice == "5") {
             print_placeholder(input, output, "Replay-from-file mode is not wired yet.");
         } else if (choice == "6" || choice == "HELP") {
