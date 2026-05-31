@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Latest focused core/realistic/std-toy comparison run: pinned-core EC2/Linux run on `2026-05-23T08:54:21Z`.
+Latest focused core/realistic/std-toy comparison run carried into v1: pinned-core EC2/Linux run on `2026-05-23T08:54:21Z`.
 
 Latest full suite including stress and replay remains the pinned-core EC2/Linux run from `2026-05-23T08:10:34Z`.
 
@@ -19,7 +19,7 @@ stress, replay, profiling artifacts, and core batch-latency rows come from the
 | Build flags | `-O3 -DNDEBUG -march=native` |
 | Framework | Google Benchmark for throughput; custom fixed-batch latency runner |
 | Validation | 130/130 CTest cases passed before benchmarks |
-| Source | Local tree at `7a5980e1` with uncommitted std-toy comparison benchmark and EC2 runner changes |
+| Source | v1 documentation snapshot carrying forward EC2 artifacts from local tree `7a5980e1` plus benchmark-runner changes that were incorporated before the v1 milestone |
 
 | Highlight | Metric |
 | --- | ---: |
@@ -34,7 +34,7 @@ The suite separates direct matching-core performance from public-boundary cost. 
 
 ![Hot/critical path throughput comparison](docs/hotpath-throughput.svg)
 
-Historical benchmark development before the `v0.9.4` refresh was performed on EC2 `t3.small`. The `v0.9.4` benchmark suite was rerun on EC2 `c7i-flex.large` for more stable sustained CPU performance and profiling consistency. Historical rows remain labeled with their original hardware and should not be read as c7i results.
+Historical benchmark development before the v1 refresh was performed on EC2 `t3.small`. The current benchmark suite was rerun on EC2 `c7i-flex.large` for more stable sustained CPU performance and profiling consistency. Historical rows remain labeled with their original hardware and should not be read as c7i results.
 
 ## Benchmark Methodology
 
@@ -259,6 +259,7 @@ Profile flamegraphs:
 | v0.8.2 | Added hot-path charts and Linux `cpu-clock` flamegraphs. | Connected throughput, latency, and sampled profile artifacts to the same EC2 benchmark methodology. |
 | v0.9.1-v0.9.2 | Added local comparison and full local benchmark-suite runners. | Improved development ergonomics while keeping official performance claims tied to native EC2 validation. |
 | v0.9.4 | Reran the official suite on EC2 `c7i-flex.large`. | Updated current benchmark claims on newer hardware while preserving earlier `t3.small` rows as historical context. |
+| v1.0.0 | Stabilized the project version and carried forward the latest c7i-flex.large artifacts without changing measured results. | Aligns release provenance with the v1 milestone while keeping benchmark source dates and commits explicit. |
 
 Queryable history for technical review is available in `benchmarks/benchmark_history.db`, with the regenerating SQL dump in `benchmarks/benchmark_history.sql`.
 

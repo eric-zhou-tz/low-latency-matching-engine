@@ -19,7 +19,7 @@ release-artifacts/
 *.data
 
 .DS_Store
+._*
 .idea/
 .vscode/
-
 

@@ -187,8 +187,8 @@ Download the Linux x86_64 tarball and checksum from the GitHub release assets.
 Do not commit these generated archives to the repository.
 
 ```bash
-VERSION=v0.9.4
-ASSET=matching-engine-v0.9.4-linux-x86_64-20260523T112032Z.tar.gz
+VERSION=v1.0.0
+ASSET=matching-engine-v1.0.0-linux-x86_64.tar.gz
 
 curl -LO "https://github.com/eric-zhou-tz/low-latency-matching-engine/releases/download/$VERSION/$ASSET"
 curl -LO "https://github.com/eric-zhou-tz/low-latency-matching-engine/releases/download/$VERSION/$ASSET.sha256"
@@ -415,6 +415,10 @@ benchmarks/ Benchmark sources, EC2 runners, and history artifacts
 docs/       Architecture, benchmark, and hot-path notes
 CONTRIBUTING.md Contributor workflow and validation expectations
 ```
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
 
 ## Future Scaling Directions
 

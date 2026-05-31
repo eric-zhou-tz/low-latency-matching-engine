@@ -14,14 +14,14 @@ full-suite stress, replay, latency, chart, and flamegraph artifacts from
 - CPU: Intel Xeon Platinum 8488C
 - Compiler: GCC/G++ 15.2.0
 - Build: Release, `-O3 -DNDEBUG -march=native`
-- Focused throughput source: local tree at `7a5980e1` with uncommitted
-  std-toy comparison benchmark and EC2 runner changes
+- Focused throughput source: local tree at `7a5980e1` plus std-toy comparison
+  benchmark and EC2 runner changes incorporated before the v1 milestone
 - Full-suite artifact source: fresh EC2 clone of commit `53240e0`; generated
   benchmark artifacts made the worktree dirty after the run began
 - Validation: `130/130` CTest cases passed before benchmark execution
 
-Historical benchmark development before the `v0.9.4` refresh was performed on
-EC2 `t3.small`. This `v0.9.4` benchmark and profiling pass was rerun on EC2
+Historical benchmark development before the v1 refresh was performed on EC2
+`t3.small`. The current benchmark and profiling pass was rerun on EC2
 `c7i-flex.large` for more stable sustained CPU performance and profiling
 consistency.
 
