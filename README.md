@@ -16,29 +16,41 @@ rejects.
 - [Hot Path Optimizations](#hot-path-optimizations)
 - [Quick Start](#quick-start)
 - [Repository Tour](#repository-tour)
+- [Next Steps](#next-steps)
 
 ## Performance Highlights
 
-Latest focused EC2 Release run: AWS `c7i-flex.large`, Ubuntu Linux, Intel Xeon
+Latest full-suite EC2 Release run: AWS `c7i-flex.large`, Ubuntu Linux, Intel Xeon
 Platinum 8488C, pinned to one CPU with `taskset -c 0`, GCC/G++ 15.2.0,
 `-O3 -DNDEBUG -march=native`.
 
 | Workload | What It Measures | Count | Throughput |
 | --- | --- | ---: | ---: |
-| Random cancel | Live order-id lookup, FIFO unlink, pool release | 100,000 orders | `25.85M ops/sec` |
-| One-level crossing match | Aggressive orders consuming one resting level | 100,000 orders | `32.40M ops/sec` |
-| True mixed OrderBook flow | Direct matching-core submits, cancels, modifies, taker flow | 100,000 operations | `23.12M ops/sec` |
-| End-to-end true mixed CLI-style flow | Parser -> exchange -> book -> event formatting | 100,000 commands | `2.21M commands/sec` |
+| Random cancel | Live order-id lookup, FIFO unlink, pool release | 100,000 orders | `26.10M ops/sec` |
+| One-level crossing match | Aggressive orders consuming one resting level | 100,000 orders | `35.86M ops/sec` |
+| True mixed OrderBook flow | Direct matching-core submits, cancels, modifies, taker flow | 100,000 operations | `22.48M ops/sec` |
+| End-to-end true mixed CLI-style flow | Parser -> exchange -> book -> event formatting | 100,000 commands | `2.10M commands/sec` |
+
+Single-order latency measures one precomputed public `Exchange::process(action)`
+call per sample:
+
+| Operation | p50 | p95 | p99 | p99.9 | Max Observed |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Passive insert | `313 ns` | `450 ns` | `557 ns` | `1,890 ns` | `14,982,433 ns` |
+| Aggressive match | `459 ns` | `633 ns` | `739 ns` | `990 ns` | `72,508 ns` |
+| Known cancel | `327 ns` | `500 ns` | `603 ns` | `794 ns` | `455,591 ns` |
+| Modify if present | `320 ns` | `464 ns` | `540 ns` | `718 ns` | `72,542 ns` |
+| Market order | `476 ns` | `665 ns` | `779 ns` | `1,077 ns` | `307,948 ns` |
 
 Optimized `OrderBook` versus the simple std-container toy baseline on the same
 10,000-operation direct-book workloads:
 
 | Workload | Count | Optimized | Std Toy Baseline | Speedup |
 | --- | ---: | ---: | ---: | ---: |
-| Passive insert | 10,000 operations | `42.97M ops/sec` | `351.87k ops/sec` | `122.13x` |
-| Random cancel | 10,000 operations | `75.72M ops/sec` | `236.12k ops/sec` | `320.71x` |
-| Modify if present | 10,000 operations | `81.91M ops/sec` | `443.89k ops/sec` | `184.53x` |
-| True mixed OrderBook flow | 10,000 operations | `27.39M ops/sec` | `4.67M ops/sec` | `5.86x` |
+| Passive insert | 10,000 operations | `42.24M ops/sec` | `342.28k ops/sec` | `123.40x` |
+| Random cancel | 10,000 operations | `75.29M ops/sec` | `231.33k ops/sec` | `325.44x` |
+| Modify if present | 10,000 operations | `80.90M ops/sec` | `440.15k ops/sec` | `183.81x` |
+| True mixed OrderBook flow | 10,000 operations | `27.40M ops/sec` | `4.67M ops/sec` | `5.87x` |
 
 Hot-path rows measure typed `OrderBook` work directly. End-to-end rows include
 parsing, exchange routing, matching, and event formatting, so they are expected
@@ -339,6 +351,12 @@ PIN_CPU=0 \
 benchmarks/run_ec2_benchmarks.sh
 ```
 
+Available benchmark target names are `core_hot_path`, `realistic_flow`,
+`std_toy_comparison`, `stress`, `replay`, `batch_latency`,
+`single_order_latency`, and `reserve_sweep` for explicit experimental runs.
+The single-order latency target records p50/p95/p99/p999/max around one
+precomputed `Exchange::process(action)` call per sample.
+
 If you need to benchmark local uncommitted changes, sync the tree without build
 directories or macOS sidecar files:
 
@@ -419,6 +437,18 @@ CONTRIBUTING.md Contributor workflow and validation expectations
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## Next Steps
+
+- Implement a dense price ladder backend for bounded tick ranges and compare it
+  against the tree-based book.
+- Add full differential testing against a simple `std::map` + `std::deque`
+  reference engine.
+- Replace text command ingestion with a compact binary protocol to reduce parse
+  and allocation overhead.
+- Add persistent replay logs for deterministic audit trails and crash/debug
+  replay.
+- Add dashboard of orders for easy viewing.
 
 ## Future Scaling Directions
 

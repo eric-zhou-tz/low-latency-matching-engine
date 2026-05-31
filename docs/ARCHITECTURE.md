@@ -222,8 +222,8 @@ pointer rewiring and slot reuse instead of repeated heap allocate/free traffic.
 
 The tradeoff is manual lifetime management inside the pool and block-level
 capacity tuning. The benefit is large: the EC2 optimized-vs-std-toy comparison
-shows the optimized book ahead by `122.13x` on passive insert, `320.71x` on
-random cancel, and `1,642.78x` on unknown cancel at 10,000 operations. Those
+shows the optimized book ahead by `123.40x` on passive insert, `325.44x` on
+random cancel, and `1,583.75x` on unknown cancel at 10,000 operations. Those
 gains come from the combination of dense id lookup, intrusive FIFO links, and
 pooled free-list storage removing scans and allocator pressure from the hot
 paths.

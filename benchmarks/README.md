@@ -7,14 +7,11 @@ The Markdown benchmark reports remain the primary reviewer-facing view:
 
 This directory also includes a small SQLite copy for technical reviewers who want to query benchmark history directly.
 
-The current v1 benchmark documentation carries forward the focused
-core/realistic/std-toy comparison refresh from the native EC2 `c7i-flex.large`
-run on `2026-05-23T08:54:21Z` at local source commit `7a5980e1`, plus
-benchmark-runner changes incorporated before the v1 milestone. The latest full
-suite including stress and replay remains the `2026-05-23T08:10:34Z` run at
-commit `53240e0`. Earlier benchmark rows were run on EC2 `t3.small` unless
-their environment says otherwise; keep those rows as historical hardware
-context rather than relabeling them.
+The current benchmark documentation uses the native EC2 `c7i-flex.large`
+full-suite run on `2026-05-31T21:41:35Z` at source commit `75d9181e` plus
+local single-order latency benchmark and documentation updates. Earlier rows
+were run on EC2 `t3.small` unless their environment says otherwise; keep those
+rows as historical hardware context rather than relabeling them.
 
 ## Files
 
@@ -24,6 +21,7 @@ context rather than relabeling them.
 | `benchmark_history.sql` | Plain SQL dump that can recreate the database without opening the binary file. |
 | `schema.sql` | Table and index definitions. |
 | `results/std_toy_comparison_results.{txt,json}` | Focused optimized `OrderBook` versus std-toy direct-book comparison artifacts. |
+| `results/single_order_latency_results.{txt,json}` | Per-action `Exchange::process(action)` latency artifacts from the full EC2 suite. |
 
 ## Database Usage
 
@@ -38,3 +36,9 @@ Missing historical fields are stored as `NULL` rather than inferred. The `source
 Official throughput and latency rows come from normal native benchmark runs.
 Supplemental `perf stat` diagnostics are stored separately and may report
 unsupported PMU counters; they should not be used as headline throughput rows.
+
+Single-order latency rows use the existing `p50_latency_ns`, `p95_latency_ns`,
+`p99_latency_ns`, `p999_latency_ns`, and `max_latency_ns` columns. The runner
+also writes `timer_overhead_ns` in JSON artifacts as measurement context; keep
+that value in `notes` or `source_artifact` provenance unless the schema is
+expanded later.

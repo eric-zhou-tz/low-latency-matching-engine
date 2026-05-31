@@ -1,11 +1,11 @@
-date=2026-05-23T08:54:21Z
-git_commit=7a5980e1ebfad64871394c3e9814eb84e237bf7a
-git_status=dirty: local std_toy_comparison benchmark and EC2 runner changes
+date=2026-05-31T21:41:35Z
+git_commit=75d9181e5a6f35b94026e875c161b419e3824c84
+git_status=dirty local tree with single-order latency benchmark and docs updates
 ec2_instance_type=c7i-flex.large
 uname=Linux ip-172-31-44-213 7.0.0-1004-aws #4-Ubuntu SMP PREEMPT Mon Apr 13 13:14:24 UTC 2026 x86_64 GNU/Linux
 build_type=Release
 release_flags=-O3 -DNDEBUG -march=native
-benchmark_targets=core_hot_path,realistic_flow,std_toy_comparison
+benchmark_targets=all
 cmake_version=cmake version 4.2.3
 compiler_version=c++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0
 

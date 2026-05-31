@@ -10,10 +10,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 52.41,
-      "p95_ns_per_op": 78.16,
-      "p99_ns_per_op": 171.23,
-      "max_ns_per_op": 480.06
+      "p50_ns_per_op": 60.12,
+      "p95_ns_per_op": 91.78,
+      "p99_ns_per_op": 139.23,
+      "max_ns_per_op": 772.92
     },
     {
       "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
@@ -21,10 +21,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 54.67,
-      "p95_ns_per_op": 64.89,
-      "p99_ns_per_op": 124.50,
-      "max_ns_per_op": 180.59
+      "p50_ns_per_op": 60.68,
+      "p95_ns_per_op": 79.98,
+      "p99_ns_per_op": 135.82,
+      "max_ns_per_op": 179.70
     },
     {
       "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
@@ -32,10 +32,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 96.71,
-      "p95_ns_per_op": 109.46,
-      "p99_ns_per_op": 143.79,
-      "max_ns_per_op": 348.48
+      "p50_ns_per_op": 111.81,
+      "p95_ns_per_op": 154.40,
+      "p99_ns_per_op": 183.17,
+      "max_ns_per_op": 362.32
     },
     {
       "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
@@ -43,10 +43,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 28.67,
-      "p95_ns_per_op": 34.11,
-      "p99_ns_per_op": 44.70,
-      "max_ns_per_op": 262.08
+      "p50_ns_per_op": 29.78,
+      "p95_ns_per_op": 35.66,
+      "p99_ns_per_op": 39.66,
+      "max_ns_per_op": 217.66
     },
     {
       "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
@@ -54,10 +54,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 36.37,
-      "p95_ns_per_op": 45.20,
-      "p99_ns_per_op": 69.36,
-      "max_ns_per_op": 88.45
+      "p50_ns_per_op": 38.05,
+      "p95_ns_per_op": 48.16,
+      "p99_ns_per_op": 80.65,
+      "max_ns_per_op": 94.87
     },
     {
       "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
@@ -65,10 +65,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 44.16,
-      "p95_ns_per_op": 65.33,
-      "p99_ns_per_op": 77.73,
-      "max_ns_per_op": 96.32
+      "p50_ns_per_op": 71.51,
+      "p95_ns_per_op": 97.36,
+      "p99_ns_per_op": 108.92,
+      "max_ns_per_op": 134.91
     },
     {
       "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
@@ -76,10 +76,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 37.16,
-      "p95_ns_per_op": 54.27,
-      "p99_ns_per_op": 64.56,
-      "max_ns_per_op": 216.48
+      "p50_ns_per_op": 44.45,
+      "p95_ns_per_op": 65.88,
+      "p99_ns_per_op": 75.89,
+      "max_ns_per_op": 235.25
     },
     {
       "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
@@ -87,10 +87,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 66.47,
-      "p95_ns_per_op": 88.54,
-      "p99_ns_per_op": 113.79,
-      "max_ns_per_op": 153.16
+      "p50_ns_per_op": 92.17,
+      "p95_ns_per_op": 123.73,
+      "p99_ns_per_op": 143.93,
+      "max_ns_per_op": 218.98
     },
     {
       "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
@@ -98,10 +98,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 138.93,
-      "p95_ns_per_op": 159.88,
-      "p99_ns_per_op": 169.11,
-      "max_ns_per_op": 205.04
+      "p50_ns_per_op": 145.89,
+      "p95_ns_per_op": 167.61,
+      "p99_ns_per_op": 173.94,
+      "max_ns_per_op": 192.57
     },
     {
       "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
@@ -109,10 +109,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 3.38,
-      "p95_ns_per_op": 5.09,
-      "p99_ns_per_op": 6.34,
-      "max_ns_per_op": 24.09
+      "p50_ns_per_op": 3.77,
+      "p95_ns_per_op": 5.83,
+      "p99_ns_per_op": 6.62,
+      "max_ns_per_op": 8.44
     },
     {
       "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
@@ -120,10 +120,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 8.18,
-      "p95_ns_per_op": 11.41,
-      "p99_ns_per_op": 13.07,
-      "max_ns_per_op": 51.20
+      "p50_ns_per_op": 8.79,
+      "p95_ns_per_op": 10.45,
+      "p99_ns_per_op": 11.37,
+      "max_ns_per_op": 51.73
     },
     {
       "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
@@ -131,10 +131,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 9.78,
-      "p95_ns_per_op": 17.32,
-      "p99_ns_per_op": 20.30,
-      "max_ns_per_op": 28.99
+      "p50_ns_per_op": 11.63,
+      "p95_ns_per_op": 21.36,
+      "p99_ns_per_op": 23.21,
+      "max_ns_per_op": 33.62
     },
     {
       "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
@@ -142,10 +142,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 18.44,
-      "p95_ns_per_op": 23.38,
-      "p99_ns_per_op": 25.66,
-      "max_ns_per_op": 184.91
+      "p50_ns_per_op": 18.28,
+      "p95_ns_per_op": 24.05,
+      "p99_ns_per_op": 29.36,
+      "max_ns_per_op": 180.80
     },
     {
       "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
@@ -153,10 +153,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 22.33,
-      "p95_ns_per_op": 27.96,
-      "p99_ns_per_op": 32.26,
-      "max_ns_per_op": 68.33
+      "p50_ns_per_op": 23.49,
+      "p95_ns_per_op": 29.59,
+      "p99_ns_per_op": 34.25,
+      "max_ns_per_op": 103.96
     },
     {
       "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
@@ -164,10 +164,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 43.20,
-      "p95_ns_per_op": 50.18,
-      "p99_ns_per_op": 57.20,
-      "max_ns_per_op": 90.19
+      "p50_ns_per_op": 51.96,
+      "p95_ns_per_op": 62.29,
+      "p99_ns_per_op": 66.35,
+      "max_ns_per_op": 85.85
     },
     {
       "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
@@ -175,10 +175,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 48.25,
-      "p95_ns_per_op": 55.91,
-      "p99_ns_per_op": 61.73,
-      "max_ns_per_op": 215.48
+      "p50_ns_per_op": 49.56,
+      "p95_ns_per_op": 60.75,
+      "p99_ns_per_op": 81.03,
+      "max_ns_per_op": 467.50
     },
     {
       "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
@@ -186,10 +186,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 52.95,
-      "p95_ns_per_op": 58.86,
-      "p99_ns_per_op": 91.77,
-      "max_ns_per_op": 103.98
+      "p50_ns_per_op": 51.34,
+      "p95_ns_per_op": 59.71,
+      "p99_ns_per_op": 93.53,
+      "max_ns_per_op": 220.99
     },
     {
       "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
@@ -197,10 +197,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 1,
-      "p50_ns_per_op": 74.49,
-      "p95_ns_per_op": 85.55,
-      "p99_ns_per_op": 89.33,
-      "max_ns_per_op": 102.21
+      "p50_ns_per_op": 82.95,
+      "p95_ns_per_op": 94.22,
+      "p99_ns_per_op": 101.00,
+      "max_ns_per_op": 107.97
     },
     {
       "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
@@ -208,10 +208,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 32.95,
-      "p95_ns_per_op": 52.03,
-      "p99_ns_per_op": 75.64,
-      "max_ns_per_op": 417.56
+      "p50_ns_per_op": 48.34,
+      "p95_ns_per_op": 65.41,
+      "p99_ns_per_op": 85.56,
+      "max_ns_per_op": 491.61
     },
     {
       "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
@@ -219,10 +219,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 52.80,
-      "p95_ns_per_op": 62.69,
-      "p99_ns_per_op": 96.08,
-      "max_ns_per_op": 182.37
+      "p50_ns_per_op": 58.88,
+      "p95_ns_per_op": 80.27,
+      "p99_ns_per_op": 132.62,
+      "max_ns_per_op": 158.05
     },
     {
       "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
@@ -230,10 +230,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 2,
-      "p50_ns_per_op": 70.05,
-      "p95_ns_per_op": 80.93,
-      "p99_ns_per_op": 97.37,
-      "max_ns_per_op": 298.53
+      "p50_ns_per_op": 111.98,
+      "p95_ns_per_op": 150.33,
+      "p99_ns_per_op": 162.96,
+      "max_ns_per_op": 348.89
     },
     {
       "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
@@ -241,571 +241,571 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 2,
+      "p50_ns_per_op": 31.92,
+      "p95_ns_per_op": 39.36,
+      "p99_ns_per_op": 43.11,
+      "max_ns_per_op": 216.02
+    },
+    {
+      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 47.56,
+      "p95_ns_per_op": 54.91,
+      "p99_ns_per_op": 91.41,
+      "max_ns_per_op": 112.73
+    },
+    {
+      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 63.45,
+      "p95_ns_per_op": 85.70,
+      "p99_ns_per_op": 106.98,
+      "max_ns_per_op": 115.58
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 41.14,
+      "p95_ns_per_op": 60.81,
+      "p99_ns_per_op": 73.47,
+      "max_ns_per_op": 283.17
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 86.86,
+      "p95_ns_per_op": 116.83,
+      "p99_ns_per_op": 143.89,
+      "max_ns_per_op": 190.41
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 153.80,
+      "p95_ns_per_op": 177.21,
+      "p99_ns_per_op": 186.47,
+      "max_ns_per_op": 202.20
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 3.48,
+      "p95_ns_per_op": 5.28,
+      "p99_ns_per_op": 6.48,
+      "max_ns_per_op": 352.27
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 7.72,
+      "p95_ns_per_op": 9.32,
+      "p99_ns_per_op": 10.26,
+      "max_ns_per_op": 52.37
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 10.32,
+      "p95_ns_per_op": 18.06,
+      "p99_ns_per_op": 22.13,
+      "max_ns_per_op": 32.38
+    },
+    {
+      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 17.72,
+      "p95_ns_per_op": 22.45,
+      "p99_ns_per_op": 26.61,
+      "max_ns_per_op": 383.98
+    },
+    {
+      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 21.50,
+      "p95_ns_per_op": 27.13,
+      "p99_ns_per_op": 30.74,
+      "max_ns_per_op": 70.61
+    },
+    {
+      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 51.24,
+      "p95_ns_per_op": 59.50,
+      "p99_ns_per_op": 66.43,
+      "max_ns_per_op": 81.79
+    },
+    {
+      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 46.42,
+      "p95_ns_per_op": 54.02,
+      "p99_ns_per_op": 59.00,
+      "max_ns_per_op": 229.81
+    },
+    {
+      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 52.11,
+      "p95_ns_per_op": 60.14,
+      "p99_ns_per_op": 93.70,
+      "max_ns_per_op": 114.35
+    },
+    {
+      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 2,
+      "p50_ns_per_op": 79.13,
+      "p95_ns_per_op": 90.72,
+      "p99_ns_per_op": 96.91,
+      "max_ns_per_op": 108.80
+    },
+    {
+      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 36.88,
+      "p95_ns_per_op": 51.95,
+      "p99_ns_per_op": 59.11,
+      "max_ns_per_op": 562.83
+    },
+    {
+      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 44.00,
+      "p95_ns_per_op": 53.88,
+      "p99_ns_per_op": 81.41,
+      "max_ns_per_op": 112.11
+    },
+    {
+      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 112.20,
+      "p95_ns_per_op": 155.54,
+      "p99_ns_per_op": 166.73,
+      "max_ns_per_op": 376.87
+    },
+    {
+      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 28.31,
+      "p95_ns_per_op": 33.34,
+      "p99_ns_per_op": 37.12,
+      "max_ns_per_op": 208.47
+    },
+    {
+      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 36.57,
+      "p95_ns_per_op": 46.23,
+      "p99_ns_per_op": 63.94,
+      "max_ns_per_op": 97.31
+    },
+    {
+      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 58.15,
+      "p95_ns_per_op": 83.28,
+      "p99_ns_per_op": 94.74,
+      "max_ns_per_op": 125.91
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 38.45,
+      "p95_ns_per_op": 57.02,
+      "p99_ns_per_op": 67.64,
+      "max_ns_per_op": 221.58
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 81.62,
+      "p95_ns_per_op": 112.21,
+      "p99_ns_per_op": 131.45,
+      "max_ns_per_op": 167.95
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 148.51,
+      "p95_ns_per_op": 183.69,
+      "p99_ns_per_op": 192.61,
+      "max_ns_per_op": 209.48
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 3.31,
+      "p95_ns_per_op": 5.52,
+      "p99_ns_per_op": 6.53,
+      "max_ns_per_op": 9.69
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 8.12,
+      "p95_ns_per_op": 9.80,
+      "p99_ns_per_op": 10.67,
+      "max_ns_per_op": 53.15
+    },
+    {
+      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 9.73,
+      "p95_ns_per_op": 16.09,
+      "p99_ns_per_op": 21.06,
+      "max_ns_per_op": 28.15
+    },
+    {
+      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 18.33,
+      "p95_ns_per_op": 23.11,
+      "p99_ns_per_op": 25.86,
+      "max_ns_per_op": 767.05
+    },
+    {
+      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 22.04,
+      "p95_ns_per_op": 27.52,
+      "p99_ns_per_op": 32.06,
+      "max_ns_per_op": 70.29
+    },
+    {
+      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 35.78,
+      "p95_ns_per_op": 41.65,
+      "p99_ns_per_op": 50.55,
+      "max_ns_per_op": 56.67
+    },
+    {
+      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 47.08,
+      "p95_ns_per_op": 54.45,
+      "p99_ns_per_op": 59.05,
+      "max_ns_per_op": 218.97
+    },
+    {
+      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 51.68,
+      "p95_ns_per_op": 57.82,
+      "p99_ns_per_op": 92.69,
+      "max_ns_per_op": 112.51
+    },
+    {
+      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 3,
+      "p50_ns_per_op": 76.33,
+      "p95_ns_per_op": 87.44,
+      "p99_ns_per_op": 93.23,
+      "max_ns_per_op": 104.00
+    },
+    {
+      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 4,
+      "p50_ns_per_op": 40.14,
+      "p95_ns_per_op": 50.47,
+      "p99_ns_per_op": 56.73,
+      "max_ns_per_op": 502.02
+    },
+    {
+      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
+      "workload_size": 294912,
+      "batch_size": 256,
+      "sample_count": 1024,
+      "trial": 4,
+      "p50_ns_per_op": 42.75,
+      "p95_ns_per_op": 53.08,
+      "p99_ns_per_op": 68.65,
+      "max_ns_per_op": 101.81
+    },
+    {
+      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
+      "workload_size": 1179648,
+      "batch_size": 1024,
+      "sample_count": 1024,
+      "trial": 4,
+      "p50_ns_per_op": 103.24,
+      "p95_ns_per_op": 138.63,
+      "p99_ns_per_op": 155.50,
+      "max_ns_per_op": 378.47
+    },
+    {
+      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
+      "workload_size": 73728,
+      "batch_size": 64,
+      "sample_count": 1024,
+      "trial": 4,
       "p50_ns_per_op": 29.14,
-      "p95_ns_per_op": 33.52,
-      "p99_ns_per_op": 36.16,
-      "max_ns_per_op": 207.97
+      "p95_ns_per_op": 34.16,
+      "p99_ns_per_op": 37.34,
+      "max_ns_per_op": 206.27
     },
     {
       "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
       "workload_size": 294912,
       "batch_size": 256,
       "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 36.33,
-      "p95_ns_per_op": 44.81,
-      "p99_ns_per_op": 71.61,
-      "max_ns_per_op": 86.72
+      "trial": 4,
+      "p50_ns_per_op": 36.20,
+      "p95_ns_per_op": 45.52,
+      "p99_ns_per_op": 65.64,
+      "max_ns_per_op": 98.46
     },
     {
       "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
       "workload_size": 1179648,
       "batch_size": 1024,
       "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 52.69,
-      "p95_ns_per_op": 76.63,
-      "p99_ns_per_op": 89.61,
-      "max_ns_per_op": 133.08
+      "trial": 4,
+      "p50_ns_per_op": 60.99,
+      "p95_ns_per_op": 89.09,
+      "p99_ns_per_op": 97.65,
+      "max_ns_per_op": 111.68
     },
     {
       "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
       "workload_size": 73728,
       "batch_size": 64,
       "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 39.22,
-      "p95_ns_per_op": 59.62,
-      "p99_ns_per_op": 72.20,
-      "max_ns_per_op": 238.66
+      "trial": 4,
+      "p50_ns_per_op": 46.88,
+      "p95_ns_per_op": 70.25,
+      "p99_ns_per_op": 83.00,
+      "max_ns_per_op": 257.14
     },
     {
       "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
       "workload_size": 294912,
       "batch_size": 256,
       "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 75.56,
-      "p95_ns_per_op": 99.48,
-      "p99_ns_per_op": 117.08,
-      "max_ns_per_op": 145.99
+      "trial": 4,
+      "p50_ns_per_op": 90.72,
+      "p95_ns_per_op": 128.28,
+      "p99_ns_per_op": 153.53,
+      "max_ns_per_op": 224.06
     },
     {
       "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
       "workload_size": 1179648,
       "batch_size": 1024,
       "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 143.12,
-      "p95_ns_per_op": 163.62,
-      "p99_ns_per_op": 171.50,
-      "max_ns_per_op": 205.87
+      "trial": 4,
+      "p50_ns_per_op": 144.47,
+      "p95_ns_per_op": 170.40,
+      "p99_ns_per_op": 179.24,
+      "max_ns_per_op": 194.54
     },
     {
       "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
       "workload_size": 73728,
       "batch_size": 64,
       "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 3.62,
-      "p95_ns_per_op": 5.30,
-      "p99_ns_per_op": 6.20,
-      "max_ns_per_op": 345.56
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 7.57,
-      "p95_ns_per_op": 9.38,
-      "p99_ns_per_op": 12.05,
-      "max_ns_per_op": 50.67
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 9.61,
-      "p95_ns_per_op": 14.10,
-      "p99_ns_per_op": 19.96,
-      "max_ns_per_op": 25.11
-    },
-    {
-      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 18.09,
-      "p95_ns_per_op": 22.78,
-      "p99_ns_per_op": 26.19,
-      "max_ns_per_op": 354.23
-    },
-    {
-      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 20.72,
-      "p95_ns_per_op": 26.85,
-      "p99_ns_per_op": 30.39,
-      "max_ns_per_op": 68.00
-    },
-    {
-      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 41.12,
-      "p95_ns_per_op": 49.29,
-      "p99_ns_per_op": 57.11,
-      "max_ns_per_op": 66.95
-    },
-    {
-      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 45.48,
-      "p95_ns_per_op": 53.98,
-      "p99_ns_per_op": 60.12,
-      "max_ns_per_op": 216.91
-    },
-    {
-      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 49.33,
-      "p95_ns_per_op": 56.10,
-      "p99_ns_per_op": 89.39,
-      "max_ns_per_op": 112.37
-    },
-    {
-      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 2,
-      "p50_ns_per_op": 75.18,
-      "p95_ns_per_op": 85.53,
-      "p99_ns_per_op": 89.98,
-      "max_ns_per_op": 93.60
-    },
-    {
-      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 30.62,
-      "p95_ns_per_op": 39.91,
-      "p99_ns_per_op": 49.00,
-      "max_ns_per_op": 463.41
-    },
-    {
-      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 31.02,
-      "p95_ns_per_op": 35.25,
-      "p99_ns_per_op": 52.15,
-      "max_ns_per_op": 76.05
-    },
-    {
-      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 72.74,
-      "p95_ns_per_op": 89.04,
-      "p99_ns_per_op": 96.42,
-      "max_ns_per_op": 338.01
-    },
-    {
-      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 27.69,
-      "p95_ns_per_op": 32.89,
-      "p99_ns_per_op": 36.92,
-      "max_ns_per_op": 203.75
-    },
-    {
-      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 35.88,
-      "p95_ns_per_op": 45.02,
-      "p99_ns_per_op": 68.68,
-      "max_ns_per_op": 108.65
-    },
-    {
-      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 40.83,
-      "p95_ns_per_op": 70.98,
-      "p99_ns_per_op": 86.50,
-      "max_ns_per_op": 122.51
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 36.52,
-      "p95_ns_per_op": 54.97,
-      "p99_ns_per_op": 66.08,
-      "max_ns_per_op": 460.38
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 68.47,
-      "p95_ns_per_op": 88.44,
-      "p99_ns_per_op": 113.77,
-      "max_ns_per_op": 129.64
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 140.56,
-      "p95_ns_per_op": 162.83,
-      "p99_ns_per_op": 169.54,
-      "max_ns_per_op": 189.50
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 3.62,
-      "p95_ns_per_op": 5.30,
+      "trial": 4,
+      "p50_ns_per_op": 3.33,
+      "p95_ns_per_op": 5.44,
       "p99_ns_per_op": 6.22,
-      "max_ns_per_op": 965.12
+      "max_ns_per_op": 19.41
     },
     {
       "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
       "workload_size": 294912,
       "batch_size": 256,
       "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 7.43,
-      "p95_ns_per_op": 9.67,
-      "p99_ns_per_op": 11.88,
-      "max_ns_per_op": 50.18
+      "trial": 4,
+      "p50_ns_per_op": 7.88,
+      "p95_ns_per_op": 9.45,
+      "p99_ns_per_op": 10.57,
+      "max_ns_per_op": 52.82
     },
     {
       "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
       "workload_size": 1179648,
       "batch_size": 1024,
       "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 9.43,
-      "p95_ns_per_op": 13.88,
-      "p99_ns_per_op": 18.13,
-      "max_ns_per_op": 24.11
+      "trial": 4,
+      "p50_ns_per_op": 10.19,
+      "p95_ns_per_op": 18.46,
+      "p99_ns_per_op": 21.83,
+      "max_ns_per_op": 29.67
     },
     {
       "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
       "workload_size": 73728,
       "batch_size": 64,
       "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 18.61,
-      "p95_ns_per_op": 23.55,
-      "p99_ns_per_op": 27.89,
-      "max_ns_per_op": 388.33
+      "trial": 4,
+      "p50_ns_per_op": 18.31,
+      "p95_ns_per_op": 22.59,
+      "p99_ns_per_op": 25.58,
+      "max_ns_per_op": 423.58
     },
     {
       "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
       "workload_size": 294912,
       "batch_size": 256,
       "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 20.46,
-      "p95_ns_per_op": 25.07,
-      "p99_ns_per_op": 28.89,
-      "max_ns_per_op": 68.68
+      "trial": 4,
+      "p50_ns_per_op": 22.25,
+      "p95_ns_per_op": 28.97,
+      "p99_ns_per_op": 33.11,
+      "max_ns_per_op": 93.05
     },
     {
       "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
       "workload_size": 1179648,
       "batch_size": 1024,
       "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 32.73,
-      "p95_ns_per_op": 36.16,
-      "p99_ns_per_op": 45.38,
-      "max_ns_per_op": 99.25
+      "trial": 4,
+      "p50_ns_per_op": 48.78,
+      "p95_ns_per_op": 56.29,
+      "p99_ns_per_op": 62.27,
+      "max_ns_per_op": 64.10
     },
     {
       "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
       "workload_size": 73728,
       "batch_size": 64,
       "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 46.78,
-      "p95_ns_per_op": 53.39,
-      "p99_ns_per_op": 62.09,
-      "max_ns_per_op": 243.61
+      "trial": 4,
+      "p50_ns_per_op": 47.34,
+      "p95_ns_per_op": 54.38,
+      "p99_ns_per_op": 65.77,
+      "max_ns_per_op": 252.06
     },
     {
       "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
       "workload_size": 294912,
       "batch_size": 256,
       "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 53.38,
-      "p95_ns_per_op": 62.04,
-      "p99_ns_per_op": 94.36,
-      "max_ns_per_op": 126.50
+      "trial": 4,
+      "p50_ns_per_op": 54.77,
+      "p95_ns_per_op": 60.84,
+      "p99_ns_per_op": 99.09,
+      "max_ns_per_op": 110.86
     },
     {
       "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
       "workload_size": 1179648,
       "batch_size": 1024,
       "sample_count": 1024,
-      "trial": 3,
-      "p50_ns_per_op": 74.25,
-      "p95_ns_per_op": 84.74,
-      "p99_ns_per_op": 88.85,
-      "max_ns_per_op": 95.90
+      "trial": 4,
+      "p50_ns_per_op": 75.88,
+      "p95_ns_per_op": 86.89,
+      "p99_ns_per_op": 92.51,
+      "max_ns_per_op": 96.92
     },
     {
       "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
       "workload_size": 73728,
       "batch_size": 64,
       "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 30.88,
-      "p95_ns_per_op": 43.58,
-      "p99_ns_per_op": 49.19,
-      "max_ns_per_op": 288.48
-    },
-    {
-      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 4,
+      "trial": 5,
       "p50_ns_per_op": 33.59,
-      "p95_ns_per_op": 41.52,
-      "p99_ns_per_op": 60.27,
-      "max_ns_per_op": 87.57
-    },
-    {
-      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 65.49,
-      "p95_ns_per_op": 75.24,
-      "p99_ns_per_op": 81.21,
-      "max_ns_per_op": 304.42
-    },
-    {
-      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 29.09,
-      "p95_ns_per_op": 35.08,
-      "p99_ns_per_op": 39.20,
-      "max_ns_per_op": 201.95
-    },
-    {
-      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 34.79,
-      "p95_ns_per_op": 41.12,
-      "p99_ns_per_op": 62.46,
-      "max_ns_per_op": 89.77
-    },
-    {
-      "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 44.69,
-      "p95_ns_per_op": 67.25,
-      "p99_ns_per_op": 76.23,
-      "max_ns_per_op": 86.22
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 38.28,
-      "p95_ns_per_op": 57.98,
-      "p99_ns_per_op": 68.53,
-      "max_ns_per_op": 488.25
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 68.19,
-      "p95_ns_per_op": 92.15,
-      "p99_ns_per_op": 113.30,
-      "max_ns_per_op": 167.18
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 133.46,
-      "p95_ns_per_op": 155.79,
-      "p99_ns_per_op": 165.40,
-      "max_ns_per_op": 220.56
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 4.22,
-      "p95_ns_per_op": 6.08,
-      "p99_ns_per_op": 8.83,
-      "max_ns_per_op": 170.73
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 7.13,
-      "p95_ns_per_op": 8.75,
-      "p99_ns_per_op": 10.14,
-      "max_ns_per_op": 46.63
-    },
-    {
-      "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 9.45,
-      "p95_ns_per_op": 14.94,
-      "p99_ns_per_op": 19.58,
-      "max_ns_per_op": 26.46
-    },
-    {
-      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 17.81,
-      "p95_ns_per_op": 22.25,
-      "p99_ns_per_op": 30.11,
-      "max_ns_per_op": 343.91
-    },
-    {
-      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 18.86,
-      "p95_ns_per_op": 23.79,
-      "p99_ns_per_op": 26.66,
-      "max_ns_per_op": 63.76
-    },
-    {
-      "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 32.36,
-      "p95_ns_per_op": 38.91,
-      "p99_ns_per_op": 45.99,
-      "max_ns_per_op": 57.08
-    },
-    {
-      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 46.28,
-      "p95_ns_per_op": 53.78,
-      "p99_ns_per_op": 59.12,
-      "max_ns_per_op": 209.78
-    },
-    {
-      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
-      "workload_size": 294912,
-      "batch_size": 256,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 49.26,
-      "p95_ns_per_op": 56.54,
-      "p99_ns_per_op": 89.21,
-      "max_ns_per_op": 130.62
-    },
-    {
-      "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
-      "workload_size": 1179648,
-      "batch_size": 1024,
-      "sample_count": 1024,
-      "trial": 4,
-      "p50_ns_per_op": 75.52,
-      "p95_ns_per_op": 86.46,
-      "p99_ns_per_op": 91.83,
-      "max_ns_per_op": 110.57
-    },
-    {
-      "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
-      "workload_size": 73728,
-      "batch_size": 64,
-      "sample_count": 1024,
-      "trial": 5,
-      "p50_ns_per_op": 30.81,
-      "p95_ns_per_op": 38.14,
-      "p99_ns_per_op": 50.09,
-      "max_ns_per_op": 286.89
+      "p95_ns_per_op": 47.92,
+      "p99_ns_per_op": 52.31,
+      "max_ns_per_op": 490.64
     },
     {
       "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
@@ -813,10 +813,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 33.06,
-      "p95_ns_per_op": 37.47,
-      "p99_ns_per_op": 56.86,
-      "max_ns_per_op": 80.53
+      "p50_ns_per_op": 37.80,
+      "p95_ns_per_op": 49.83,
+      "p99_ns_per_op": 74.77,
+      "max_ns_per_op": 97.49
     },
     {
       "benchmark_name": "BM_OrderBook_PassiveInsert_BatchLatency",
@@ -824,10 +824,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 91.71,
-      "p95_ns_per_op": 104.14,
-      "p99_ns_per_op": 113.18,
-      "max_ns_per_op": 334.32
+      "p50_ns_per_op": 106.67,
+      "p95_ns_per_op": 154.84,
+      "p99_ns_per_op": 166.82,
+      "max_ns_per_op": 380.41
     },
     {
       "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
@@ -835,10 +835,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 29.91,
-      "p95_ns_per_op": 34.69,
-      "p99_ns_per_op": 37.83,
-      "max_ns_per_op": 196.03
+      "p50_ns_per_op": 29.27,
+      "p95_ns_per_op": 34.14,
+      "p99_ns_per_op": 37.77,
+      "max_ns_per_op": 202.69
     },
     {
       "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
@@ -846,10 +846,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 36.35,
-      "p95_ns_per_op": 43.93,
-      "p99_ns_per_op": 72.57,
-      "max_ns_per_op": 109.04
+      "p50_ns_per_op": 36.43,
+      "p95_ns_per_op": 45.43,
+      "p99_ns_per_op": 79.43,
+      "max_ns_per_op": 122.75
     },
     {
       "benchmark_name": "BM_OrderBook_OneLevelCrossingMatch_BatchLatency",
@@ -857,10 +857,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 46.13,
-      "p95_ns_per_op": 68.84,
-      "p99_ns_per_op": 78.16,
-      "max_ns_per_op": 87.62
+      "p50_ns_per_op": 60.20,
+      "p95_ns_per_op": 84.49,
+      "p99_ns_per_op": 100.47,
+      "max_ns_per_op": 116.96
     },
     {
       "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
@@ -868,10 +868,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 39.23,
-      "p95_ns_per_op": 56.27,
-      "p99_ns_per_op": 68.88,
-      "max_ns_per_op": 491.98
+      "p50_ns_per_op": 40.61,
+      "p95_ns_per_op": 59.94,
+      "p99_ns_per_op": 72.64,
+      "max_ns_per_op": 301.67
     },
     {
       "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
@@ -879,10 +879,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 73.68,
-      "p95_ns_per_op": 100.05,
-      "p99_ns_per_op": 123.56,
-      "max_ns_per_op": 185.66
+      "p50_ns_per_op": 83.59,
+      "p95_ns_per_op": 117.24,
+      "p99_ns_per_op": 134.77,
+      "max_ns_per_op": 230.82
     },
     {
       "benchmark_name": "BM_OrderBook_CancelRandom_BatchLatency",
@@ -890,10 +890,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 133.02,
-      "p95_ns_per_op": 159.89,
-      "p99_ns_per_op": 170.15,
-      "max_ns_per_op": 182.95
+      "p50_ns_per_op": 165.32,
+      "p95_ns_per_op": 225.22,
+      "p99_ns_per_op": 257.53,
+      "max_ns_per_op": 277.58
     },
     {
       "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
@@ -901,10 +901,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 4.97,
-      "p95_ns_per_op": 6.34,
-      "p99_ns_per_op": 7.47,
-      "max_ns_per_op": 326.94
+      "p50_ns_per_op": 4.11,
+      "p95_ns_per_op": 5.95,
+      "p99_ns_per_op": 7.00,
+      "max_ns_per_op": 9.73
     },
     {
       "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
@@ -912,10 +912,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 7.51,
-      "p95_ns_per_op": 9.00,
-      "p99_ns_per_op": 9.75,
-      "max_ns_per_op": 53.02
+      "p50_ns_per_op": 9.14,
+      "p95_ns_per_op": 13.34,
+      "p99_ns_per_op": 14.94,
+      "max_ns_per_op": 83.87
     },
     {
       "benchmark_name": "BM_OrderBook_CancelUnknown_BatchLatency",
@@ -923,10 +923,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 9.96,
-      "p95_ns_per_op": 14.58,
-      "p99_ns_per_op": 21.04,
-      "max_ns_per_op": 25.05
+      "p50_ns_per_op": 30.48,
+      "p95_ns_per_op": 38.12,
+      "p99_ns_per_op": 48.53,
+      "max_ns_per_op": 62.29
     },
     {
       "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
@@ -934,10 +934,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 18.47,
-      "p95_ns_per_op": 22.70,
-      "p99_ns_per_op": 25.98,
-      "max_ns_per_op": 372.62
+      "p50_ns_per_op": 30.09,
+      "p95_ns_per_op": 35.06,
+      "p99_ns_per_op": 41.06,
+      "max_ns_per_op": 225.50
     },
     {
       "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
@@ -945,10 +945,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 22.66,
-      "p95_ns_per_op": 27.81,
-      "p99_ns_per_op": 31.72,
-      "max_ns_per_op": 69.90
+      "p50_ns_per_op": 45.54,
+      "p95_ns_per_op": 54.68,
+      "p99_ns_per_op": 104.95,
+      "max_ns_per_op": 129.83
     },
     {
       "benchmark_name": "BM_OrderBook_ModifyIfPresent_BatchLatency",
@@ -956,10 +956,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 32.13,
-      "p95_ns_per_op": 36.06,
-      "p99_ns_per_op": 44.64,
-      "max_ns_per_op": 46.34
+      "p50_ns_per_op": 51.16,
+      "p95_ns_per_op": 59.17,
+      "p99_ns_per_op": 64.87,
+      "max_ns_per_op": 83.07
     },
     {
       "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
@@ -967,10 +967,10 @@
       "batch_size": 64,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 47.59,
-      "p95_ns_per_op": 55.34,
-      "p99_ns_per_op": 61.77,
-      "max_ns_per_op": 269.08
+      "p50_ns_per_op": 46.33,
+      "p95_ns_per_op": 53.67,
+      "p99_ns_per_op": 59.50,
+      "max_ns_per_op": 208.17
     },
     {
       "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
@@ -978,10 +978,10 @@
       "batch_size": 256,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 52.38,
-      "p95_ns_per_op": 58.55,
-      "p99_ns_per_op": 94.21,
-      "max_ns_per_op": 109.45
+      "p50_ns_per_op": 56.05,
+      "p95_ns_per_op": 62.58,
+      "p99_ns_per_op": 100.20,
+      "max_ns_per_op": 121.19
     },
     {
       "benchmark_name": "BM_OrderBook_TrueMixed_BatchLatency",
@@ -989,10 +989,10 @@
       "batch_size": 1024,
       "sample_count": 1024,
       "trial": 5,
-      "p50_ns_per_op": 74.62,
-      "p95_ns_per_op": 85.99,
-      "p99_ns_per_op": 91.44,
-      "max_ns_per_op": 95.60
+      "p50_ns_per_op": 74.56,
+      "p95_ns_per_op": 85.05,
+      "p99_ns_per_op": 90.35,
+      "max_ns_per_op": 108.15
     }
   ]
 }

@@ -1,7 +1,7 @@
 <svg xmlns='http://www.w3.org/2000/svg' width='1320' height='760' viewBox='0 0 1320 760'>
 <rect width='100%' height='100%' fill='#ffffff'/>
 <text x='210' y='38' font-family='Arial, sans-serif' font-size='26' font-weight='700' fill='#111'>Hot/Critical Path Throughput</text>
-<text x='210' y='64' font-family='Arial, sans-serif' font-size='14' fill='#555'>EC2 c7i-flex.large, pinned CPU, Release -O3 -DNDEBUG -march=native; current documented median rows</text>
+<text x='210' y='64' font-family='Arial, sans-serif' font-size='14' fill='#555'>EC2 c7i-flex.large, pinned CPU, Release -O3 -DNDEBUG -march=native; 2026-05-31 full-suite medians</text>
 <line x1='210.0' y1='92' x2='210.0' y2='664' stroke='#e6e8eb' stroke-width='1'/>
 <text x='210.0' y='692' text-anchor='middle' font-family='Arial, sans-serif' font-size='12' fill='#555'>0</text>
 <line x1='422.0' y1='92' x2='422.0' y2='664' stroke='#e6e8eb' stroke-width='1'/>
@@ -15,38 +15,38 @@
 <line x1='1270.0' y1='92' x2='1270.0' y2='664' stroke='#e6e8eb' stroke-width='1'/>
 <text x='1270.0' y='692' text-anchor='middle' font-family='Arial, sans-serif' font-size='12' fill='#555'>400</text>
 <text x='196' y='119.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>Passive insert</text>
-<rect x='210' y='101.0' width='89.1' height='29.1' rx='3' fill='#1f77b4'/>
-<text x='307.1' y='119.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>33.64 M ops/s</text>
+<rect x='210' y='101.0' width='87.1' height='29.1' rx='3' fill='#1f77b4'/>
+<text x='305.1' y='119.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>32.85 M ops/s</text>
 <text x='196' y='171.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>Crossing match</text>
-<rect x='210' y='153.0' width='85.9' height='29.1' rx='3' fill='#1f77b4'/>
-<text x='303.9' y='171.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>32.40 M ops/s</text>
+<rect x='210' y='153.0' width='95.0' height='29.1' rx='3' fill='#1f77b4'/>
+<text x='313.0' y='171.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>35.86 M ops/s</text>
 <text x='196' y='223.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>Random cancel</text>
-<rect x='210' y='205.0' width='68.5' height='29.1' rx='3' fill='#1f77b4'/>
-<text x='286.5' y='223.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>25.85 M ops/s</text>
+<rect x='210' y='205.0' width='69.2' height='29.1' rx='3' fill='#1f77b4'/>
+<text x='287.2' y='223.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>26.10 M ops/s</text>
 <text x='196' y='275.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>Unknown cancel</text>
-<rect x='210' y='257.0' width='880.1' height='29.1' rx='3' fill='#1f77b4'/>
-<text x='1098.1' y='275.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>332.12 M ops/s</text>
+<rect x='210' y='257.0' width='832.3' height='29.1' rx='3' fill='#1f77b4'/>
+<text x='1050.3' y='275.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>314.08 M ops/s</text>
 <text x='196' y='327.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>Modify present</text>
-<rect x='210' y='309.0' width='165.0' height='29.1' rx='3' fill='#1f77b4'/>
-<text x='383.0' y='327.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>62.28 M ops/s</text>
+<rect x='210' y='309.0' width='158.9' height='29.1' rx='3' fill='#1f77b4'/>
+<text x='376.9' y='327.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>59.96 M ops/s</text>
 <text x='196' y='379.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>True mixed</text>
-<rect x='210' y='361.0' width='61.3' height='29.1' rx='3' fill='#2ca02c'/>
-<text x='279.3' y='379.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>23.12 M ops/s</text>
+<rect x='210' y='361.0' width='59.6' height='29.1' rx='3' fill='#2ca02c'/>
+<text x='277.6' y='379.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>22.48 M ops/s</text>
 <text x='196' y='431.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>End-to-end mixed</text>
-<rect x='210' y='413.0' width='5.9' height='29.1' rx='3' fill='#d62728'/>
-<text x='223.9' y='431.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>2.21 M ops/s</text>
+<rect x='210' y='413.0' width='5.6' height='29.1' rx='3' fill='#d62728'/>
+<text x='223.6' y='431.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>2.10 M ops/s</text>
 <text x='196' y='483.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>Best-level churn</text>
-<rect x='210' y='465.0' width='74.1' height='29.1' rx='3' fill='#9467bd'/>
-<text x='292.1' y='483.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>27.97 M ops/s</text>
+<rect x='210' y='465.0' width='74.0' height='29.1' rx='3' fill='#9467bd'/>
+<text x='292.0' y='483.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>27.92 M ops/s</text>
 <text x='196' y='535.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>Level churn</text>
-<rect x='210' y='517.0' width='117.6' height='29.1' rx='3' fill='#9467bd'/>
-<text x='335.6' y='535.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>44.39 M ops/s</text>
+<rect x='210' y='517.0' width='112.2' height='29.1' rx='3' fill='#9467bd'/>
+<text x='330.2' y='535.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>42.34 M ops/s</text>
 <text x='196' y='587.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>Shallow mixed</text>
-<rect x='210' y='569.0' width='73.7' height='29.1' rx='3' fill='#9467bd'/>
-<text x='291.7' y='587.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>27.82 M ops/s</text>
+<rect x='210' y='569.0' width='70.7' height='29.1' rx='3' fill='#9467bd'/>
+<text x='288.7' y='587.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>26.67 M ops/s</text>
 <text x='196' y='639.9' text-anchor='end' font-family='Arial, sans-serif' font-size='13' fill='#222'>Deep sparse</text>
-<rect x='210' y='621.0' width='9.4' height='29.1' rx='3' fill='#9467bd'/>
-<text x='227.4' y='639.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>3.53 M ops/s</text>
+<rect x='210' y='621.0' width='8.6' height='29.1' rx='3' fill='#9467bd'/>
+<text x='226.6' y='639.9' font-family='Arial, sans-serif' font-size='13' fill='#222'>3.26 M ops/s</text>
 <text x='740.0' y='736' text-anchor='middle' font-family='Arial, sans-serif' font-size='13' fill='#555'>Throughput, higher is better (M ops/s)</text>
 <rect x='920' y='32' width='12' height='12' fill='#1f77b4'/>
 <text x='938' y='43' font-family='Arial, sans-serif' font-size='12' fill='#555'>Core</text>

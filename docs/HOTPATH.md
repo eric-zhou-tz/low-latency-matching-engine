@@ -2,10 +2,9 @@
 
 ## Current EC2 c7i-flex.large Snapshot
 
-The current documented hot-path snapshot combines the latest focused
-core/realistic throughput refresh from `2026-05-23T08:54:21Z` with the
-full-suite stress, replay, latency, chart, and flamegraph artifacts from
-`2026-05-23T08:10:34Z`.
+The current documented hot-path snapshot uses the full-suite EC2 refresh from
+`2026-05-31T21:41:35Z`. Flamegraph and `perf stat` notes remain from the May 23
+profiling pass because this refresh did not rerun `perf`.
 
 ### Environment
 
@@ -14,16 +13,15 @@ full-suite stress, replay, latency, chart, and flamegraph artifacts from
 - CPU: Intel Xeon Platinum 8488C
 - Compiler: GCC/G++ 15.2.0
 - Build: Release, `-O3 -DNDEBUG -march=native`
-- Focused throughput source: local tree at `7a5980e1` plus std-toy comparison
-  benchmark and EC2 runner changes incorporated before the v1 milestone
-- Full-suite artifact source: fresh EC2 clone of commit `53240e0`; generated
-  benchmark artifacts made the worktree dirty after the run began
+- Source: local tree at `75d9181e` plus uncommitted single-order latency
+  benchmark and documentation updates; synced to EC2 without `.git` metadata or
+  macOS sidecar files
 - Validation: `130/130` CTest cases passed before benchmark execution
 
 Historical benchmark development before the v1 refresh was performed on EC2
-`t3.small`. The current benchmark and profiling pass was rerun on EC2
-`c7i-flex.large` for more stable sustained CPU performance and profiling
-consistency.
+`t3.small`. Current benchmark rows use EC2 `c7i-flex.large` for more stable
+sustained CPU performance; profiling artifacts remain from the earlier c7i
+profiling pass.
 
 ### Artifacts
 
@@ -43,53 +41,69 @@ Raw reports and perf data live under `benchmarks/results/`:
 - `realistic_flow_results.{txt,json}`
 - `stress_benchmark_results.{txt,json}`
 - `batch_latency_results.{txt,json}`
+- `single_order_latency_results.{txt,json}`
 - `perf-*-report.txt`
 - `perf-*.data`
 - `perf-*.folded`
 
 ### Throughput Snapshot
 
-All rows are Google Benchmark median rows from pinned EC2 runs. Core and
-realistic-flow rows use the `08:54:21Z` focused refresh so they match
-`README.md` and `BENCHMARKS.md`; stress rows remain from the `08:10:34Z`
-full-suite artifact refresh.
+All rows are Google Benchmark median rows from the pinned
+`2026-05-31T21:41:35Z` EC2 full-suite refresh.
 
 | Workload | CPU Time | Throughput |
 | --- | ---: | ---: |
-| Passive insert, 100k ops | `2.97 ms` | `33.64M ops/sec` |
-| One-level crossing match, 100k ops | `3.09 ms` | `32.40M ops/sec` |
-| Random cancel, 100k ops | `3.87 ms` | `25.85M ops/sec` |
-| Unknown cancel, 100k ops | `0.30 ms` | `332.12M ops/sec` |
-| Modify if present, 100k ops | `1.61 ms` | `62.28M ops/sec` |
-| OrderBook true mixed, 100k ops | `4.33 ms` | `23.12M ops/sec` |
-| End-to-end true mixed, 100k commands | `45.17 ms` | `2.21M commands/sec` |
-| Best-level churn, 1M ops | `35.75 ms` | `27.97M ops/sec` |
-| Level create/delete churn, 1M ops | `22.53 ms` | `44.39M ops/sec` |
-| Shallow GTC mixed, 100k primary ops | `6.65 ms` | `27.82M ops/sec` |
-| Deep sparse GTC mixed, 100k primary ops | `28.36 ms` | `3.53M ops/sec` |
+| Passive insert, 100k ops | `3.04 ms` | `32.85M ops/sec` |
+| One-level crossing match, 100k ops | `2.79 ms` | `35.86M ops/sec` |
+| Random cancel, 100k ops | `3.83 ms` | `26.10M ops/sec` |
+| Unknown cancel, 100k ops | `0.32 ms` | `314.08M ops/sec` |
+| Modify if present, 100k ops | `1.67 ms` | `59.96M ops/sec` |
+| OrderBook true mixed, 100k ops | `4.45 ms` | `22.48M ops/sec` |
+| End-to-end true mixed, 100k commands | `47.62 ms` | `2.10M commands/sec` |
+| Best-level churn, 1M ops | `35.81 ms` | `27.92M ops/sec` |
+| Level create/delete churn, 1M ops | `23.62 ms` | `42.34M ops/sec` |
+| Shallow GTC mixed, 100k primary ops | `6.94 ms` | `26.67M ops/sec` |
+| Deep sparse GTC mixed, 100k primary ops | `30.69 ms` | `3.26M ops/sec` |
 
 ### Latency Snapshot
 
 Core latency rows are median values across five trials at a 256-operation batch
-size from the `08:10:34Z` full-suite refresh. These are amortized batch
-latencies, not true single-order tail latency.
+size from the `2026-05-31T21:41:35Z` full-suite refresh. These are amortized
+batch latencies, not true single-order tail latency.
 
 | Workload | p50 | p99 | Max |
 | --- | ---: | ---: | ---: |
-| Passive insert | `33.59 ns/op` | `60.27 ns/op` | `87.57 ns/op` |
-| One-level crossing match | `36.33 ns/op` | `69.36 ns/op` | `89.77 ns/op` |
-| Random cancel | `68.47 ns/op` | `113.79 ns/op` | `153.16 ns/op` |
-| Unknown cancel | `7.51 ns/op` | `11.88 ns/op` | `50.67 ns/op` |
-| Modify if present | `20.72 ns/op` | `30.39 ns/op` | `68.33 ns/op` |
-| OrderBook true mixed | `52.38 ns/op` | `91.77 ns/op` | `112.37 ns/op` |
+| Passive insert | `44.00 ns/op` | `81.41 ns/op` | `112.11 ns/op` |
+| One-level crossing match | `36.57 ns/op` | `79.43 ns/op` | `98.46 ns/op` |
+| Random cancel | `86.86 ns/op` | `143.89 ns/op` | `218.98 ns/op` |
+| Unknown cancel | `8.12 ns/op` | `10.67 ns/op` | `52.82 ns/op` |
+| Modify if present | `22.25 ns/op` | `33.11 ns/op` | `93.05 ns/op` |
+| OrderBook true mixed | `52.11 ns/op` | `93.70 ns/op` | `114.35 ns/op` |
+
+### Single-Order Latency Snapshot
+
+Single-order rows are median percentile values across five 1,000,000-sample
+trials. Each sample measures one precomputed public `Exchange::process(action)`
+call; setup and action generation are outside the measured window. The timer
+p50 was 23 ns on the median trial.
+
+| Workload | p50 | p99 | p999 |
+| --- | ---: | ---: | ---: |
+| Passive insert | `313 ns` | `557 ns` | `1,890 ns` |
+| Aggressive match | `459 ns` | `739 ns` | `990 ns` |
+| Known cancel | `327 ns` | `603 ns` | `794 ns` |
+| Modify if present | `320 ns` | `540 ns` | `718 ns` |
+| Market order | `476 ns` | `779 ns` | `1,077 ns` |
+| Unknown cancel reject | `34 ns` | `39 ns` | `96 ns` |
 
 ### Perf Findings
 
-Hardware PMU counters were unavailable on this EC2/kernel combination. The run
-therefore used software `cpu-clock` sampling with frame pointers. Kernel symbols
-were restricted, but user-space matching-engine symbols resolved correctly.
-Separate `perf stat` attempts for core hot path, realistic flow, and stress
-failed with `No supported events found. The cycles event is not supported.`
+Hardware PMU counters were unavailable on this EC2/kernel combination during
+the May 23 profiling pass. That run therefore used software `cpu-clock`
+sampling with frame pointers. Kernel symbols were restricted, but user-space
+matching-engine symbols resolved correctly. Separate `perf stat` attempts for
+core hot path, realistic flow, and stress failed with `No supported events
+found. The cycles event is not supported.`
 
 | Profile | Main signal |
 | --- | --- |
@@ -102,11 +116,11 @@ failed with `No supported events found. The cycles event is not supported.`
 
 | Path | Classification | Reason |
 | --- | --- | --- |
-| End-to-end parser/format boundary | Hot | Direct `OrderBook` true mixed is roughly 10x faster than end-to-end true mixed in throughput. |
+| End-to-end parser/format boundary | Hot | Direct `OrderBook` true mixed is roughly 10.7x faster than end-to-end true mixed in throughput. |
 | Random cancel | Hot | Random cancel has the highest p50/p99 among core batch-latency rows and remains much slower than hash-miss cancel. |
-| Deep sparse price-level access | Hot under adversarial books | Sparse 50k-level workload falls to ~3.53M ops/sec and shows tree lookup work in perf. |
+| Deep sparse price-level access | Hot under adversarial books | Sparse 50k-level workload falls to ~3.26M ops/sec and shows tree lookup work in perf. |
 | Intrusive queue unlink itself | Warm | It is part of hot cancel/remove frames, but the queue operation is no longer isolated as the dominant cost. |
-| Unknown cancel | Cold | The rejection path is extremely fast at ~332M ops/sec and ~12 ns p99 batch latency. |
+| Unknown cancel | Cold | The rejection path is extremely fast at ~314M ops/sec, ~11 ns p99 batch latency, and 39 ns p99 single-order latency. |
 
 ### Caveats
 

@@ -2,11 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- Added single-order latency figures to the top-level `README.md` Performance Highlights section, including p50/p95/p99/p99.9/max for public `Exchange::process(action)` scenarios.
+
+## v1.0.2 -> Single Order Latency Benchmarks
+
+- Ran the full native EC2/Linux benchmark suite on `c7i-flex.large` from the local `75d9181e` tree with the single-order latency benchmark and documentation updates.
+- Added official single-order latency results for public `Exchange::process(action)` scenarios and refreshed `BENCHMARKS.md`, `README.md`, `docs/HOTPATH.md`, `docs/benchmark_history.md`, `benchmarks/README.md`, `benchmarks/benchmark_history.db`, and `benchmarks/benchmark_history.sql`.
+
 ## v1.0.1 -> Cleanup
 
 - Set the CMake project version to `1.0.0` and updated release/provenance docs so the repository consistently presents the Version 1 milestone.
 - Added the MIT License and linked it from `README.md`.
-- Added `.gitignore` coverage for macOS AppleDouble `._*` files and kept local `AGENTS.md` instructions out of tracked files through `.git/info/exclude`.
+- Added `.gitignore` coverage for macOS AppleDouble `._*` files
 
 ## v1.0.0 -> Version 1 Recap
 

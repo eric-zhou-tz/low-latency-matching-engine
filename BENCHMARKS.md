@@ -2,14 +2,11 @@
 
 ## Executive Summary
 
-Latest focused core/realistic/std-toy comparison run carried into v1: pinned-core EC2/Linux run on `2026-05-23T08:54:21Z`.
+Latest full-suite Release run: pinned-core EC2/Linux run on `2026-05-31T21:41:35Z`.
 
-Latest full suite including stress and replay remains the pinned-core EC2/Linux run from `2026-05-23T08:10:34Z`.
-
-The current documentation snapshot intentionally combines those two runs:
-core/realistic throughput and std-toy comparison rows come from `08:54:21Z`;
-stress, replay, profiling artifacts, and core batch-latency rows come from the
-`08:10:34Z` full-suite run unless a row says otherwise.
+This refresh ran the full scripted suite in one pass: correctness tests, core
+hot path, realistic flow, optimized-vs-std-toy comparison, stress, replay,
+amortized batch latency, and single-order latency.
 
 | Item | Latest EC2 Run |
 | --- | --- |
@@ -17,24 +14,25 @@ stress, replay, profiling artifacts, and core batch-latency rows come from the
 | CPU | Intel Xeon Platinum 8488C |
 | Compiler | GCC/G++ 15.2.0 |
 | Build flags | `-O3 -DNDEBUG -march=native` |
-| Framework | Google Benchmark for throughput; custom fixed-batch latency runner |
+| Framework | Google Benchmark for throughput; custom fixed-batch and single-order latency runners |
 | Validation | 130/130 CTest cases passed before benchmarks |
-| Source | v1 documentation snapshot carrying forward EC2 artifacts from local tree `7a5980e1` plus benchmark-runner changes that were incorporated before the v1 milestone |
+| Source | Local tree at `75d9181e` plus uncommitted single-order latency benchmark and documentation updates |
 
 | Highlight | Metric |
 | --- | ---: |
-| OrderBook true mixed hot path, 100,000 operations | `23.12M ops/sec` |
-| OrderBook true mixed p99 batch latency, 256-op batches | `0.092 us/op` |
-| End-to-end true mixed flow, 100,000 commands | `2.21M commands/sec` |
-| End-to-end true mixed p99 batch latency, 256-command batches | `0.541 us/op` |
-| Largest optimized-vs-std-toy gap, unknown cancel at 10,000 operations | `1,642.78x` |
-| Best-level churn stress, 1,000,000 operations | `27.97M ops/sec` |
+| OrderBook true mixed hot path, 100,000 operations | `22.48M ops/sec` |
+| OrderBook true mixed p99 batch latency, 256-op batches | `0.094 us/op` |
+| End-to-end true mixed flow, 100,000 commands | `2.10M commands/sec` |
+| End-to-end true mixed p99 batch latency, 256-command batches | `0.544 us/op` |
+| Single-order aggressive match p99, 1M samples | `0.739 us` |
+| Largest optimized-vs-std-toy gap, unknown cancel at 10,000 operations | `1,583.75x` |
+| Best-level churn stress, 1,000,000 operations | `27.92M ops/sec` |
 
 The suite separates direct matching-core performance from public-boundary cost. Hot-path results isolate `OrderBook`; end-to-end results include parser, exchange routing, matching, and event formatting.
 
 ![Hot/critical path throughput comparison](docs/hotpath-throughput.svg)
 
-Historical benchmark development before the v1 refresh was performed on EC2 `t3.small`. The current benchmark suite was rerun on EC2 `c7i-flex.large` for more stable sustained CPU performance and profiling consistency. Historical rows remain labeled with their original hardware and should not be read as c7i results.
+Historical benchmark development before the v1 refresh was performed on EC2 `t3.small`. Current official rows use EC2 `c7i-flex.large` for more stable sustained CPU performance and profiling consistency. Historical rows remain labeled with their original hardware and should not be read as c7i results.
 
 ## Benchmark Methodology
 
@@ -50,15 +48,21 @@ Rigor controls:
 | Timing boundaries | Setup, allocation, preload, and RNG generation outside measured loops |
 | Memory behavior | Reusable event buffers; reserve hints sized from modeled live depth where applicable |
 | I/O | No filesystem I/O inside timed benchmark loops |
-| Latency | Amortized fixed-batch latency, not true single-operation latency |
+| Latency | Batch latency is amortized; single-order latency samples one precomputed `Exchange::process(action)` call per measurement |
 | Compiler barriers | `benchmark::DoNotOptimize(...)` and `benchmark::ClobberMemory()` where benchmarked state/results must stay visible |
 | Validation | Correctness tests before EC2 benchmark execution |
 
 Hot-path benchmarks measure typed matching operations directly against `OrderBook`. Realistic-flow benchmarks measure either the same mixed order stream on `OrderBook` or the public parser/exchange/formatter path. The std-toy comparison target runs the same direct book workloads against the optimized implementation and the simple std-container baseline at 10,000 operations per row. Stress benchmarks target adversarial book shapes. Replay benchmarks exercise deterministic fixture streams through the public path.
 
-Core and realistic-flow throughput rows below use the `2026-05-23T08:54:21Z`
-focused refresh. Core batch-latency, stress, replay, and profiling rows use the
-`2026-05-23T08:10:34Z` full-suite refresh.
+The current throughput and latency rows below use the `2026-05-31T21:41:35Z`
+full-suite refresh. Profiling/flamegraph artifacts remain supplemental May 23
+artifacts because this run did not rerun `perf`.
+
+The `single_order_latency` target precomputes actions, warms up first, measures
+immediately around one `Exchange::process(action)` call, reports
+p50/p95/p99/p999/max, and records the median back-to-back timer-read overhead
+for each trial. It writes
+`benchmarks/results/single_order_latency_results.{txt,json}`.
 
 ## Core Hot Path
 
@@ -68,25 +72,42 @@ Core hot-path benchmarks measure the matching engine without parser, CLI, filesy
 
 | Benchmark | Description | Input Size | Throughput |
 | --- | --- | ---: | ---: |
-| Passive Insert | Non-crossing GTC limit orders resting on the book | 100,000 operations | `33.64M ops/sec` |
-| One-Level Crossing Match | Aggressive orders consuming resting liquidity at one price level | 100,000 operations | `32.40M ops/sec` |
-| Random Cancel | Cancel by live order id with shuffled lookup order | 100,000 operations | `25.85M ops/sec` |
-| Unknown Cancel | Rejected cancel path through the order-id lookup miss path | 100,000 operations | `332.12M ops/sec` |
-| Modify If Present | Same-price quantity reduction preserving FIFO priority | 100,000 operations | `62.28M ops/sec` |
+| Passive Insert | Non-crossing GTC limit orders resting on the book | 100,000 operations | `32.85M ops/sec` |
+| One-Level Crossing Match | Aggressive orders consuming resting liquidity at one price level | 100,000 operations | `35.86M ops/sec` |
+| Random Cancel | Cancel by live order id with shuffled lookup order | 100,000 operations | `26.10M ops/sec` |
+| Unknown Cancel | Rejected cancel path through the order-id lookup miss path | 100,000 operations | `314.08M ops/sec` |
+| Modify If Present | Same-price quantity reduction preserving FIFO priority | 100,000 operations | `59.96M ops/sec` |
 
-### Latency
+### Batch Latency
 
-Latency rows report the median across five trials at 256 operations per timed batch. These are amortized batch measurements, not true single-operation latency. The runner does not currently report p999.
+Latency rows report the median across five trials at 256 operations per timed batch. These are amortized batch measurements, not true single-operation latency. The batch runner does not currently report p999.
 
 | Benchmark | p50 | p99 | p999 | Max |
 | --- | ---: | ---: | ---: | ---: |
-| Passive Insert | `0.034 us` | `0.060 us` | `N/A` | `0.088 us` |
-| One-Level Crossing Match | `0.036 us` | `0.069 us` | `N/A` | `0.090 us` |
-| Random Cancel | `0.068 us` | `0.114 us` | `N/A` | `0.153 us` |
-| Unknown Cancel | `0.008 us` | `0.012 us` | `N/A` | `0.051 us` |
-| Modify If Present | `0.021 us` | `0.030 us` | `N/A` | `0.068 us` |
+| Passive Insert | `0.044 us` | `0.081 us` | `N/A` | `0.112 us` |
+| One-Level Crossing Match | `0.037 us` | `0.079 us` | `N/A` | `0.098 us` |
+| Random Cancel | `0.087 us` | `0.144 us` | `N/A` | `0.219 us` |
+| Unknown Cancel | `0.008 us` | `0.011 us` | `N/A` | `0.053 us` |
+| Modify If Present | `0.022 us` | `0.033 us` | `N/A` | `0.093 us` |
 
 ![Core hot-path batch latency](docs/hotpath-latency.svg)
+
+### Single-Order Latency
+
+Single-order latency rows report median percentile values across five
+1,000,000-sample trials. Each sample measures exactly one precomputed public
+`Exchange::process(action)` call with setup, allocation, preload, and action
+generation outside the measured window. `Max Observed` is the worst per-trial
+maximum and is sensitive to OS scheduling noise.
+
+| Scenario | p50 | p95 | p99 | p999 | Max Observed |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Passive Insert | `313 ns` | `450 ns` | `557 ns` | `1,890 ns` | `14,982,433 ns` |
+| Aggressive Match | `459 ns` | `633 ns` | `739 ns` | `990 ns` | `72,508 ns` |
+| Known Cancel | `327 ns` | `500 ns` | `603 ns` | `794 ns` | `455,591 ns` |
+| Modify If Present | `320 ns` | `464 ns` | `540 ns` | `718 ns` | `72,542 ns` |
+| Market Order | `476 ns` | `665 ns` | `779 ns` | `1,077 ns` | `307,948 ns` |
+| Unknown Cancel Reject | `34 ns` | `37 ns` | `39 ns` | `96 ns` | `28,050 ns` |
 
 Engineering notes:
 
@@ -107,18 +128,18 @@ Realistic-flow benchmarks use a deterministic mixed stream: GTC submits, cancels
 
 | Benchmark | Description | Input Size | Throughput |
 | --- | --- | ---: | ---: |
-| OrderBook True Mixed | Direct matching-core mixed exchange flow | 100,000 operations | `23.12M ops/sec` |
-| End-to-End Passive Insert | Public command path for non-crossing inserts | 100,000 commands | `2.03M commands/sec` |
-| End-to-End True Mixed | Parser -> Exchange -> OrderBook -> event formatting | 100,000 commands | `2.21M commands/sec` |
+| OrderBook True Mixed | Direct matching-core mixed exchange flow | 100,000 operations | `22.48M ops/sec` |
+| End-to-End Passive Insert | Public command path for non-crossing inserts | 100,000 commands | `2.19M commands/sec` |
+| End-to-End True Mixed | Parser -> Exchange -> OrderBook -> event formatting | 100,000 commands | `2.10M commands/sec` |
 
 ### Latency
 
-Latency rows report 256-operation amortized batches. The `OrderBook` row is the median across five standalone latency trials; the end-to-end row is the Google Benchmark median counter row. The suite does not currently report p999.
+Latency rows report 256-operation amortized batches. The `OrderBook` row is the median across five standalone latency trials; the end-to-end row is the Google Benchmark median counter row. The batch runners do not currently report p999.
 
 | Benchmark | p50 | p99 | p999 | Max |
 | --- | ---: | ---: | ---: | ---: |
-| OrderBook True Mixed | `0.052 us` | `0.092 us` | `N/A` | `0.112 us` |
-| End-to-End True Mixed | `0.469 us` | `0.541 us` | `N/A` | `0.694 us` |
+| OrderBook True Mixed | `0.052 us` | `0.094 us` | `N/A` | `0.114 us` |
+| End-to-End True Mixed | `0.477 us` | `0.544 us` | `N/A` | `0.702 us` |
 
 Engineering notes:
 
@@ -131,16 +152,16 @@ Engineering notes:
 
 ## Optimized vs Std Toy Baseline
 
-This focused EC2 comparison ran the optimized `OrderBook` and the simple std-container toy book against the same direct book workloads. Each row uses 10,000 operations because the toy baseline intentionally scans visible std::deque price levels for duplicate checks, cancels, modifies, and misses; larger rows would mostly measure the old baseline's O(n) scan behavior for much longer without changing the conclusion.
+This EC2 comparison ran the optimized `OrderBook` and the simple std-container toy book against the same direct book workloads. Each row uses 10,000 operations because the toy baseline intentionally scans visible std::deque price levels for duplicate checks, cancels, modifies, and misses; larger rows would mostly measure the old baseline's O(n) scan behavior for much longer without changing the conclusion.
 
 | Workload | Optimized | Std Toy Baseline | Difference |
 | --- | ---: | ---: | ---: |
-| Passive Insert | `42.97M ops/sec` | `351.87k ops/sec` | `122.13x` |
-| One-Level Crossing Match | `43.20M ops/sec` | `446.69k ops/sec` | `96.72x` |
-| Random Cancel | `75.72M ops/sec` | `236.12k ops/sec` | `320.71x` |
-| Unknown Cancel | `364.18M ops/sec` | `221.68k ops/sec` | `1,642.78x` |
-| Modify If Present | `81.91M ops/sec` | `443.89k ops/sec` | `184.53x` |
-| OrderBook True Mixed | `27.39M ops/sec` | `4.67M ops/sec` | `5.86x` |
+| Passive Insert | `42.24M ops/sec` | `342.28k ops/sec` | `123.40x` |
+| One-Level Crossing Match | `42.53M ops/sec` | `435.81k ops/sec` | `97.58x` |
+| Random Cancel | `75.29M ops/sec` | `231.33k ops/sec` | `325.44x` |
+| Unknown Cancel | `353.33M ops/sec` | `223.10k ops/sec` | `1,583.75x` |
+| Modify If Present | `80.90M ops/sec` | `440.15k ops/sec` | `183.81x` |
+| OrderBook True Mixed | `27.40M ops/sec` | `4.67M ops/sec` | `5.87x` |
 
 Why the gap is large:
 
@@ -159,10 +180,10 @@ Stress benchmarks are adversarial `OrderBook` shapes. They are useful for findin
 
 | Benchmark | Description | Input Size | Throughput |
 | --- | --- | ---: | ---: |
-| Best-Level Churn | Repeated top-of-book cancel, improve, match, and modify flow | 1,000,000 operations | `27.97M ops/sec` |
-| Level Create/Delete Churn | Repeated creation and cleanup of short-lived price levels | 1,000,000 operations | `44.39M ops/sec` |
-| Shallow GTC Mixed | Dense, low-depth GTC churn with a cache-hot working set | 100,000 primary ops / 185,000 book actions | `27.82M ops/sec` |
-| Deep Sparse GTC Mixed | 50,000 occupied price levels with sparse liquidity | 100,000 primary ops / 50,000 preloaded levels | `3.53M ops/sec` |
+| Best-Level Churn | Repeated top-of-book cancel, improve, match, and modify flow | 1,000,000 operations | `27.92M ops/sec` |
+| Level Create/Delete Churn | Repeated creation and cleanup of short-lived price levels | 1,000,000 operations | `42.34M ops/sec` |
+| Shallow GTC Mixed | Dense, low-depth GTC churn with a cache-hot working set | 100,000 primary ops / 185,000 book actions | `26.67M ops/sec` |
+| Deep Sparse GTC Mixed | 50,000 occupied price levels with sparse liquidity | 100,000 primary ops / 50,000 preloaded levels | `3.26M ops/sec` |
 
 ### Latency
 
@@ -195,7 +216,7 @@ Replay benchmarks use golden fixtures and deterministic command streams. They ar
 
 | Benchmark | Description | Input Size | Throughput |
 | --- | --- | ---: | ---: |
-| Golden Fixture Replay | Parser/exchange/formatter path over in-memory replay fixtures | 16 fixtures / 856 input bytes | `443.18k fixture-runs/sec` |
+| Golden Fixture Replay | Parser/exchange/formatter path over in-memory replay fixtures | 16 fixtures / 856 input bytes | `429.64k fixture-runs/sec` |
 
 ### Latency
 
@@ -217,7 +238,7 @@ Engineering notes:
 
 Official throughput and latency numbers come from normal native benchmark execution. `perf stat` runs are supplemental diagnostic analysis only: they introduce measurement overhead and should be used for cache, locality, and branch-behavior insight rather than headline benchmark reporting.
 
-On the refreshed EC2 `c7i-flex.large` host, hardware PMU counters were still unavailable to `perf stat` after lowering `kernel.perf_event_paranoid` to `1`. The attempted core hot path, realistic-flow, and stress counter passes all failed with:
+On the May 23 EC2 `c7i-flex.large` profiling pass, hardware PMU counters were still unavailable to `perf stat` after lowering `kernel.perf_event_paranoid` to `1`. The attempted core hot path, realistic-flow, and stress counter passes all failed with:
 
 ```text
 Error:
@@ -260,6 +281,7 @@ Profile flamegraphs:
 | v0.9.1-v0.9.2 | Added local comparison and full local benchmark-suite runners. | Improved development ergonomics while keeping official performance claims tied to native EC2 validation. |
 | v0.9.4 | Reran the official suite on EC2 `c7i-flex.large`. | Updated current benchmark claims on newer hardware while preserving earlier `t3.small` rows as historical context. |
 | v1.0.0 | Stabilized the project version and carried forward the latest c7i-flex.large artifacts without changing measured results. | Aligns release provenance with the v1 milestone while keeping benchmark source dates and commits explicit. |
+| Unreleased | Added and ran single-order latency benchmark infrastructure. | Adds p50/p95/p99/p999/max `Exchange::process(action)` latency reporting to the official EC2 suite. |
 
 Queryable history for technical review is available in `benchmarks/benchmark_history.db`, with the regenerating SQL dump in `benchmarks/benchmark_history.sql`.
 
@@ -320,7 +342,7 @@ Inspect latency rows:
 
 ```sql
 SELECT run_date, benchmark_name, workload_size,
-       p50_latency_ns, p95_latency_ns, p99_latency_ns, max_latency_ns
+       p50_latency_ns, p95_latency_ns, p99_latency_ns, p999_latency_ns, max_latency_ns
 FROM benchmark_results
 WHERE p99_latency_ns IS NOT NULL
 ORDER BY run_date DESC;
@@ -386,6 +408,7 @@ BENCHMARK_TARGETS=std_toy_comparison benchmarks/run_ec2_benchmarks.sh
 BENCHMARK_TARGETS=stress benchmarks/run_ec2_benchmarks.sh
 BENCHMARK_TARGETS=replay benchmarks/run_ec2_benchmarks.sh
 BENCHMARK_TARGETS=batch_latency benchmarks/run_ec2_benchmarks.sh
+BENCHMARK_TARGETS=single_order_latency benchmarks/run_ec2_benchmarks.sh
 ```
 
 Artifact expectations:
@@ -399,6 +422,7 @@ Artifact expectations:
 | `benchmarks/results/stress_benchmark_results.{txt,json}` | Stress workload throughput |
 | `benchmarks/results/determinism_replay_results.{txt,json}` | Replay throughput |
 | `benchmarks/results/batch_latency_results.{txt,json}` | Amortized fixed-batch latency |
+| `benchmarks/results/single_order_latency_results.{txt,json}` | Per-action `Exchange::process(action)` latency |
 | `benchmarks/results/perf_results.{txt,csv}` | Hardware counter probe results when available, or unsupported-counter details |
 | `benchmarks/results/*_perf_stat*.txt` | Supplemental `perf stat` diagnostic attempts, separate from official benchmark numbers |
 | `benchmarks/benchmark_history.{db,sql}` | Queryable benchmark history and a plain SQL recreation path |

@@ -132,6 +132,11 @@ target_include_directories(core_hot_path_latency_benchmark
 )
 target_link_libraries(core_hot_path_latency_benchmark PRIVATE engine)
 
+add_executable(single_order_latency_benchmark
+    benchmarks/core_hot_path/single_order_latency_benchmark.cpp
+)
+target_link_libraries(single_order_latency_benchmark PRIVATE engine)
+
 add_executable(realistic_flow_benchmark
     benchmarks/realistic_flow/true_mixed_benchmark.cpp
     benchmarks/realistic_flow/end_to_end_true_mixed_benchmark.cpp

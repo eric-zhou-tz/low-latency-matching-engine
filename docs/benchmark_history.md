@@ -8,20 +8,25 @@ dump at `../benchmarks/benchmark_history.sql`.
 ## Current Official Refresh
 
 Historical benchmark development before the v1 refresh was performed on EC2
-`t3.small`. The current benchmark suite was rerun on EC2 `c7i-flex.large`
-for more stable sustained CPU performance and profiling consistency. The
-historical table below preserves older t3 rows as historical
-context; the authoritative row-level c7i refresh data now lives in SQLite.
+`t3.small`. Current official rows use EC2 `c7i-flex.large` for more stable
+sustained CPU performance and profiling consistency. The historical table below
+preserves older t3 rows as historical context; the authoritative row-level c7i
+refresh data now lives in SQLite.
 
 | Date | Commit | Environment | Validation | Notes |
 | --- | --- | --- | --- | --- |
+| 2026-05-31T21:41:35Z | `75d9181e` + local single-order latency benchmark and docs updates | AWS EC2 `c7i-flex.large`, Ubuntu 26.04, Linux 7.0.0-1004-aws, Intel Xeon Platinum 8488C, GCC 15.2.0 | 130/130 CTest cases passed | Official native EC2 full-suite refresh. Headline rows: OrderBook true mixed 22.48M ops/sec, random cancel 26.10M ops/sec, end-to-end true mixed 2.10M commands/sec, best-level churn 27.92M ops/sec, and aggressive-match single-order p99 739 ns. Full row history is in `../benchmarks/benchmark_history.db`. |
 | 2026-05-23T08:54:21Z | `7a5980e1` + benchmark-runner changes incorporated before v1 | AWS EC2 `c7i-flex.large`, Ubuntu 26.04, Linux 7.0.0-1004-aws, Intel Xeon Platinum 8488C, GCC 15.2.0 | 130/130 CTest cases passed | Focused core, realistic-flow, and optimized-vs-std-toy comparison run. Headline rows: OrderBook true mixed 23.12M ops/sec, random cancel 25.85M ops/sec, end-to-end true mixed 2.21M commands/sec, largest optimized-vs-std-toy gap 1,642.78x. Stress and replay benchmark targets were intentionally not rerun. Full row history is in `../benchmarks/benchmark_history.db`. |
 | 2026-05-23T08:10:34Z | `53240e0` | AWS EC2 `c7i-flex.large`, Ubuntu 26.04, Linux 7.0.0-1004-aws, Intel Xeon Platinum 8488C, GCC 15.2.0 | 130/130 CTest cases passed | Official native EC2 full-suite refresh. Headline rows: OrderBook true mixed 23.52M ops/sec, random cancel 26.14M ops/sec, end-to-end true mixed 2.17M commands/sec, best-level churn 27.97M ops/sec, deep sparse 3.53M ops/sec. Full row history is in `../benchmarks/benchmark_history.db`. |
+
+Single-order latency infrastructure was added and first run on EC2 on
+2026-05-31.
 
 ## Historical Markdown Rows
 
 | Date | Version / Tag | Commit | Environment | Build Type | Workload | Input Size | Time | CPU Time | Throughput | p50 Latency | p95 Latency | p99 Latency | p999 Latency | Max Latency | Notes |
 | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- | --- | --- | --- |
+| 2026-05-31 | Unreleased | `75d9181` + local single-order latency benchmark infrastructure changes | N/A | N/A | Single-order latency benchmark infrastructure | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A | Added `single_order_latency_benchmark` and EC2 runner wiring for p50/p95/p99/p999/max timing around one precomputed `Exchange::process(action)` call before the official full-suite refresh later the same day. |
 | 2026-05-20 | N/A | N/A | N/A | N/A | Benchmark organization refactor | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A | N/A | Methodology/documentation change only; benchmark sources are now grouped into core hot path, realistic flow, stress, determinism/replay, and experimental reserve-sweep categories. No new EC2 performance results were recorded for this row. |
 | 2026-05-20T04:52:47Z | N/A | `eb048b5` + local Level Create/Delete Churn benchmark changes | AWS EC2 `t3.small`, Ubuntu 26.04, Linux 7.0.0-1004-aws, Intel Xeon Platinum 8259CL, GCC 15.2.0 | Release, `-O3 -DNDEBUG` | OrderBook level create/delete churn | 10,000 timed operations | 409572 ns | 409456 ns | 24.423M items/s | N/A | N/A | N/A | N/A | N/A | Direct OrderBook hot path only; fixed-seed interleaved bid/ask tiny-level create/delete cycles, stable opposite-side guard liquidity, caller-owned reusable event buffer, reserve capacity 1,024, preload orders 128, max live orders 131. 124/124 correctness tests passed first. Source synced without `.git`, build dirs, `.DS_Store`, or macOS `._*` sidecar files. |
 | 2026-05-20T04:52:47Z | N/A | `eb048b5` + local Level Create/Delete Churn benchmark changes | AWS EC2 `t3.small`, Ubuntu 26.04, Linux 7.0.0-1004-aws, Intel Xeon Platinum 8259CL, GCC 15.2.0 | Release, `-O3 -DNDEBUG` | OrderBook level create/delete churn | 100,000 timed operations | 4214671 ns | 4215927 ns | 23.720M items/s | N/A | N/A | N/A | N/A | N/A | Median across 5 pinned Google Benchmark repetitions; 24,975 churn cycles; half bid-side and half ask-side levels; final level erasure split between cancel and matching delete paths. |

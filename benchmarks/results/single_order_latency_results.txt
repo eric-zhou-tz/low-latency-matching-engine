@@ -1,0 +1,38 @@
+Single-order latency results
+sample_count=1000000
+warmup_operations=10000
+trials=5
+unit=ns/action around one Exchange::process(action) call
+
+benchmark                                                samples    warmup   trial     timer_p50           p50           p95           p99          p999           max
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+BM_Exchange_PassiveInsert_SingleOrderLatency             1000000     10000       1         23.00        323.00        480.00       1669.00       3512.00   14982433.00
+BM_Exchange_AggressiveMatch_SingleOrderLatency           1000000     10000       1         23.00        453.00        627.00        734.00        990.00      42563.00
+BM_Exchange_KnownCancel_SingleOrderLatency               1000000     10000       1         23.00        329.00        505.00        611.00        807.00      61685.00
+BM_Exchange_ModifyIfPresent_SingleOrderLatency           1000000     10000       1         23.00        320.00        463.00        536.00        708.00      62684.00
+BM_Exchange_MarketOrder_SingleOrderLatency               1000000     10000       1         23.00        476.00        664.00        779.00       1077.00     307948.00
+BM_Exchange_UnknownCancelReject_SingleOrderLatency       1000000     10000       1         23.00         33.00         36.00         38.00         94.00      10989.00
+BM_Exchange_PassiveInsert_SingleOrderLatency             1000000     10000       2         24.00        313.00        450.00        557.00       1890.00    8178226.00
+BM_Exchange_AggressiveMatch_SingleOrderLatency           1000000     10000       2         24.00        422.00        608.00        711.00        960.00      67469.00
+BM_Exchange_KnownCancel_SingleOrderLatency               1000000     10000       2         24.00        331.00        507.00        615.00        816.00     455591.00
+BM_Exchange_ModifyIfPresent_SingleOrderLatency           1000000     10000       2         24.00        319.00        463.00        536.00        705.00      22722.00
+BM_Exchange_MarketOrder_SingleOrderLatency               1000000     10000       2         24.00        478.00        671.00        785.00       1098.00      77249.00
+BM_Exchange_UnknownCancelReject_SingleOrderLatency       1000000     10000       2         24.00         33.00         36.00         38.00         60.00      10493.00
+BM_Exchange_PassiveInsert_SingleOrderLatency             1000000     10000       3         23.00        309.00        444.00        549.00       1835.00    7984152.00
+BM_Exchange_AggressiveMatch_SingleOrderLatency           1000000     10000       3         23.00        476.00        658.00        770.00       1057.00      72508.00
+BM_Exchange_KnownCancel_SingleOrderLatency               1000000     10000       3         23.00        325.00        499.00        602.00        793.00      26639.00
+BM_Exchange_ModifyIfPresent_SingleOrderLatency           1000000     10000       3         23.00        319.00        464.00        540.00        727.00      22244.00
+BM_Exchange_MarketOrder_SingleOrderLatency               1000000     10000       3         23.00        476.00        666.00        779.00       1078.00      65461.00
+BM_Exchange_UnknownCancelReject_SingleOrderLatency       1000000     10000       3         23.00         34.00         37.00         39.00        123.00      28019.00
+BM_Exchange_PassiveInsert_SingleOrderLatency             1000000     10000       4         23.00        294.00        433.00        540.00       1832.00    8209293.00
+BM_Exchange_AggressiveMatch_SingleOrderLatency           1000000     10000       4         23.00        467.00        642.00        751.00       1007.00      63734.00
+BM_Exchange_KnownCancel_SingleOrderLatency               1000000     10000       4         23.00        323.00        496.00        598.00        785.00      32461.00
+BM_Exchange_ModifyIfPresent_SingleOrderLatency           1000000     10000       4         23.00        327.00        473.00        549.00        725.00      63676.00
+BM_Exchange_MarketOrder_SingleOrderLatency               1000000     10000       4         23.00        472.00        658.00        770.00       1057.00      75965.00
+BM_Exchange_UnknownCancelReject_SingleOrderLatency       1000000     10000       4         23.00         35.00         38.00         40.00         96.00      28050.00
+BM_Exchange_PassiveInsert_SingleOrderLatency             1000000     10000       5         25.00        313.00        453.00        573.00       1922.00    8296931.00
+BM_Exchange_AggressiveMatch_SingleOrderLatency           1000000     10000       5         25.00        459.00        633.00        739.00        976.00      24539.00
+BM_Exchange_KnownCancel_SingleOrderLatency               1000000     10000       5         25.00        327.00        500.00        603.00        794.00     181007.00
+BM_Exchange_ModifyIfPresent_SingleOrderLatency           1000000     10000       5         25.00        321.00        467.00        545.00        718.00      72542.00
+BM_Exchange_MarketOrder_SingleOrderLatency               1000000     10000       5         25.00        475.00        665.00        779.00       1077.00      72881.00
+BM_Exchange_UnknownCancelReject_SingleOrderLatency       1000000     10000       5         25.00         36.00         38.00         41.00        103.00      11999.00
